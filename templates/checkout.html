@@ -6,6 +6,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
 <style>
     .checkout-container {
         max-width: 1000px;
@@ -273,6 +274,7 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/product.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const checkoutForm = document.getElementById('checkout-form');
@@ -289,4 +291,5 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
 {% endblock %} 
