@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="{% static 'css/home.css' %}">
     <script src="{% static 'js/Homepage.js' %}"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 </head>
@@ -192,61 +193,59 @@
         </div>
     </div>
 
+  
+    <!-- Replace the existing fab-container div with this -->
+    <button class="scroll-top-btn" id="scrollTopBtn">
+        <i class="fas fa-arrow-up"></i>
+    </button>
+  
+    
     <!-- Footer -->
     <footer class="bg-dark text-white py-5">
-        <div class="container-fluid px-0">
+        <div class="container-fluid">
             <div class="row mx-5">
                 <!-- About Section -->
                 <div class="col-md-4 mb-4">
-                    <h5 class="text-uppercase fw-bold">About Us</h5>
-                    <p>
-                        We are an online pharmacy committed to providing high-quality medical products
-                        at affordable prices. Shop with confidence for your health needs!
-                    </p>
+                    <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
+                    <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
                 </div>
 
-                <!-- Navigation Links -->
+                <!-- Quick Links -->
                 <div class="col-md-4 mb-4">
                     <h5 class="text-uppercase fw-bold">Quick Links</h5>
                     <ul class="list-unstyled">
-                        <li><a href="#home" class="text-white text-decoration-none">Home</a></li>
-                        <li><a href="#products" class="text-white text-decoration-none">Products</a></li>
-                        <li><a href="#contact" class="text-white text-decoration-none">Contact Us</a></li>
-                        <li><a href="#faq" class="text-white text-decoration-none">FAQs</a></li>
+                        <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                        <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
+                        <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                        <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
                     </ul>
                 </div>
 
-                <!-- Contact Section -->
+                <!-- Contact Info -->
                 <div class="col-md-4 mb-4">
                     <h5 class="text-uppercase fw-bold">Contact Us</h5>
                     <ul class="list-unstyled">
-                        <li>
-                            <i class="bi bi-geo-alt-fill me-2"></i> Nagpur, Maharashtra, India
-                        </li>
-                        <li>
-                            <i class="bi bi-telephone-fill me-2"></i> +91 123-456-7890
-                        </li>
-                        <li>
-                            <i class="bi bi-envelope-fill me-2"></i> support@pharmacy.com
-                        </li>
+                        <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
+                        <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
+                        <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
                     </ul>
                 </div>
             </div>
 
-            <!-- Social Media and Copyright -->
-            <div class="text-center mt-4">
+            <!-- Social Links & Copyright -->
+            <div class="text-center border-top pt-4 mt-4">
                 <div class="mb-3">
-                    <a href="#" class="text-white me-3"><i class="bi bi-facebook fs-5"></i></a>
-                    <a href="#" class="text-white me-3"><i class="bi bi-twitter fs-5"></i></a>
-                    <a href="#" class="text-white me-3"><i class="bi bi-instagram fs-5"></i></a>
-                    <a href="#" class="text-white"><i class="bi bi-linkedin fs-5"></i></a>
+                    <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
                 </div>
-                <p class="mb-0 text-white">
-                    &copy; 2025 Pharmacy Store. All Rights Reserved.
-                </p>
+                <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
             </div>
         </div>
     </footer>
+
+
 
     <style>
         .quick-order-btn {
