@@ -527,39 +527,127 @@ h1 {
 }
 
 
-/* Footer */
+/* ...existing styles... */
+
+/* Footer Styles */
 footer {
-    background-color: #212529; /* Dark background */
-    color: #fff; /* White text */
+    margin-top: auto;
+    background-color: #212529;
 }
 
 footer h5 {
-    color: #f8f9fa; /* Light white for headings */
-    margin-bottom: 20px;
+    color: #f8f9fa;
+    margin-bottom: 1.5rem;
+    position: relative;
 }
 
-footer a {
-    color: #adb5bd; /* Subtle grey links */
-    transition: color 0.3s ease-in-out;
-}
-
-footer a:hover {
-    color: #ffc107; /* Highlight color on hover */
-    text-decoration: underline;
-}
-
-footer ul {
-    padding: 0;
-    list-style-type: none;
+footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -0.5rem;
+    width: 50px;
+    height: 2px;
+    background-color: #78ade5;
 }
 
 footer ul li {
-    margin-bottom: 10px;
+    margin-bottom: 0.8rem;
+    transition: all 0.3s ease;
 }
 
-footer i {
-    color: #ffc107; /* Icon color */
+footer ul li:hover {
+    transform: translateX(5px);
+}
+
+footer a {
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    color: #78ade5 !important;
+    text-decoration: none;
+}
+
+footer .social-links a {
+    width: 35px;
+    height: 35px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+footer .social-links a:hover {
+    background: #78ade5;
+    transform: translateY(-3px);
+}
+
+@media (max-width: 768px) {
+    footer .row {
+        margin: 0;
+    }
+    
+    footer .mx-5 {
+        margin: 0 1rem !important;
+    }
 }
 
 
 
+
+
+/* Add this to your existing CSS */
+.scroll-top-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 55px;
+    height: 55px;
+    border-radius: 50%;
+    background: #78ade5;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(0) rotate(-180deg);
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.scroll-top-btn.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1) rotate(0deg);
+}
+
+.scroll-top-btn:hover {
+    background: #5c91c9;
+    transform: scale(1.1) translateY(-5px);
+    box-shadow: 0 6px 25px rgba(120, 173, 229, 0.35);
+}
+
+.scroll-top-btn i {
+    animation: bounceArrow 1s infinite;
+}
+
+@keyframes bounceArrow {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-8px);
+    }
+    60% {
+        transform: translateY(-4px);
+    }
+}

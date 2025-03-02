@@ -133,6 +133,113 @@
         </div>
     </div>
 </div>
+<!-- Replace the existing fab-container div with this -->
+<button class="scroll-top-btn" id="scrollTopBtn">
+    <i class="fas fa-arrow-up"></i>
+</button>
 
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container-fluid">
+        <div class="row mx-5">
+            <!-- About Section -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
+                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
+                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                    <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
+                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
+                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Social Links & Copyright -->
+        <div class="text-center border-top pt-4 mt-4">
+            <div class="mb-3">
+                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
 <script src="{% static 'js/homepage.js' %}"></script>
+<script>
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    let lastScrollTop = 0;
+    let scrollTimeout;
+
+    window.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        
+        const currentScroll = window.pageYOffset;
+        
+        // Show/hide button based on scroll position
+        if (currentScroll > 300) {
+            scrollTopBtn.classList.add('visible');
+        } else {
+            scrollTopBtn.classList.remove('visible');
+        }
+        
+        // Add extra class when scrolling up
+        if (currentScroll < lastScrollTop) {
+            scrollTopBtn.classList.add('scroll-up');
+        } else {
+            scrollTopBtn.classList.remove('scroll-up');
+        }
+        
+        lastScrollTop = currentScroll;
+        
+        // Hide button after 2 seconds of no scrolling
+        scrollTimeout = setTimeout(() => {
+            if (currentScroll < 300) {
+                scrollTopBtn.classList.remove('visible');
+            }
+        }, 2000);
+    });
+
+    scrollTopBtn.addEventListener('click', () => {
+        // Add click animation class
+        scrollTopBtn.classList.add('clicked');
+        
+        // Smooth scroll to top
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+        
+        // Remove click animation class after animation completes
+        setTimeout(() => {
+            scrollTopBtn.classList.remove('clicked');
+        }, 300);
+    });
+
+    // Add hover sound effect (optional)
+    scrollTopBtn.addEventListener('mouseenter', () => {
+        scrollTopBtn.style.transform = 'scale(1.1) translateY(-5px)';
+    });
+
+    scrollTopBtn.addEventListener('mouseleave', () => {
+        scrollTopBtn.style.transform = 'scale(1) translateY(0)';
+    });
+</script>
 {% endblock %}
