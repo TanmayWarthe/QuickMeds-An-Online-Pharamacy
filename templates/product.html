@@ -1,0 +1,384 @@
+{% extends 'base.html' %} 
+{% load static %} {% load humanize %} 
+{% block title%}Products - QuickMeds{% endblock %} 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/product.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pr.css' %}" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<<<<<<< HEAD
+<style>
+    /* Success Message */
+    .success-message {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        background: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transform: translateY(100px);
+        opacity: 0;
+        transition: all 0.3s ease;
+        z-index: 1000;
+    }
+
+    .success-message.show {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    .success-message i {
+        color: #4CAF50;
+        font-size: 1.2rem;
+    }
+
+    /* Loading Animation */
+    .loading {
+        position: relative;
+        pointer-events: none;
+    }
+
+    .loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 2px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+    
+    /* View Details Button Styling */
+    .view-details-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 1rem;
+        background-color: #78ade5;
+        color: white;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-left: 0.5rem;
+        border: none;
+        cursor: pointer;
+    }
+    
+    .view-details-btn i {
+        margin-right: 5px;
+    }
+    
+    .view-details-btn:hover {
+        background-color: #5c91c9;
+        transform: translateY(-2px);
+        color: white;
+        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+    }
+    
+    .product-actions {
+        display: flex;
+        margin-top: 1rem;
+        gap: 8px;
+    }
+    
+    .add-btn {
+        flex: 1;
+    }
+    
+    .view-details-btn {
+        flex: 1;
+    }
+    
+    @media (max-width: 576px) {
+        .product-actions {
+            flex-direction: column;
+        }
+        
+        .view-details-btn {
+            margin-left: 0;
+            margin-top: 0.5rem;
+        }
+    }
+</style>
+{% endblock %} 
+
+{% block content %}
+<div class="success-message" id="successMessage">
+    <i class="fas fa-check-circle"></i>
+    <span>Added to cart successfully!</span>
+</div>
+=======
+{% endblock %} 
+{% block content %}
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+
+<!-- Header with tagline and menu -->
+<div class="header">
+    <div class="tagline">
+        <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
+        <div class="centered-text-container">
+            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+        </div>
+        <div class="header-icons">
+            {% if user.is_authenticated %}
+            <a href="{% url 'cart' %}" class="nav-icon">
+                <i class="fas fa-shopping-cart"></i>
+<<<<<<< HEAD
+                <span class="cart-count" id="cart-count">{{ cart_count|default:0 }}</span>
+=======
+                <span class="cart-count">{{ cart_count|default:0 }}</span>
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+            </a>
+            <div class="dropdown">
+                <a href="#" class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+                <div class="dropdown-menu">
+                    <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
+                    <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                </div>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}" class="nav-icon">
+                <i class="fas fa-user"></i>
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo" />
+        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+    </div>
+    <ul class="sidebar-links">
+        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i> Our Products</a></li>
+        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
+        <li><a href="{% url 'about' %}"><i class="fas fa-comment-dots"></i> About</a></li>
+        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
+    </ul>
+</div>
+
+<!-- Main Content -->
+<div class="container main-content">
+    <div class="banner">
+        <img src="{% static 'img/basket-bg.png' %}" alt="FreshCart Logo" />
+        <div class="banner-content">
+            <h2>Welcome to QuickMeds</h2>
+        </div>
+    </div>
+
+    <!-- Category Grid -->
+    <div class="category-grid">
+        {% for category in categories %}
+        <div class="category-card" onclick="scrollToCategory('{{ category.name|slugify }}')">
+            {% if category.name == 'Baby Care' %}
+            <img src="{% static 'img/productCatlog/image.png' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'Wellness & Nutrition' %}
+            <img src="{% static 'img/productCatlog/category/wellness 1.jpeg' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'Personal Care & Hygiene' %}
+            <img src="{% static 'img/productCatlog/category/PERSONAL CARE.jpg' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'Pain Reliever' %}
+            <img src="{% static 'img/productCatlog/img2.png' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'Healthcare & First Aid' %}
+            <img src="{% static 'img/productCatlog/category/aid.jpeg' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'OTC Medicines' %}
+            <img src="{% static 'img/productCatlog/category/ot.jpeg' %}" alt="{{ category.name }}" />
+            {% else %}
+            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ category.name }}" />
+            {% endif %}
+            <p>{{ category.name }}</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Product Sections -->
+    <div class="product-sections">
+        {% for category in categories %}
+        <div class="product-section" id="{{ category.name|slugify }}">
+            <div class="product-header">
+                <div>
+                    <h2>{{ category.name }}</h2>
+                </div>
+                <div class="slider-controls">
+                    <button class="control-btn prev" onclick="moveSlider('productSlider{{ forloop.counter }}', -1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="control-btn next" onclick="moveSlider('productSlider{{ forloop.counter }}', 1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="product-slider" id="productSlider{{ forloop.counter }}">
+                {% for product in category.products.all %}
+                <div class="product-card" data-product-id="{{ product.id }}">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" />
+                    {% else %}
+                    <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" />
+                    {% endif %}
+                    <div class="product-info">
+                        <span class="category">{{ product.category.name }}</span>
+                        <h3>{{ product.name }}</h3>
+                        <div class="price-row">
+                            <div class="price">
+                                <span class="current">₹{{ product.price|intcomma }}</span>
+                                {% if product.original_price %}
+                                <span class="original">₹{{ product.original_price|intcomma }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="product-actions">
+                            <button class="add-btn" onclick="event.stopPropagation(); addToCart({{ product.id }})">
+                                + Add to Cart
+                            </button>
+                            <a href="{% url 'shop' %}?product_id={{ product.id }}" class="view-details-btn">
+<<<<<<< HEAD
+                                <i class="fas fa-eye"></i> View Details
+=======
+                                View Details
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-products">
+                    <p>No products available in this category</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-categories">
+            <p>No categories available</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Include JavaScript files -->
+<script src="{% static 'js/product.js' %}"></script>
+<script src="{% static 'js/Homepage.js' %}"></script>
+<script>
+    function moveSlider(sliderId, direction) {
+        const slider = document.getElementById(sliderId);
+        const cardWidth = slider.querySelector(".product-card")?.offsetWidth || 0;
+        if (cardWidth > 0) {
+            slider.scrollBy({
+                left: direction * (cardWidth + 20),
+                behavior: "smooth",
+            });
+        }
+    }
+
+    function scrollToCategory(categoryId) {
+        const targetSection = document.getElementById(categoryId);
+        
+        if (targetSection) {
+            const header = document.querySelector('.header');
+            const headerHeight = header ? header.offsetHeight : 0;
+            const offset = 80;
+            
+            const rect = targetSection.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const targetPosition = rect.top + scrollTop;
+            
+            const offsetPosition = targetPosition - headerHeight - offset;
+            
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            });
+
+            targetSection.classList.add('highlight');
+            setTimeout(() => {
+                targetSection.classList.remove('highlight');
+            }, 2000);
+        } else {
+            console.error(`Section not found for category: "${categoryId}"`);
+        }
+    }
+<<<<<<< HEAD
+
+    function addToCart(productId) {
+        const button = event.target.closest('.add-btn');
+        button.classList.add('loading');
+        button.disabled = true;
+
+        fetch('/add-to-cart/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({
+                product_id: productId,
+                quantity: 1
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update cart count
+                const cartCount = document.getElementById('cart-count');
+                if (cartCount) {
+                    cartCount.textContent = data.cart_count;
+                    cartCount.classList.remove('animate');
+                    void cartCount.offsetWidth; // Trigger reflow
+                    cartCount.classList.add('animate');
+                }
+                
+                // Show success message
+                const successMessage = document.getElementById('successMessage');
+                successMessage.classList.add('show');
+                setTimeout(() => {
+                    successMessage.classList.remove('show');
+                }, 3000);
+            } else {
+                throw new Error(data.error || 'Failed to add to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'An error occurred. Please try again.');
+        })
+        .finally(() => {
+            button.classList.remove('loading');
+            button.disabled = false;
+        });
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+=======
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+</script>
+{% endblock %}

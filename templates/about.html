@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About Us - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/header.css' %}">
+<link rel="stylesheet" href="{% static 'css/about.css' %}">
+<link rel="stylesheet" href="{% static 'css/product.css' %}">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+<!-- Header with tagline and menu -->
+<div class="header">
+    <div class="tagline">
+        <button class="menu-btn" onclick="toggleSidebar()">
+            &#9776; 
+        </button>
+        <div class="centered-text-container">
+            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+        </div>
+        <div class="header-icons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'cart' %}" class="nav-icon">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span class="cart-count">{{ cart_count|default:0 }}</span>
+                </a>
+                <div class="dropdown">
+                    <a href="#" class="nav-icon">
+                        <i class="fas fa-user"></i>
+                    </a>
+                    <div class="dropdown-menu">
+                        <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
+                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-icon">
+                    <i class="fas fa-user"></i>
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+    </div>
+    <ul class="sidebar-links">
+        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i> Our Products</a></li>
+        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
+        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
+        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
+    </ul>
+</div>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+    </div>
+    <ul class="sidebar-links">
+        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
+        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i>Our Product</a></li>
+        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
+        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
+        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
+    </ul>
+</div>
+
+<!-- About Hero Section -->
+<div class="container about-hero py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <h1 class="display-4 fw-bold mb-4">The Future of Medicine Delivery</h1>
+            <p class="lead mb-4">
+                At QuickMeds, we're revolutionizing healthcare accessibility by ensuring easy access to essential medicines.
+            </p>
+            <a href="{% url 'product' %}" class="btn btn-primary btn-lg">Explore Our Products</a>
+        </div>
+        <div class="col-md-6">
+            <img src="{% static 'img/about1.png' %}" alt="About QuickMeds" class="img-fluid rounded shadow">
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-5">Why Choose QuickMeds?</h2>
+    <div class="row g-4">
+        <div class="col-md-4 text-center">
+            <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
+            <h3>Fast Delivery</h3>
+            <p>Get medicines delivered to your doorstep within hours.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
+            <h3>Genuine Products</h3>
+            <p>100% authentic medicines from licensed pharmacies.</p>
+        </div>
+        <div class="col-md-4 text-center">
+            <i class="fas fa-headset fa-3x text-primary mb-3"></i>
+            <h3>24/7 Support</h3>
+            <p>Round-the-clock customer support for your needs.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Mission Section -->
+<div class="container py-5">
+    <div class="row align-items-center">
+        <div class="col-md-6">
+            <img src="{% static 'img/about2.png' %}" alt="Our Mission" class="img-fluid rounded shadow">
+        </div>
+        <div class="col-md-6">
+            <h2 class="mb-4">Our Mission</h2>
+            <p class="lead">
+                To make healthcare accessible by providing a reliable and affordable medicine delivery platform.
+            </p>
+            <ul class="list-unstyled">
+                <li><i class="fas fa-check-circle text-success me-2"></i> Quality assured medicines</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i> Competitive prices</li>
+                <li><i class="fas fa-check-circle text-success me-2"></i> Expert healthcare advice</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'js/homepage.js' %}"></script>
+{% endblock %}

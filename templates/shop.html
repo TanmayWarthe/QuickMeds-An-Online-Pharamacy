@@ -1,0 +1,637 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+    .dialog-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .dialog-content {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 1200px;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+        padding: 2rem;
+    }
+
+    .close-dialog {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        font-size: 1.5rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #666;
+        z-index: 1001;
+    }
+
+    .product-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
+        background: #fff;
+    }
+
+    .product-info {
+        padding: 1rem;
+    }
+
+    .category {
+        color: #4CAF50;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .product-title {
+        font-size: 2rem;
+        color: #333;
+        margin-bottom: 1rem;
+    }
+
+    .rating {
+        color: #ffc107;
+        margin-bottom: 1rem;
+    }
+
+    .review-count {
+        color: #666;
+        font-size: 0.9rem;
+        margin-left: 0.5rem;
+    }
+
+    .price-container {
+        display: flex;
+        align-items: baseline;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .current-price {
+        font-size: 1.75rem;
+        font-weight: bold;
+        color: #78ade5;
+    }
+
+    .quantity-controls {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .quantity-btn {
+        width: 36px;
+        height: 36px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .quantity-input {
+        width: 60px;
+        height: 36px;
+        text-align: center;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .add-to-cart-btn {
+        background: #78ade5;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .buy-now-btn {
+        background: #4CAF50;
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex: 1;
+    }
+
+    .product-description {
+        margin-top: 2rem;
+        color: #666;
+        line-height: 1.6;
+    }
+
+    .product-details {
+        margin-top: 2rem;
+        border-top: 1px solid #eee;
+        padding-top: 2rem;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .detail-label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .detail-value {
+        color: #333;
+    }
+
+    .section-title {
+        color: #333;
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .success-message, .error-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 1rem 2rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        display: none;
+        z-index: 2000;
+        animation: slideIn 0.3s ease-out;
+    }
+
+    .success-message {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .error-message {
+        background-color: #f44336;
+        color: white;
+    }
+
+    .loading {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .loading::after {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 20px;
+        height: 20px;
+        margin: -10px 0 0 -10px;
+        border: 3px solid rgba(255,255,255,0.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .out-of-stock .add-to-cart-btn,
+    .out-of-stock .buy-now-btn {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .quantity-error {
+        color: #f44336;
+        font-size: 0.9rem;
+        display: none;
+        margin-top: 0.5rem;
+    }
+
+    .share-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .share-button {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0.5rem;
+        transition: color 0.3s;
+    }
+
+    .share-button:hover {
+        color: #78ade5;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+<<<<<<< HEAD
+
+    .text-danger {
+        color: #dc3545 !important;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25em 0.6em;
+        font-size: 0.75em;
+        font-weight: 700;
+        line-height: 1;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: baseline;
+        border-radius: 0.25rem;
+        margin-left: 0.5rem;
+    }
+
+    .bg-danger {
+        background-color: #dc3545 !important;
+        color: white;
+    }
+=======
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-message" id="successMessage">
+    <i class="fas fa-check-circle"></i> Added to cart successfully!
+</div>
+
+<div class="error-message" id="errorMessage">
+    <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
+</div>
+
+<div class="dialog-overlay">
+    <div class="dialog-content">
+        <button class="close-dialog" onclick="window.history.back()">&times;</button>
+        <div class="product-container">
+            <div class="product-image-container">
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+            </div>
+
+            <div class="product-info">
+                <div class="category">{{ product.category.name }}</div>
+                <h1 class="product-title">{{ product.name }}</h1>
+                
+                <div class="rating">
+                    ★★★★★
+                    <span class="review-count">(4 reviews)</span>
+                </div>
+
+                <div class="price-container">
+                    <span class="current-price">₹{{ product.price|intcomma }}</span>
+                </div>
+
+                <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                    <input type="number" value="1" min="1" max="{{ product.stock }}" class="quantity-input" id="quantity">
+                    <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                </div>
+                <div class="quantity-error" id="quantityError">Please select a valid quantity</div>
+
+                <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
+                    <button onclick="addToCart({{ product.id }})" class="add-to-cart-btn" {% if not product.in_stock %}disabled{% endif %}>
+                        <i class="fas fa-shopping-cart"></i>
+                        {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                    </button>
+                    <form method="GET" action="/checkout/" class="buy-now-form" style="flex: 1;">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <input type="hidden" name="quantity" id="buy_quantity" value="1">
+                        <button type="submit" class="buy-now-btn" {% if not product.in_stock %}disabled{% endif %}>
+                            <i class="fas fa-bolt"></i>
+                            Buy Now
+                        </button>
+                    </form>
+                </div>
+
+                <div class="product-description">
+                    <h3 class="section-title">Product Description</h3>
+                    <p>{{ product.description }}</p>
+                </div>
+
+                <div class="product-details">
+                    <h3 class="section-title">Product Details</h3>
+                    <div class="details-grid">
+<<<<<<< HEAD
+                        <span class="detail-label">Category:</span>
+                        <span class="detail-value">{{ product.category.name }}</span>
+                        
+                        <span class="detail-label">Product Code:</span>
+                        <span class="detail-value">{{ product.code|default:"N/A" }}</span>
+                        
+                        <span class="detail-label">Availability:</span>
+                        <span class="detail-value {% if not product.in_stock %}text-danger{% endif %}">
+                            {{ product.in_stock|yesno:"In Stock,Out of Stock" }}
+                        </span>
+
+                        <span class="detail-label">Expiry Date:</span>
+                        <span class="detail-value {% if product.is_expired %}text-danger{% endif %}">
+                            {% if product.expiry_date %}
+                                {{ product.expiry_date|date:"F d, Y" }}
+                                {% if product.is_expired %}
+                                    <span class="badge bg-danger">Expired</span>
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+=======
+                        <div class="detail-label">Product Code:</div>
+                        <div class="detail-value">{{ product.code }}</div>
+                        
+                        <div class="detail-label">Availability:</div>
+                        <div class="detail-value">{% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}</div>
+                        
+                        <div class="detail-label">Category:</div>
+                        <div class="detail-value">{{ product.category.name }}</div>
+                        
+                        <div class="detail-label">Shipping:</div>
+                        <div class="detail-value">01 day shipping. | Free pickup today!</div>
+>>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+                    </div>
+                </div>
+
+                <div class="share-buttons">
+                    <button class="share-button" onclick="shareProduct('whatsapp')">
+                        <i class="fab fa-whatsapp"></i>
+                    </button>
+                    <button class="share-button" onclick="shareProduct('facebook')">
+                        <i class="fab fa-facebook"></i>
+                    </button>
+                    <button class="share-button" onclick="shareProduct('twitter')">
+                        <i class="fab fa-twitter"></i>
+                    </button>
+                    <button class="share-button" onclick="copyLink()">
+                        <i class="fas fa-link"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function addToCart(productId) {
+    // Get the quantity
+    const quantityInput = document.getElementById('quantity');
+    const quantity = parseInt(quantityInput.value);
+    
+    // Disable the button to prevent multiple clicks
+    const addButton = document.querySelector('.add-to-cart-btn');
+    if (addButton) {
+        addButton.disabled = true;
+        addButton.style.opacity = '0.7';
+    }
+
+    fetch('/add-to-cart/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update cart count
+            const cartCount = document.getElementById('cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_count;
+            }
+            
+            // Show success message
+            showMessage('success', 'Added to cart successfully!');
+        } else {
+            throw new Error(data.error || 'Failed to add to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage('error', error.message || 'An error occurred. Please try again.');
+    })
+    .finally(() => {
+        // Re-enable the button
+        if (addButton) {
+            addButton.disabled = false;
+            addButton.style.opacity = '1';
+        }
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function showMessage(type, message) {
+    const successMsg = document.getElementById('successMessage');
+    const errorMsg = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    
+    successMsg.style.display = 'none';
+    errorMsg.style.display = 'none';
+    
+    if (type === 'success') {
+        successMsg.style.display = 'block';
+        setTimeout(() => {
+            successMsg.style.display = 'none';
+        }, 3000);
+    } else {
+        errorText.textContent = message;
+        errorMsg.style.display = 'block';
+        setTimeout(() => {
+            errorMsg.style.display = 'none';
+        }, 3000);
+    }
+}
+
+function updateQuantity(change) {
+    const input = document.getElementById('quantity');
+    const newValue = parseInt(input.value) + change;
+    const maxStock = parseInt(input.getAttribute('max'));
+    const errorDiv = document.getElementById('quantityError');
+    
+    if (newValue >= 1 && newValue <= maxStock) {
+        input.value = newValue;
+        errorDiv.style.display = 'none';
+    } else if (newValue > maxStock) {
+        errorDiv.textContent = 'Quantity exceeds available stock';
+        errorDiv.style.display = 'block';
+    }
+}
+
+function shareProduct(platform) {
+    const url = window.location.href;
+    const title = document.querySelector('.product-title').textContent;
+    
+    let shareUrl;
+    switch(platform) {
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+            break;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+    }
+}
+
+function copyLink() {
+    const url = window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        showMessage('success', 'Link copied to clipboard!');
+    }).catch(() => {
+        showMessage('error', 'Failed to copy link');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartForm = document.querySelector('.add-to-cart-form');
+    const quantityInput = document.getElementById('quantity');
+
+    quantityInput.addEventListener('change', function() {
+        const value = parseInt(this.value);
+        const max = parseInt(this.getAttribute('max'));
+        const errorDiv = document.getElementById('quantityError');
+        
+        if (value < 1 || isNaN(value)) {
+            this.value = 1;
+            errorDiv.style.display = 'none';
+        } else if (value > max) {
+            this.value = max;
+            errorDiv.textContent = 'Quantity exceeds available stock';
+            errorDiv.style.display = 'block';
+        } else {
+            errorDiv.style.display = 'none';
+        }
+    });
+
+    addToCartForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.classList.add('loading');
+        
+        const formData = new FormData(this);
+
+        fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            submitBtn.classList.remove('loading');
+            if (data.success) {
+                showMessage('success', 'Added to cart successfully!');
+                if (data.cart_count !== undefined) {
+                    const cartCount = document.getElementById('cart-count');
+                    if (cartCount) {
+                        cartCount.textContent = data.cart_count;
+                    }
+                }
+            } else {
+                showMessage('error', data.message || 'Failed to add to cart');
+            }
+        })
+        .catch(error => {
+            submitBtn.classList.remove('loading');
+            showMessage('error', 'An error occurred. Please try again.');
+            console.error('Error:', error);
+        });
+    });
+});
+</script>
+{% endblock %}

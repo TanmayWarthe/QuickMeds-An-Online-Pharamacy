@@ -1,0 +1,88 @@
+.about-hero {
+    background-color: #f8f9fa;
+    padding: 80px 0;
+}
+
+.about-content {
+    padding-right: 40px;
+}
+
+.about-image img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+}
+
+.feature-card {
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.mission {
+    background-color: white;
+}
+
+.mission-content {
+    padding: 40px 0;
+}
+
+.mission-content ul li {
+    font-size: 1.1rem;
+    padding: 8px 0;
+}
+
+@media (max-width: 768px) {
+    .about-content {
+        padding-right: 0;
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .mission-content {
+        padding: 40px 20px;
+        text-align: center;
+    }
+}
+
+
+
+
+/* Footer */
+footer {
+    background-color: #212529; /* Dark background */
+    color: #fff; /* White text */
+}
+
+footer h5 {
+    color: #f8f9fa; /* Light white for headings */
+    margin-bottom: 20px;
+}
+
+footer a {
+    color: #adb5bd; /* Subtle grey links */
+    transition: color 0.3s ease-in-out;
+}
+
+footer a:hover {
+    color: #ffc107; /* Highlight color on hover */
+    text-decoration: underline;
+}
+
+footer ul {
+    padding: 0;
+    list-style-type: none;
+}
+
+footer ul li {
+    margin-bottom: 10px;
+}
+
+footer i {
+    color: #ffc107; /* Icon color */
+}
