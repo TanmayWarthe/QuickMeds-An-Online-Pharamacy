@@ -5,7 +5,6 @@
 <link rel="stylesheet" href="{% static 'css/product.css' %}" />
 <link rel="stylesheet" href="{% static 'css/pr.css' %}" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
-<<<<<<< HEAD
 <style>
     /* Success Message */
     .success-message {
@@ -119,10 +118,6 @@
     <i class="fas fa-check-circle"></i>
     <span>Added to cart successfully!</span>
 </div>
-=======
-{% endblock %} 
-{% block content %}
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 <!-- Header with tagline and menu -->
 <div class="header">
@@ -135,11 +130,7 @@
             {% if user.is_authenticated %}
             <a href="{% url 'cart' %}" class="nav-icon">
                 <i class="fas fa-shopping-cart"></i>
-<<<<<<< HEAD
                 <span class="cart-count" id="cart-count">{{ cart_count|default:0 }}</span>
-=======
-                <span class="cart-count">{{ cart_count|default:0 }}</span>
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             </a>
             <div class="dropdown">
                 <a href="#" class="nav-icon">
@@ -248,11 +239,7 @@
                                 + Add to Cart
                             </button>
                             <a href="{% url 'shop' %}?product_id={{ product.id }}" class="view-details-btn">
-<<<<<<< HEAD
                                 <i class="fas fa-eye"></i> View Details
-=======
-                                View Details
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
                             </a>
                         </div>
                     </div>
@@ -314,7 +301,6 @@
             console.error(`Section not found for category: "${categoryId}"`);
         }
     }
-<<<<<<< HEAD
 
     function addToCart(productId) {
         const button = event.target.closest('.add-btn');
@@ -378,7 +364,5 @@
         }
         return cookieValue;
     }
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 </script>
 {% endblock %}

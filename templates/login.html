@@ -35,11 +35,7 @@
 {% block content %}
 <div class="container" id="container">
     <div class="form-container sign-up-container">
-<<<<<<< HEAD
         <form action="{% url 'login' %}" method="POST" id="signupForm" novalidate>
-=======
-        <form id="signupForm" method="post" action="{% url 'register' %}">
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             {% csrf_token %}
             <h1>Create Account</h1>
             <div class="social-container">
@@ -48,7 +44,6 @@
                 <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
             </div>
             <span>or use your email for registration</span>
-<<<<<<< HEAD
             <input type="text" name="name" id="signup-name" placeholder="Full Name" required minlength="2" />
             <input type="email" name="email" id="signup-email" placeholder="Email" required />
             <input type="password" name="password" id="signup-password" placeholder="Password" required minlength="8" />
@@ -58,23 +53,6 @@
     </div>
     <div class="form-container sign-in-container">
         <form action="{% url 'login' %}" method="POST" id="loginForm" novalidate>
-=======
-            <input type="text" name="name" placeholder="Name" required />
-            <span class="error-message" id="nameError"></span>
-            
-            <input type="email" name="email" placeholder="Email" required />
-            <span class="error-message" id="emailError"></span>
-            
-            <input type="password" name="password" placeholder="Password" required />
-            <span class="error-message" id="passwordError"></span>
-            
-            <button type="submit">Sign Up</button>
-        </form>
-    </div>
-    
-    <div class="form-container sign-in-container">
-        <form id="loginForm" method="post" action="{% url 'login' %}">
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             {% csrf_token %}
             <h1>Sign in</h1>
             <div class="social-container">
@@ -83,26 +61,13 @@
                 <a href="#" class="social"><i class="fab fa-linkedin-in"></i></a>
             </div>
             <span>or use your account</span>
-<<<<<<< HEAD
             <input type="email" name="email" id="login-email" placeholder="Email" required />
             <input type="password" name="password" id="login-password" placeholder="Password" required />
             <input type="hidden" name="action" value="login">
-=======
-            <input type="email" name="email" placeholder="Email" required />
-            <span class="error-message" id="loginEmailError"></span>
-            
-            <input type="password" name="password" placeholder="Password" required />
-            <span class="error-message" id="loginPasswordError"></span>
-            
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             <a href="#">Forgot your password?</a>
             <button type="submit">Sign In</button>
         </form>
     </div>
-<<<<<<< HEAD
-=======
-    
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
     <div class="overlay-container">
         <div class="overlay">
             <div class="overlay-panel overlay-left">

@@ -12,15 +12,12 @@ from django.db.models import Q
 import json
 from django.views.decorators.csrf import csrf_exempt
 
-<<<<<<< HEAD
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
 # Create your views here.
 # This is the view for the base.html template
 from django.shortcuts import render
 
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 def search_products(request):
     query = request.GET.get('q', '')
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -80,15 +77,6 @@ def search_products(request):
     }
     return render(request, 'search_results.html', context)
 
-<<<<<<< HEAD
-
-=======
-def base(request):
-    return render(request, 'base.html')
-
-def home(request):
-    return render(request, 'home.html')
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 def shop_view(request):
     product_id = request.GET.get('product_id')
@@ -115,7 +103,6 @@ def shop_view(request):
         messages.error(request, f'Error loading product: {str(e)}')
         return redirect('product')
 
-<<<<<<< HEAD
 def base(request):
     return render(request, 'base.html')
 
@@ -127,10 +114,6 @@ def about_view(request):
         'cart_count': get_cart_count(request)
     }
     return render(request, 'about.html', context)
-=======
-def about_view(request):
-    return render(request, 'about.html')
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 def get_cart_count(request):
     if request.user.is_authenticated:
@@ -138,7 +121,6 @@ def get_cart_count(request):
     return 0
 
 def product_view(request):
-<<<<<<< HEAD
     categories = Category.objects.all()
     products = Product.objects.all()
     context = {
@@ -215,107 +197,12 @@ def login_view(request):
         
         return redirect('login')
     
-=======
-    categories = Category.objects.prefetch_related('products').all()
-    context = {
-        'categories': categories,
-        'cart_count': get_cart_count(request)
-    }
-    return render(request, 'product.html', context)
-
-def register_view(request):
-    if request.method == 'POST':
-        try:
-            name = request.POST.get('name', '').strip()
-            email = request.POST.get('email', '').strip()
-            mobile = request.POST.get('mobile', '').strip()
-            password = request.POST.get('password', '')
-
-            # Validate name
-            if not name or len(name) < 2:
-                messages.error(request, 'Please enter your full name (minimum 2 characters)')
-                return redirect('login')
-
-            # Validate email
-            try:
-                validate_email(email)
-            except ValidationError:
-                messages.error(request, 'Please enter a valid email address')
-                return redirect('login')
-
-            # Check if email already exists
-            if User.objects.filter(email=email).exists():
-                messages.error(request, 'Email already registered')
-                return redirect('login')
-
-            # Check if mobile number already exists
-            if UserProfile.objects.filter(mobile_number=mobile).exists():
-                messages.error(request, 'Mobile number already registered')
-                return redirect('login')
-
-            # Create user
-            username = email
-            user = User.objects.create_user(username=username, email=email, password=password)
-            user.first_name = name
-            user.save()
-
-            # Create user profile
-            UserProfile.objects.create(user=user, mobile_number=mobile)
-
-            # Log the user in
-            login(request, user)
-            messages.success(request, 'Registration successful!')
-            return redirect('home')
-
-        except Exception as e:
-            messages.error(request, f'Registration failed: {str(e)}')
-            return redirect('login')
-
-    return redirect('login')
-
-def login_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
-
-        # Validate input
-        if not email:
-            messages.error(request, 'Please enter your email address')
-            return redirect('login')
-        if not password:
-            messages.error(request, 'Please enter your password')
-            return redirect('login')
-
-        try:
-            # First get the user by email
-            user = User.objects.get(email=email)
-            # Then authenticate using username and password
-            authenticated_user = authenticate(request, username=user.username, password=password)
-            
-            if authenticated_user is not None:
-                login(request, authenticated_user)
-                messages.success(request, f'Welcome back, {user.first_name}!')
-                return redirect('home')
-            else:
-                messages.error(request, 'Invalid password')
-        except User.DoesNotExist:
-            messages.error(request, 'No account found with this email')
-        except Exception as e:
-            messages.error(request, 'An error occurred. Please try again.')
-        
-        return redirect('login')
-
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
     return render(request, 'login.html')
 
 def logout_view(request):
     logout(request)
     messages.success(request, 'Logged out successfully!')
-<<<<<<< HEAD
     return redirect('home')
-=======
-    return redirect('login')
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 @login_required
 def profile_view(request):
@@ -324,7 +211,6 @@ def profile_view(request):
     }
     return render(request, 'profile.html', context)
 
-<<<<<<< HEAD
 
 @login_required
 def add_to_cart(request):
@@ -346,28 +232,10 @@ def add_to_cart(request):
             cart, created = Cart.objects.get_or_create(user=request.user)
             
             cart_item, item_created = CartItem.objects.get_or_create(
-=======
-@login_required
-def add_to_cart(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            product_id = data.get('product_id')
-            quantity = int(data.get('quantity', 1))
-            
-            if quantity < 1:
-                return JsonResponse({'success': False, 'error': 'Quantity must be at least 1'})
-                
-            product = Product.objects.get(id=product_id)
-            cart, created = Cart.objects.get_or_create(user=request.user)
-            
-            cart_item, created = CartItem.objects.get_or_create(
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
                 cart=cart,
                 product=product,
                 defaults={'quantity': quantity}
             )
-<<<<<<< HEAD
 
             if not item_created:
                 cart_item.quantity += quantity
@@ -388,27 +256,6 @@ def add_to_cart(request):
             })
 
     return JsonResponse({'success': False, 'error': 'Invalid request'})
-=======
-            
-            if not created:
-                cart_item.quantity += quantity
-                cart_item.save()
-            
-            cart_count = get_cart_count(request)
-            
-            return JsonResponse({
-                'success': True,
-                'message': f'Added {quantity} {product.name} to cart',
-                'cart_count': cart_count
-            })
-            
-        except Product.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Product not found'})
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-            
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 @login_required
 def cart_view(request):
@@ -426,10 +273,6 @@ def cart_view(request):
     }
     return render(request, 'cart.html', context)
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 @login_required
 def update_cart_item(request):
     if request.method == 'POST':
@@ -446,7 +289,6 @@ def update_cart_item(request):
                 cart__user=request.user
             )
             
-<<<<<<< HEAD
             # Check if product has enough stock
             if hasattr(cart_item.product, 'in_stock') and not cart_item.product.in_stock:
                 return JsonResponse({'success': False, 'error': 'Product is out of stock'})
@@ -459,22 +301,13 @@ def update_cart_item(request):
             cart_total = cart.get_total()
             items_count = cart.cartitem_set.count()
             
-=======
-            cart_item.quantity = quantity
-            cart_item.save()
-            
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             return JsonResponse({
                 'success': True,
                 'message': 'Cart updated successfully',
                 'new_quantity': quantity,
-<<<<<<< HEAD
                 'item_total': cart_item.get_total_price(),
                 'cart_total': '{:,}'.format(cart_total),
                 'items_count': items_count
-=======
-                'new_total': cart_item.get_total()
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             })
             
         except CartItem.DoesNotExist:
@@ -495,7 +328,6 @@ def remove_cart_item(request):
                 id=item_id,
                 cart__user=request.user
             )
-<<<<<<< HEAD
             
             # Get cart before deleting the item
             cart = cart_item.cart
@@ -506,21 +338,12 @@ def remove_cart_item(request):
             # Get updated cart information
             cart_total = cart.get_total()
             items_count = cart.cartitem_set.count()
-=======
-            cart_item.delete()
-            
-            cart_count = get_cart_count(request)
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             
             return JsonResponse({
                 'success': True,
                 'message': 'Item removed from cart',
-<<<<<<< HEAD
                 'cart_total': '{:,}'.format(cart_total),
                 'items_count': items_count
-=======
-                'cart_count': cart_count
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
             })
             
         except CartItem.DoesNotExist:
@@ -531,7 +354,6 @@ def remove_cart_item(request):
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 def showEmptyCartMessage():
-<<<<<<< HEAD
     return JsonResponse({'success': False, 'error': 'Your cart is empty'})
 
 @login_required
@@ -555,9 +377,3 @@ def checkout_view(request):
     }
     
     return render(request, 'checkout.html', context)
-=======
-    return JsonResponse({
-        'success': False,
-        'error': 'Your cart is empty'
-    })
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815

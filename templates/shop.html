@@ -288,31 +288,6 @@
             opacity: 1;
         }
     }
-<<<<<<< HEAD
-
-    .text-danger {
-        color: #dc3545 !important;
-    }
-
-    .badge {
-        display: inline-block;
-        padding: 0.25em 0.6em;
-        font-size: 0.75em;
-        font-weight: 700;
-        line-height: 1;
-        text-align: center;
-        white-space: nowrap;
-        vertical-align: baseline;
-        border-radius: 0.25rem;
-        margin-left: 0.5rem;
-    }
-
-    .bg-danger {
-        background-color: #dc3545 !important;
-        color: white;
-    }
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 </style>
 {% endblock %}
 
@@ -376,30 +351,6 @@
                 <div class="product-details">
                     <h3 class="section-title">Product Details</h3>
                     <div class="details-grid">
-<<<<<<< HEAD
-                        <span class="detail-label">Category:</span>
-                        <span class="detail-value">{{ product.category.name }}</span>
-                        
-                        <span class="detail-label">Product Code:</span>
-                        <span class="detail-value">{{ product.code|default:"N/A" }}</span>
-                        
-                        <span class="detail-label">Availability:</span>
-                        <span class="detail-value {% if not product.in_stock %}text-danger{% endif %}">
-                            {{ product.in_stock|yesno:"In Stock,Out of Stock" }}
-                        </span>
-
-                        <span class="detail-label">Expiry Date:</span>
-                        <span class="detail-value {% if product.is_expired %}text-danger{% endif %}">
-                            {% if product.expiry_date %}
-                                {{ product.expiry_date|date:"F d, Y" }}
-                                {% if product.is_expired %}
-                                    <span class="badge bg-danger">Expired</span>
-                                {% endif %}
-                            {% else %}
-                                N/A
-                            {% endif %}
-                        </span>
-=======
                         <div class="detail-label">Product Code:</div>
                         <div class="detail-value">{{ product.code }}</div>
                         
@@ -411,7 +362,6 @@
                         
                         <div class="detail-label">Shipping:</div>
                         <div class="detail-value">01 day shipping. | Free pickup today!</div>
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
                     </div>
                 </div>
 

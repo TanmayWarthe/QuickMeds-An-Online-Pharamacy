@@ -1,28 +1,3 @@
-<<<<<<< HEAD
-=======
-Working with Collaboration on GitHub
-If you are working with a team, follow these steps:
-Steps for Team Members:
-1. Pull the Latest Changes Before Starting Work
-2. git pull origin main
-3. Make Your Changes and Follow the Usual Process
-4. git add .
-5. git commit -m "Added new feature or fixed bug"
-6. git push origin main
-7. Resolve Merge Conflicts (if any)
-o If you get a merge conflict, open the affected files in VS Code.
-o Resolve the conflict by choosing the correct version of the code.
-o After resolving:
-o git add .
-o git commit -m "Resolved merge conflicts"
-o git push origin main
-Steps for Adding Collaborators:
-1. Go to Your Repository on GitHub
-2. Navigate to "Settings" > "Collaborators"
-3. Add Their GitHub Username
-4. They Can Now Clone and Contribute to the Project
-
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 These three Git commands are used to **track, save, and upload your changes to GitHub**. Here’s what each one does:  
 
 ### **1. `git add .`**  
@@ -33,24 +8,16 @@ These three Git commands are used to **track, save, and upload your changes to G
 ✅ **Saves the changes** to your local Git repository.  
 - The `-m "Your update message"` adds a meaningful message describing what you changed.  
 
-<<<<<<< HEAD
 ### **3. `git push origin LUFFY`**  
 ✅ **Uploads (pushes) the committed changes** to GitHub.  
 - `origin` refers to your remote repository on GitHub.  
 - `LUFFY` is the branch where you are pushing the changes.  
-=======
-### **3. `git push origin main`**  
-✅ **Uploads (pushes) the committed changes** to GitHub.  
-- `origin` refers to your remote repository on GitHub.  
-- `main` is the branch where you are pushing the changes.  
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 ---
 
 ### **In Simple Terms:**  
 - **`git add .`** → Select all changes  
 - **`git commit -m "Updated feature"`** → Save changes locally  
-<<<<<<< HEAD
 - **`git push origin LUFFY`** → Upload changes to GitHub  
 
 💡 **Use these commands every time you update your project!** 🚀
@@ -137,14 +104,3 @@ PASSWORD : QUICKMEDS001
 
 
 hafgdfkjghdsfkgklsdfg
-=======
-- **`git push origin main`** → Upload changes to GitHub  
-
-💡 **Use these commands every time you update your project!** 🚀
-
-
-
-
-ID : QUICKMEDS
-PASSWORD : QUICKMEDS001
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815

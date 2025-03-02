@@ -3,11 +3,7 @@ from django.contrib.auth.models import User
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-<<<<<<< HEAD
     phone = models.CharField(max_length=15, null=True, blank=True)
-=======
-    mobile_number = models.CharField(max_length=10)
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
     
     def __str__(self):
         return self.user.email
@@ -29,10 +25,7 @@ class Product(models.Model):
     in_stock = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-<<<<<<< HEAD
     expiry_date = models.DateField(null=True, blank=True, help_text="Product expiry date (YYYY-MM-DD)")
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
     def __str__(self):
         return self.name
@@ -43,7 +36,6 @@ class Product(models.Model):
             return ((self.original_price - self.price) / self.original_price) * 100
         return 0
 
-<<<<<<< HEAD
     @property
     def is_expired(self):
         if self.expiry_date:
@@ -51,8 +43,6 @@ class Product(models.Model):
             return self.expiry_date < timezone.now().date()
         return False
 
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='additional_images', on_delete=models.CASCADE)
     image = models.ImageField(upload_to='products/')

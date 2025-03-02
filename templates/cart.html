@@ -2,17 +2,12 @@
 {% load humanize %}
 {% load static %}
 
-<<<<<<< HEAD
 {% block title %}Shopping Cart - QuickMeds{% endblock title %}
 
-=======
-{% block title %}Shopping Cart - QuickMeds{% endblock title %}%}
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<<<<<<< HEAD
 <style>
     /* Enhanced Cart Styling */
     .cart-container {
@@ -286,8 +281,6 @@
         }
     }
 </style>
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 {% endblock %}
 
 {% block content %}
@@ -345,11 +338,7 @@
                 <div class="subtotal">₹<span class="item-total" data-item-id="{{ item.id }}">
                     {{ item.get_total_price|intcomma }}</span>
                 </div>
-<<<<<<< HEAD
                 <button class="remove-btn" data-item-id="{{ item.id }}">
-=======
-                <button class="remove-btn" onclick="removeItem({{ item.id }})">
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -365,34 +354,21 @@
     <div class="cart-summary">
         <div class="cart-total">
             <span>Total Amount:</span>
-<<<<<<< HEAD
             <span class="total-amount">₹<span id="cart-total">{{ cart.get_total|intcomma }}</span></span>
         </div>
         <div class="items-count">
             Items in cart: <span class="items-count-value" id="items-count">{{ cart.cartitem_set.count }}</span>
-=======
-            <span class="total-amount">₹{{ cart.get_total|intcomma }}</span>
-        </div>
-        <div class="items-count">
-            Items in cart: <span class="items-count-value">{{ cart.cartitem_set.count }}</span>
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
         </div>
     </div>
 
     <div class="cart-actions">
-<<<<<<< HEAD
         <button class="continue-shopping" onclick="window.location.href='{% url 'product' %}'">Continue Shopping</button>
         <button class="proceed-checkout" onclick="proceedToCheckout()">Proceed To Checkout</button>
-=======
-        <button class="continue-shopping" onclick="window.history.back()">Continue Shopping</button>
-        <button class="proceed-checkout">Proceed To Checkout</button>
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
-<<<<<<< HEAD
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Get all quantity buttons
@@ -604,7 +580,4 @@ function proceedToCheckout() {
     window.location.href = '{% url "checkout" %}';
 }
 </script>
-=======
-<script src="{% static 'js/cart.js' %}"></script>
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 {% endblock %}

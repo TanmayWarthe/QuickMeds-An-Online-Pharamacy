@@ -12,10 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 from pathlib import Path
 import os
-<<<<<<< HEAD
 from decouple import config
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +21,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-<<<<<<< HEAD
 SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-il%rqza*wq2$^g$n8==&1^r6+3$)d*uvmnav#9_zsi*1cg28l7')
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -36,15 +32,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(','
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
 SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
 CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
-=======
-SECRET_KEY = 'django-insecure-il%rqza*wq2$^g$n8==&1^r6+3$)d*uvmnav#9_zsi*1cg28l7'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = []
-
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 # Application definition
 
