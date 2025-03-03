@@ -93,14 +93,12 @@ def shop_view(request):
             
         context = {
             'product': product,
-            'cart_count': get_cart_count(request)
+            'cart_count': get_cart_count(request),
+            'is_expiring_soon': product.is_expiring_soon() if product.expiry_date else False,
         }
         return render(request, 'shop.html', context)
     except Product.DoesNotExist:
         messages.error(request, 'Product not found')
-        return redirect('product')
-    except Exception as e:
-        messages.error(request, f'Error loading product: {str(e)}')
         return redirect('product')
 
 def base(request):
