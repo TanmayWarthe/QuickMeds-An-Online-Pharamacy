@@ -6,333 +6,7 @@
 
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<style>
-    .popup-close {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    width: 30px;
-    height: 30px;
-    background: rgba(255, 255, 255, 0.9);
-    border: none;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-}
-
-.popup-close:hover {
-    background: #ff4444;
-    transform: rotate(90deg);
-}
-
-.popup-close::before,
-.popup-close::after {
-    content: '';
-    position: absolute;
-    width: 15px;
-    height: 2px;
-    background: #333;
-    transition: background 0.3s ease;
-}
-
-.popup-close:hover::before,
-.popup-close:hover::after {
-    background: white;
-}
-
-.popup-close::before {
-    transform: rotate(45deg);
-}
-
-.popup-close::after {
-    transform: rotate(-45deg);
-}
-    .dialog-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-
-    .dialog-content {
-        background: white;
-        border-radius: 12px;
-        width: 90%;
-        max-width: 1200px;
-        max-height: 90vh;
-        overflow-y: auto;
-        position: relative;
-        padding: 2rem;
-    }
-
-    .close-dialog {
-        position: absolute;
-        top: 1rem;
-        right: 1rem;
-        font-size: 1.5rem;
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: #666;
-        z-index: 1001;
-    }
-
-    .product-container {
-        padding: 2rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    }
-
-    .product-image {
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-        background: #fff;
-    }
-
-    .product-info {
-        padding: 1rem;
-    }
-
-    .category {
-        color: #4CAF50;
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .product-title {
-        font-size: 2rem;
-        color: #333;
-        margin-bottom: 1rem;
-    }
-
-    .rating {
-        color: #ffc107;
-        margin-bottom: 1rem;
-    }
-
-    .review-count {
-        color: #666;
-        font-size: 0.9rem;
-        margin-left: 0.5rem;
-    }
-
-    .price-container {
-        display: flex;
-        align-items: baseline;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .current-price {
-        font-size: 1.75rem;
-        font-weight: bold;
-        color: #78ade5;
-    }
-
-    .quantity-controls {
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .quantity-btn {
-        width: 36px;
-        height: 36px;
-        border: 1px solid #ddd;
-        background: white;
-        border-radius: 4px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .quantity-input {
-        width: 60px;
-        height: 36px;
-        text-align: center;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-    }
-
-    .action-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .add-to-cart-btn {
-        background: #78ade5;
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex: 1;
-    }
-
-    .buy-now-btn {
-        background: #4CAF50;
-        color: white;
-        border: none;
-        padding: 0.75rem 2rem;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        flex: 1;
-    }
-
-    .product-description {
-        margin-top: 2rem;
-        color: #666;
-        line-height: 1.6;
-    }
-
-    .product-details {
-        margin-top: 2rem;
-        border-top: 1px solid #eee;
-        padding-top: 2rem;
-    }
-
-    .details-grid {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 1rem;
-        margin-top: 1rem;
-    }
-
-    .detail-label {
-        color: #666;
-        font-weight: 500;
-    }
-
-    .detail-value {
-        color: #333;
-    }
-
-    .section-title {
-        color: #333;
-        font-size: 1.25rem;
-        margin-bottom: 1rem;
-        font-weight: 600;
-    }
-
-    .success-message, .error-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 1rem 2rem;
-        border-radius: 4px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        display: none;
-        z-index: 2000;
-        animation: slideIn 0.3s ease-out;
-    }
-
-    .success-message {
-        background-color: #4CAF50;
-        color: white;
-    }
-
-    .error-message {
-        background-color: #f44336;
-        color: white;
-    }
-
-    .loading {
-        position: relative;
-        pointer-events: none;
-        opacity: 0.7;
-    }
-
-    .loading::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 20px;
-        height: 20px;
-        margin: -10px 0 0 -10px;
-        border: 3px solid rgba(255,255,255,0.3);
-        border-radius: 50%;
-        border-top-color: #fff;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-
-    .out-of-stock .add-to-cart-btn,
-    .out-of-stock .buy-now-btn {
-        background-color: #ccc;
-        cursor: not-allowed;
-    }
-
-    .quantity-error {
-        color: #f44336;
-        font-size: 0.9rem;
-        display: none;
-        margin-top: 0.5rem;
-    }
-
-    .share-buttons {
-        display: flex;
-        gap: 1rem;
-        margin-top: 2rem;
-    }
-
-    .share-button {
-        background: none;
-        border: none;
-        color: #666;
-        cursor: pointer;
-        font-size: 1.2rem;
-        padding: 0.5rem;
-        transition: color 0.3s;
-    }
-
-    .share-button:hover {
-        color: #78ade5;
-    }
-
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/shop.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -347,80 +21,106 @@
     <div class="dialog-content">
         <button class="popup-close" onclick="window.history.back()"></button>
         <div class="product-container">
-            <div class="product-image-container">
+            <!-- Left Section - Product Image -->
+            <div class="product-image-section">
                 <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
             </div>
 
+            <!-- Right Section - Product Details -->
             <div class="product-info">
-                <div class="category">{{ product.category.name }}</div>
-                <h1 class="product-title">{{ product.name }}</h1>
-                
-                <div class="rating">
-                    ★★★★★
-                    <span class="review-count">(4 reviews)</span>
+                <!-- Basic Info -->
+                <div class="product-header">
+                    <span class="category">{{ product.category.name }}</span>
+                    <h1 class="product-title">{{ product.name }}</h1>
+                    <div class="product-code">Product Code: {{ product.code }}</div>
                 </div>
 
-                <div class="price-container">
-                    <span class="current-price">₹{{ product.price|intcomma }}</span>
+                <!-- Price Section -->
+                <div class="price-section">
+                    <div class="price-container">
+                        <span class="current-price">₹{{ product.price|intcomma }}</span>
+                        {% if product.original_price %}
+                        <span class="original-price">₹{{ product.original_price|intcomma }}</span>
+                        <span class="discount">{{ product.discount_percentage }}% OFF</span>
+                        {% endif %}
+                    </div>
+                    {% if product.expiry_date %}
+                    <div class="expiry-info {% if product.is_expiring_soon %}expiring-soon{% endif %}">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Expires on: {{ product.expiry_date|date:"d M Y" }}</span>
+                        {% if product.is_expiring_soon %}
+                        <span class="badge bg-warning">Expiring Soon</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                 </div>
 
-                <div class="quantity-controls">
-                    <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-                    <input type="number" value="1" min="1" max="{{ product.stock }}" class="quantity-input" id="quantity">
-                    <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
-                </div>
-                <div class="quantity-error" id="quantityError">Please select a valid quantity</div>
+                <!-- Quantity and Actions -->
+                <div class="purchase-section">
+                    <div class="quantity-controls">
+                        <span class="quantity-label">Quantity:</span>
+                        <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
+                        <input type="number" value="1" min="1" max="{{ product.stock }}" 
+                               class="quantity-input" id="quantity">
+                        <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                    </div>
+                    <div class="quantity-error" id="quantityError"></div>
 
-                <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
-                    <button onclick="addToCart({{ product.id }})" class="add-to-cart-btn" {% if not product.in_stock %}disabled{% endif %}>
-                        <i class="fas fa-shopping-cart"></i>
-                        {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
-                    </button>
-                    <form method="GET" action="/checkout/" class="buy-now-form" style="flex: 1;">
-                        <input type="hidden" name="product_id" value="{{ product.id }}">
-                        <input type="hidden" name="quantity" id="buy_quantity" value="1">
-                        <button type="submit" class="buy-now-btn" {% if not product.in_stock %}disabled{% endif %}>
+                    <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
+                        <button onclick="addToCart({{ product.id }})" 
+                                class="add-to-cart-btn" 
+                                {% if not product.in_stock %}disabled{% endif %}>
+                            <i class="fas fa-shopping-cart"></i>
+                            {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                        </button>
+                        <button class="buy-now-btn" {% if not product.in_stock %}disabled{% endif %}>
                             <i class="fas fa-bolt"></i>
                             Buy Now
                         </button>
-                    </form>
-                </div>
-
-                <div class="product-description">
-                    <h3 class="section-title">Product Description</h3>
-                    <p>{{ product.description }}</p>
-                </div>
-
-                <div class="product-details">
-                    <h3 class="section-title">Product Details</h3>
-                    <div class="details-grid">
-                        <div class="detail-label">Product Code:</div>
-                        <div class="detail-value">{{ product.code }}</div>
-                        
-                        <div class="detail-label">Availability:</div>
-                        <div class="detail-value">{% if product.in_stock %}In Stock{% else %}Out of Stock{% endif %}</div>
-                        
-                        <div class="detail-label">Category:</div>
-                        <div class="detail-value">{{ product.category.name }}</div>
-                        
-                        <div class="detail-label">Shipping:</div>
-                        <div class="detail-value">01 day shipping. | Free pickup today!</div>
                     </div>
                 </div>
 
-                <div class="share-buttons">
-                    <button class="share-button" onclick="shareProduct('whatsapp')">
-                        <i class="fab fa-whatsapp"></i>
-                    </button>
-                    <button class="share-button" onclick="shareProduct('facebook')">
-                        <i class="fab fa-facebook"></i>
-                    </button>
-                    <button class="share-button" onclick="shareProduct('twitter')">
-                        <i class="fab fa-twitter"></i>
-                    </button>
-                    <button class="share-button" onclick="copyLink()">
-                        <i class="fas fa-link"></i>
-                    </button>
+                <!-- Additional Details -->
+                <div class="additional-details">
+                    <div class="detail-section">
+                        <h3 class="section-title">Product Description</h3>
+                        <div class="description-content">
+                            {{ product.description|linebreaks }}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">Delivery Information</h3>
+                        <div class="delivery-info">
+                            <div class="delivery-item">
+                                <i class="fas fa-truck"></i>
+                                <span>1 Day Delivery</span>
+                            </div>
+                            <div class="delivery-item">
+                                <i class="fas fa-store"></i>
+                                <span>Free Store Pickup</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Share Section -->
+                <div class="share-section">
+                    <h3 class="section-title">Share Product</h3>
+                    <div class="share-buttons">
+                        <button class="share-button" onclick="shareProduct('whatsapp')">
+                            <i class="fab fa-whatsapp"></i>
+                        </button>
+                        <button class="share-button" onclick="shareProduct('facebook')">
+                            <i class="fab fa-facebook"></i>
+                        </button>
+                        <button class="share-button" onclick="shareProduct('twitter')">
+                            <i class="fab fa-twitter"></i>
+                        </button>
+                        <button class="share-button" onclick="copyLink()">
+                            <i class="fas fa-link"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

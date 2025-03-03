@@ -7,8 +7,8 @@ admin.site.register(Category)
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'original_price')
-    list_filter = ('category',)
+    list_display = ('name', 'category', 'price', 'original_price', 'expiry_date')
+    list_filter = ('category', 'expiry_date')
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):

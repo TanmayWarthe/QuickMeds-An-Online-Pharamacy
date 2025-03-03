@@ -1,3 +1,5 @@
+from django.utils import timezone
+from datetime import date, timezone
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -16,33 +18,65 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    # Basic Information
     name = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    code = models.CharField(max_length=50, unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
+    
+    # Category
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    
+    # Pricing
     price = models.DecimalField(max_digits=10, decimal_places=2)
     original_price = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
-    code = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    
+    # Stock and Status
     in_stock = models.BooleanField(default=True)
+    expiry_date = models.DateField(null=True, blank=True)
+    
+    # Images
+    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    
+    # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    expiry_date = models.DateField(null=True, blank=True, help_text="Product expiry date (YYYY-MM-DD)")
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Product'
+        verbose_name_plural = 'Products'
 
     def __str__(self):
         return self.name
 
+    # Price Related Methods
     @property
     def discount_percentage(self):
         if self.original_price and self.price < self.original_price:
-            return ((self.original_price - self.price) / self.original_price) * 100
+            return round(((self.original_price - self.price) / self.original_price) * 100, 2)
         return 0
 
-    @property
+    # Expiry Related Methods
+    def is_expiring_soon(self):
+        if self.expiry_date:
+            today = date.today()
+            days_until_expiry = (self.expiry_date - today).days
+            return days_until_expiry <= 30
+        return False
+
+    @property 
     def is_expired(self):
         if self.expiry_date:
-            from django.utils import timezone
-            return self.expiry_date < timezone.now().date()
+            today = date.today()
+            return self.expiry_date < today
         return False
+
+    @property
+    def days_until_expiry(self):
+        if self.expiry_date:
+            today = date.today()
+            return (self.expiry_date - today).days
+        return None
 
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, related_name='additional_images', on_delete=models.CASCADE)
