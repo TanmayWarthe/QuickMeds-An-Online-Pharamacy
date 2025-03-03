@@ -87,7 +87,7 @@
             <a href="{% url 'product' %}" class="btn btn-primary btn-lg">Explore Our Products</a>
         </div>
         <div class="col-md-6">
-            <img src="{% static 'img/about1.png' %}" alt="About QuickMeds" class="img-fluid rounded shadow">
+            <img src="{% static 'img/about1.png' %}" alt="About QuickMeds" class="img-fluid rounded shadow floating-animation">
         </div>
     </div>
 </div>
@@ -118,7 +118,7 @@
 <div class="container py-5">
     <div class="row align-items-center">
         <div class="col-md-6">
-            <img src="{% static 'img/about2.png' %}" alt="Our Mission" class="img-fluid rounded shadow">
+            <img src="{% static 'img/about2.png' %}" alt="Our Mission" class="img-fluid rounded shadow floating-animation">
         </div>
         <div class="col-md-6">
             <h2 class="mb-4">Our Mission</h2>
@@ -130,6 +130,29 @@
                 <li><i class="fas fa-check-circle text-success me-2"></i> Competitive prices</li>
                 <li><i class="fas fa-check-circle text-success me-2"></i> Expert healthcare advice</li>
             </ul>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add after Mission Section -->
+<div class="container stats-container">
+    <div class="row">
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" data-target="50000">50,000+</div>
+            <h4>Happy Customers</h4>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" data-target="5000">5,000+</div>
+            <h4>Products</h4>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" data-target="99">99%</div>
+            <h4>Satisfaction Rate</h4>
+        </div>
+        <div class="col-md-3 stat-item">
+            <div class="stat-number" data-target="24">24/7</div>
+            <h4>Customer Support</h4>
         </div>
     </div>
 </div>
@@ -184,6 +207,33 @@
 </footer>
 <script src="{% static 'js/homepage.js' %}"></script>
 <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animate mission list items
+        const listItems = document.querySelectorAll('.mission-content ul li');
+        listItems.forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.2}s`;
+        });
+    
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                }
+            });
+        }, { threshold: 0.5 });
+    
+        // Observe feature cards
+        document.querySelectorAll('.feature-card').forEach(card => {
+            observer.observe(card);
+        });
+    
+        // Observe statistics
+        document.querySelectorAll('.stat-item').forEach(stat => {
+            observer.observe(stat);
+        });
+    });
+    
     const scrollTopBtn = document.getElementById('scrollTopBtn');
     let lastScrollTop = 0;
     let scrollTimeout;

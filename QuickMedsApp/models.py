@@ -7,7 +7,7 @@ class UserProfile(models.Model):
     address = models.TextField(blank=True, null=True)
     
     def __str__(self):
-        return self.user.email
+        return self.user.username
 
 class Category(models.Model):
     name = models.CharField(max_length=255)

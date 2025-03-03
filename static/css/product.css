@@ -278,6 +278,152 @@ body {
     font-size: 14px;
 }
 
+
+/*  */
+
+.product-slider {
+    display: flex;
+    gap: 20px;
+    overflow-x: scroll;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 20px 0;
+    position: relative;
+}
+
+.product-slider::-webkit-scrollbar {
+    display: none;
+}
+/* Replace the existing control-btn styles with these enhanced versions */
+.control-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid #78ade5;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    position: relative;
+    overflow: hidden;
+    color: #78ade5;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(5px);
+}
+
+.control-btn:before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #78ade5;
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    transform: scale(0);
+    transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    z-index: 1;
+}
+
+.control-btn i {
+    position: relative;
+    z-index: 2;
+    transition: all 0.4s ease;
+}
+
+.control-btn:hover {
+    transform: translateY(-3px) scale(1.1);
+    box-shadow: 0 8px 25px rgba(120, 173, 229, 0.35);
+    color: white;
+}
+
+.control-btn:hover:before {
+    transform: scale(1);
+}
+
+.control-btn:active {
+    transform: translateY(0) scale(0.95);
+}
+
+.control-btn.prev:hover i {
+    animation: slideLeftRight 1s infinite;
+}
+
+.control-btn.next:hover i {
+    animation: slideRightLeft 1s infinite;
+}
+
+.control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    border-color: #ccc;
+    color: #ccc;
+}
+
+.control-btn:disabled:hover {
+    background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    transform: none;
+    color: #ccc;
+}
+
+.control-btn:disabled:before {
+    display: none;
+}
+
+@keyframes slideLeftRight {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(-3px);
+    }
+}
+
+@keyframes slideRightLeft {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    50% {
+        transform: translateX(3px);
+    }
+}
+
+/* Add a pulse effect when new products are loaded */
+@keyframes btnPulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(120, 173, 229, 0.4);
+    }
+    70% {
+        box-shadow: 0 0 0 15px rgba(120, 173, 229, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(120, 173, 229, 0);
+    }
+}
+
+.control-btn.new-content {
+    animation: btnPulse 2s infinite;
+}
+
+/* Enhanced mobile responsiveness */
+@media (max-width: 768px) {
+    .control-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 0.9rem;
+    }
+    
+    .slider-controls {
+        gap: 8px;
+    }
+}
+/*  */
+
 .product-slider {
     display: flex;
     gap: 20px;

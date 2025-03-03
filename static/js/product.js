@@ -1,3 +1,60 @@
+function moveSlider(sliderId, direction) {
+    const slider = document.getElementById(sliderId);
+    if (!slider) return;
+
+    const cardWidth = slider.querySelector('.product-card').offsetWidth;
+    const gap = 20; // Gap between cards
+    const scrollAmount = (cardWidth + gap) * 2; // Scroll 2 cards at a time
+
+    slider.scrollBy({
+        left: direction * scrollAmount,
+        behavior: 'smooth'
+    });
+
+    // Update button states after scrolling
+    setTimeout(() => {
+        const isAtStart = slider.scrollLeft <= 0;
+        const isAtEnd = slider.scrollLeft >= slider.scrollWidth - slider.offsetWidth;
+        
+        const prevBtn = slider.parentElement.querySelector('.prev');
+        const nextBtn = slider.parentElement.querySelector('.next');
+        
+        if (prevBtn) {
+            prevBtn.disabled = isAtStart;
+            prevBtn.style.opacity = isAtStart ? '0.5' : '1';
+        }
+        
+        if (nextBtn) {
+            nextBtn.disabled = isAtEnd;
+            nextBtn.style.opacity = isAtEnd ? '0.5' : '1';
+        }
+    }, 300);
+}
+
+// Add touch support for mobile devices
+document.addEventListener('DOMContentLoaded', function() {
+    const sliders = document.querySelectorAll('.product-slider');
+    
+    sliders.forEach(slider => {
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        slider.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const difference = touchStartX - touchEndX;
+            
+            if (Math.abs(difference) > 50) { // Minimum swipe distance
+                moveSlider(slider.id, difference > 0 ? 1 : -1);
+            }
+        }, { passive: true });
+    });
+});
+
+
 // Product Slider Functionality
 document.addEventListener('DOMContentLoaded', function() {
     initializeProductSliders();

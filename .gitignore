@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # Environment variables
 .env
 
@@ -6,11 +5,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-=======
-# Python
-*.py[cod]
-__pycache__/
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 *.so
 .Python
 env/
@@ -31,7 +25,6 @@ var/
 
 # Django
 *.log
-<<<<<<< HEAD
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
@@ -39,16 +32,6 @@ media/
 
 # Virtual Environment
 .venv/
-=======
-*.pot
-*.pyc
-db.sqlite3
-media/
-static/admin/
-staticfiles/
-
-# Virtual Environment
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 venv/
 ENV/
 
@@ -57,10 +40,7 @@ ENV/
 .vscode/
 *.swp
 *.swo
-<<<<<<< HEAD
 *~
-=======
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
 
 # OS
 .DS_Store
