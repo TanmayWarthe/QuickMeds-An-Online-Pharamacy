@@ -177,23 +177,27 @@
     <!-- Category Grid -->
     <div class="category-grid">
         {% for category in categories %}
-        <div class="category-card" onclick="scrollToCategory('{{ category.name|slugify }}')">
+        <div class="category-card" data-category-id="{{ category.name|slugify }}">
             {% if category.name == 'Baby Care' %}
-            <img src="{% static 'img/productCatlog/image.png' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Wellness & Nutrition' %}
-            <img src="{% static 'img/productCatlog/category/wellness 1.jpeg' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Personal Care & Hygiene' %}
-            <img src="{% static 'img/productCatlog/category/PERSONAL CARE.jpg' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Pain Reliever' %}
-            <img src="{% static 'img/productCatlog/img2.png' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Healthcare & First Aid' %}
-            <img src="{% static 'img/productCatlog/category/aid.jpeg' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'OTC Medicines' %}
-            <img src="{% static 'img/productCatlog/category/ot.jpeg' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
+            {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
+            <img src="{% static 'img/productCatlog/painReliever.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
+            {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
+            <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
+            {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
+            <img src="{% static 'img/productCatlog/otc.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
             {% else %}
-            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
             {% endif %}
             <p>{{ category.name }}</p>
+        </div>
+        {% empty %}
+        <div class="no-categories">
+            <p>No categories available</p>
         </div>
         {% endfor %}
     </div>
@@ -250,10 +254,6 @@
                 </div>
                 {% endfor %}
             </div>
-        </div>
-        {% empty %}
-        <div class="no-categories">
-            <p>No categories available</p>
         </div>
         {% endfor %}
     </div>

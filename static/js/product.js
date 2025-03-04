@@ -1,35 +1,46 @@
+function scrollToCategory(categoryId) {
+    const element = document.getElementById(categoryId);
+    if (element) {
+        const headerOffset = 100; // Adjust this value based on your header height
+        const elementPosition = element.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+        });
+    }
+}
+
+// Slider functionality
 function moveSlider(sliderId, direction) {
     const slider = document.getElementById(sliderId);
     if (!slider) return;
 
     const cardWidth = slider.querySelector('.product-card').offsetWidth;
     const gap = 20; // Gap between cards
-    const scrollAmount = (cardWidth + gap) * 2; // Scroll 2 cards at a time
-
+    const scrollAmount = (cardWidth + gap) * direction;
+    
     slider.scrollBy({
-        left: direction * scrollAmount,
+        left: scrollAmount,
         behavior: 'smooth'
     });
-
-    // Update button states after scrolling
-    setTimeout(() => {
-        const isAtStart = slider.scrollLeft <= 0;
-        const isAtEnd = slider.scrollLeft >= slider.scrollWidth - slider.offsetWidth;
-        
-        const prevBtn = slider.parentElement.querySelector('.prev');
-        const nextBtn = slider.parentElement.querySelector('.next');
-        
-        if (prevBtn) {
-            prevBtn.disabled = isAtStart;
-            prevBtn.style.opacity = isAtStart ? '0.5' : '1';
-        }
-        
-        if (nextBtn) {
-            nextBtn.disabled = isAtEnd;
-            nextBtn.style.opacity = isAtEnd ? '0.5' : '1';
-        }
-    }, 300);
 }
+
+// Initialize sliders and category clicks
+document.addEventListener('DOMContentLoaded', function() {
+    // Add smooth scrolling to all category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('click', function() {
+            const categoryId = this.getAttribute('data-category-id');
+            scrollToCategory(categoryId);
+        });
+    });
+
+    // Initialize product sliders
+    initializeProductSliders();
+    updateCartCount();
+});
 
 // Add touch support for mobile devices
 document.addEventListener('DOMContentLoaded', function() {
@@ -56,11 +67,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 // Product Slider Functionality
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProductSliders();
-    updateCartCount();
-});
-
 function initializeProductSliders() {
     const productSections = document.querySelectorAll('.product-section');
     
