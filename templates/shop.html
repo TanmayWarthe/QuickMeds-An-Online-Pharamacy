@@ -32,7 +32,6 @@
                 <div class="product-header">
                     <span class="category">{{ product.category.name }}</span>
                     <h1 class="product-title">{{ product.name }}</h1>
-                    <div class="product-code">Product Code: {{ product.code }}</div>
                 </div>
 
                 <!-- Price Section -->
@@ -44,15 +43,6 @@
                         <span class="discount">{{ product.discount_percentage }}% OFF</span>
                         {% endif %}
                     </div>
-                    {% if product.expiry_date %}
-                    <div class="expiry-info {% if product.is_expiring_soon %}expiring-soon{% endif %}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Expires on: {{ product.expiry_date|date:"d M Y" }}</span>
-                        {% if product.is_expiring_soon %}
-                        <span class="badge bg-warning">Expiring Soon</span>
-                        {% endif %}
-                    </div>
-                    {% endif %}
                 </div>
 
                 <!-- Quantity and Actions -->
@@ -83,43 +73,29 @@
                 <!-- Additional Details -->
                 <div class="additional-details">
                     <div class="detail-section">
-                        <h3 class="section-title">Product Description</h3>
-                        <div class="description-content">
-                            {{ product.description|linebreaks }}
+                        <h3 class="section-title">Product Details</h3>
+                        <div class="product-details">
+                            <div class="detail-item">
+                                <span class="detail-label">Product Code:</span>
+                                <span class="detail-value">{{ product.code }}</span>
+                            </div>
+                            {% if product.expiry_date %}
+                            <div class="detail-item {% if product.is_expiring_soon %}expiring-soon{% endif %}">
+                                <span class="detail-label">Expiry Date:</span>
+                                <span class="detail-value">{{ product.expiry_date|date:"d M Y" }}</span>
+                                {% if product.is_expiring_soon %}
+                                <span class="badge bg-warning">Expiring Soon</span>
+                                {% endif %}
+                            </div>
+                            {% endif %}
                         </div>
                     </div>
 
                     <div class="detail-section">
-                        <h3 class="section-title">Delivery Information</h3>
-                        <div class="delivery-info">
-                            <div class="delivery-item">
-                                <i class="fas fa-truck"></i>
-                                <span>1 Day Delivery</span>
-                            </div>
-                            <div class="delivery-item">
-                                <i class="fas fa-store"></i>
-                                <span>Free Store Pickup</span>
-                            </div>
+                        <h3 class="section-title">Product Description</h3>
+                        <div class="description-content">
+                            {{ product.description|linebreaks }}
                         </div>
-                    </div>
-                </div>
-
-                <!-- Share Section -->
-                <div class="share-section">
-                    <h3 class="section-title">Share Product</h3>
-                    <div class="share-buttons">
-                        <button class="share-button" onclick="shareProduct('whatsapp')">
-                            <i class="fab fa-whatsapp"></i>
-                        </button>
-                        <button class="share-button" onclick="shareProduct('facebook')">
-                            <i class="fab fa-facebook"></i>
-                        </button>
-                        <button class="share-button" onclick="shareProduct('twitter')">
-                            <i class="fab fa-twitter"></i>
-                        </button>
-                        <button class="share-button" onclick="copyLink()">
-                            <i class="fas fa-link"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -129,202 +105,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-function addToCart(productId) {
-    // Get the quantity
-    const quantityInput = document.getElementById('quantity');
-    const quantity = parseInt(quantityInput.value);
-    
-    // Disable the button to prevent multiple clicks
-    const addButton = document.querySelector('.add-to-cart-btn');
-    if (addButton) {
-        addButton.disabled = true;
-        addButton.style.opacity = '0.7';
-    }
-
-    fetch('/add-to-cart/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
-        },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: quantity
-        })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            // Update cart count
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.cart_count;
-            }
-            
-            // Show success message
-            showMessage('success', 'Added to cart successfully!');
-        } else {
-            throw new Error(data.error || 'Failed to add to cart');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showMessage('error', error.message || 'An error occurred. Please try again.');
-    })
-    .finally(() => {
-        // Re-enable the button
-        if (addButton) {
-            addButton.disabled = false;
-            addButton.style.opacity = '1';
-        }
-    });
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function showMessage(type, message) {
-    const successMsg = document.getElementById('successMessage');
-    const errorMsg = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
-    
-    successMsg.style.display = 'none';
-    errorMsg.style.display = 'none';
-    
-    if (type === 'success') {
-        successMsg.style.display = 'block';
-        setTimeout(() => {
-            successMsg.style.display = 'none';
-        }, 3000);
-    } else {
-        errorText.textContent = message;
-        errorMsg.style.display = 'block';
-        setTimeout(() => {
-            errorMsg.style.display = 'none';
-        }, 3000);
-    }
-}
-
-function updateQuantity(change) {
-    const input = document.getElementById('quantity');
-    const newValue = parseInt(input.value) + change;
-    const maxStock = parseInt(input.getAttribute('max'));
-    const errorDiv = document.getElementById('quantityError');
-    
-    if (newValue >= 1 && newValue <= maxStock) {
-        input.value = newValue;
-        errorDiv.style.display = 'none';
-    } else if (newValue > maxStock) {
-        errorDiv.textContent = 'Quantity exceeds available stock';
-        errorDiv.style.display = 'block';
-    }
-}
-
-function shareProduct(platform) {
-    const url = window.location.href;
-    const title = document.querySelector('.product-title').textContent;
-    
-    let shareUrl;
-    switch(platform) {
-        case 'whatsapp':
-            shareUrl = `https://wa.me/?text=${encodeURIComponent(title + ' ' + url)}`;
-            break;
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
-            break;
-    }
-    
-    if (shareUrl) {
-        window.open(shareUrl, '_blank', 'width=600,height=400');
-    }
-}
-
-function copyLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
-        showMessage('success', 'Link copied to clipboard!');
-    }).catch(() => {
-        showMessage('error', 'Failed to copy link');
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const addToCartForm = document.querySelector('.add-to-cart-form');
-    const quantityInput = document.getElementById('quantity');
-
-    quantityInput.addEventListener('change', function() {
-        const value = parseInt(this.value);
-        const max = parseInt(this.getAttribute('max'));
-        const errorDiv = document.getElementById('quantityError');
-        
-        if (value < 1 || isNaN(value)) {
-            this.value = 1;
-            errorDiv.style.display = 'none';
-        } else if (value > max) {
-            this.value = max;
-            errorDiv.textContent = 'Quantity exceeds available stock';
-            errorDiv.style.display = 'block';
-        } else {
-            errorDiv.style.display = 'none';
-        }
-    });
-
-    addToCartForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.classList.add('loading');
-        
-        const formData = new FormData(this);
-
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            submitBtn.classList.remove('loading');
-            if (data.success) {
-                showMessage('success', 'Added to cart successfully!');
-                if (data.cart_count !== undefined) {
-                    const cartCount = document.getElementById('cart-count');
-                    if (cartCount) {
-                        cartCount.textContent = data.cart_count;
-                    }
-                }
-            } else {
-                showMessage('error', data.message || 'Failed to add to cart');
-            }
-        })
-        .catch(error => {
-            submitBtn.classList.remove('loading');
-            showMessage('error', 'An error occurred. Please try again.');
-            console.error('Error:', error);
-        });
-    });
-});
-</script>
+<script src="{% static 'js/shop.js' %}"></script>
 {% endblock %}

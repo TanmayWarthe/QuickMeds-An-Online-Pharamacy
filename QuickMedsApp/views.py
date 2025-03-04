@@ -105,7 +105,16 @@ def base(request):
     return render(request, 'base.html')
 
 def home(request):
-    return render(request, 'home.html')
+    # Get featured products (latest 6 products)
+    featured_products = Product.objects.filter(in_stock=True).order_by('-created_at')[:6]
+    categories = Category.objects.all()
+    
+    context = {
+        'featured_products': featured_products,
+        'categories': categories,
+        'cart_count': get_cart_count(request)
+    }
+    return render(request, 'home.html', context)
 
 def about_view(request):
     context = {
