@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # QuickMeds Online Pharmacy
 
 A Django-based online pharmacy application that allows users to browse, search, and purchase medicines online.
@@ -97,11 +97,9 @@ print(get_random_secret_key())
 3. Commit your changes
 4. Push to the branch
 5. Create a new Pull Request
-=======
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 # QuickMeds-Online-Pharmacy
-=======
+
 # 🚀 QuickMeds - Online Pharmacy Management System  
 
 ![QuickMeds Banner](https://via.placeholder.com/1200x400?text=QuickMeds+-+Online+Pharmacy+Management+System)  
@@ -164,8 +162,5 @@ QuickMeds is a cutting-edge online pharmacy platform designed to provide a seaml
 
 ---
 
->>>>>>> bf2ad92 (Initial commit)
-=======
 # QuickMeds-Online-Pharmacy
->>>>>>> aa9aed7f94a4deb270d63af2e255cf3d5cf221ce
->>>>>>> 68537b2ae03045ff6750901c72bbe5eabb416815
+
