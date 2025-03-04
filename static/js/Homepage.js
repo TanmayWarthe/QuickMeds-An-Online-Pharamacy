@@ -11,10 +11,56 @@ function toggleSidebar() {
 // Add this code to the existing file
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize all dropdowns
-    var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+    var dropdownElementList = [].slice.call(document.querySelectorAll('[data-bs-toggle="dropdown"]'));
     var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
-        return new bootstrap.Dropdown(dropdownToggleEl)
+        return new bootstrap.Dropdown(dropdownToggleEl);
     });
+
+    // Profile icon click handler
+    const profileIcon = document.querySelector('.fa-user');
+    if (profileIcon) {
+        profileIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            const dropdownToggle = this.closest('.dropdown-toggle');
+            if (dropdownToggle) {
+                const dropdown = bootstrap.Dropdown.getInstance(dropdownToggle);
+                if (dropdown) {
+                    dropdown.toggle();
+                }
+            }
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('.dropdown')) {
+            const dropdowns = document.querySelectorAll('.dropdown-menu.show');
+            dropdowns.forEach(function(dropdown) {
+                dropdown.classList.remove('show');
+            });
+        }
+    });
+
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar) {
+            sidebar.classList.toggle('active');
+        }
+    }
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById("sidebar");
+        const menuBtn = document.querySelector('.menu-btn');
+        
+        if (sidebar && menuBtn && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
+    // Make toggleSidebar function globally available
+    window.toggleSidebar = toggleSidebar;
 });
 
 

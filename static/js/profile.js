@@ -1,29 +1,58 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Profile icon click handler
+    const profileIcon = document.querySelector('.nav-icon');
+    if (profileIcon) {
+        profileIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = '/profile/';
+        });
+    }
+
+    // Sidebar toggle functionality
+    function toggleSidebar() {
+        const sidebar = document.getElementById("sidebar");
+        if (sidebar) {
+            sidebar.classList.toggle('active');
+        }
+    }
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(e) {
+        const sidebar = document.getElementById("sidebar");
+        const menuBtn = document.querySelector('.menu-btn');
+        
+        if (sidebar && menuBtn && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    });
+
     // Profile image upload
     const imageUpload = document.getElementById('profile-image-upload');
     const profileImage = document.querySelector('.profile-image');
 
-    imageUpload.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            const formData = new FormData();
-            formData.append('profile_image', file);
+    if (imageUpload && profileImage) {
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('profile_image', file);
 
-            fetch('/update-profile-image/', {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken'),
-                },
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    profileImage.src = URL.createObjectURL(file);
-                }
-            });
-        }
-    });
+                fetch('/update-profile-image/', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        profileImage.src = URL.createObjectURL(file);
+                    }
+                });
+            }
+        });
+    }
 
     // Profile form submission
     const profileForm = document.getElementById('profile-form');
@@ -50,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Helper functions
+    // Helper function to get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {

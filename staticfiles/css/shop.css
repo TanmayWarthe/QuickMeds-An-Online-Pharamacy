@@ -88,13 +88,19 @@
 /* Product Image */
 .product-image-section {
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1rem;
 }
 
 .product-image {
-    width: 100%;
-    height: auto;
+    width: 400px;
+    height: 400px;
+    object-fit: contain;
     border-radius: 8px;
-    background: #fff;
 }
 
 /* Product Info */
@@ -217,6 +223,32 @@
     font-weight: 600;
 }
 
+/* Product Details */
+.product-details {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.detail-label {
+    font-weight: 500;
+    color: #666;
+    min-width: 120px;
+}
+
+.detail-value {
+    color: #333;
+}
+
+.expiring-soon {
+    color: #e74c3c;
+}
+
 /* Messages */
 .success-message, .error-message {
     position: fixed;
@@ -286,6 +318,11 @@
 
     .product-container {
         grid-template-columns: 1fr;
+    }
+
+    .product-image {
+        width: 100%;
+        height: 300px;
     }
 
     .action-buttons {
