@@ -8,7 +8,7 @@ These three Git commands are used to **track, save, and upload your changes to G
 ✅ **Saves the changes** to your local Git repository.  
 - The `-m "Your update message"` adds a meaningful message describing what you changed.  
 
-### **3. `git push origin LUFFY`**  
+### **3. `git push origin main`**  
 ✅ **Uploads (pushes) the committed changes** to GitHub.  
 - `origin` refers to your remote repository on GitHub.  
 - `LUFFY` is the branch where you are pushing the changes.  
