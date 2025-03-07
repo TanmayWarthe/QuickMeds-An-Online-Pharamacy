@@ -386,7 +386,7 @@
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
+                'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({
                 product_id: productId,
@@ -399,7 +399,7 @@
                 // Update cart count
                 const cartCount = document.getElementById('cart-count');
                 if (cartCount) {
-                    cartCount.textContent = data.cart_count;
+                    cartCount.textContent = data.items_count;
                     cartCount.classList.remove('animate');
                     void cartCount.offsetWidth; // Trigger reflow
                     cartCount.classList.add('animate');

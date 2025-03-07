@@ -222,47 +222,42 @@ def profile_view(request):
 @login_required
 def add_to_cart(request):
     if request.method == 'POST':
-        data = json.loads(request.body)
-        product_id = data.get('product_id')
-        quantity = data.get('quantity', 1)
-
         try:
-            product = Product.objects.get(id=product_id)
+            data = json.loads(request.body)
+            product_id = data.get('product_id')
+            quantity = data.get('quantity', 1)
             
-            # Check if product is in stock
-            if hasattr(product, 'in_stock') and not product.in_stock:
-                return JsonResponse({
-                    'success': False,
-                    'error': 'Product is out of stock'
-                })
-                
+            # Get or create cart for user
             cart, created = Cart.objects.get_or_create(user=request.user)
             
-            cart_item, item_created = CartItem.objects.get_or_create(
+            # Get or create cart item
+            cart_item, created = CartItem.objects.get_or_create(
                 cart=cart,
-                product=product,
+                product_id=product_id,
                 defaults={'quantity': quantity}
             )
-
-            if not item_created:
+            
+            if not created:
                 cart_item.quantity += quantity
                 cart_item.save()
-
-            cart_count = CartItem.objects.filter(cart__user=request.user).count()
+            
+            # Get updated cart information
+            cart_total = cart.get_total()
+            items_count = cart.cartitem_set.count()
             
             return JsonResponse({
                 'success': True,
-                'message': 'Added to cart successfully',
-                'cart_count': cart_count
+                'message': 'Item added to cart successfully',
+                'cart_total': '{:,}'.format(cart_total),
+                'items_count': items_count
             })
-
+            
         except Product.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'error': 'Product not found'
-            })
-
-    return JsonResponse({'success': False, 'error': 'Invalid request'})
+            return JsonResponse({'success': False, 'error': 'Product not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+            
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
 @login_required
 def cart_view(request):
@@ -286,20 +281,14 @@ def update_cart_item(request):
         try:
             data = json.loads(request.body)
             item_id = data.get('item_id')
-            quantity = int(data.get('quantity', 1))
+            quantity = data.get('quantity')
             
-            if quantity < 1:
-                return JsonResponse({'success': False, 'error': 'Quantity must be at least 1'})
-                
             cart_item = CartItem.objects.get(
                 id=item_id,
                 cart__user=request.user
             )
             
-            # Check if product has enough stock
-            if hasattr(cart_item.product, 'in_stock') and not cart_item.product.in_stock:
-                return JsonResponse({'success': False, 'error': 'Product is out of stock'})
-            
+            # Update quantity
             cart_item.quantity = quantity
             cart_item.save()
             
@@ -311,8 +300,6 @@ def update_cart_item(request):
             return JsonResponse({
                 'success': True,
                 'message': 'Cart updated successfully',
-                'new_quantity': quantity,
-                'item_total': cart_item.get_total_price(),
                 'cart_total': '{:,}'.format(cart_total),
                 'items_count': items_count
             })
