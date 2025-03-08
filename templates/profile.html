@@ -1,79 +1,971 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Profile - QuickMeds{% endblock %}
+{% block title %}My Profile - QuickMeds{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
-{% endblock %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: #f4f6f9;
+    }
 
-{% block extra_js %}
-<script src="{% static 'js/profile.js' %}"></script>
+    /* Modern Header & Navbar Styles */
+    .header {
+        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        position: relative;
+        z-index: 100;
+        border-bottom: 1px solid rgba(52, 152, 219, 0.1);
+    }
+
+    .main-header {
+        padding: 1.2rem 0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+    }
+
+    /* Logo Styles */
+    .logo-container {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 0.8rem;
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .logo-container:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
+    }
+
+    .logo-container img {
+        height: 48px;
+        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+        transition: all 0.4s ease;
+    }
+
+    .logo-container:hover img {
+        transform: rotate(8deg) scale(1.1);
+    }
+
+    .logo-container h1 {
+        margin: 0;
+        font-size: 30px;
+        font-weight: 700;
+        background: linear-gradient(45deg, #2c3e50, #3498db, #2980b9, #3498db);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-size: 300% 300%;
+        animation: gradientText 6s ease infinite;
+    }
+
+    @keyframes gradientText {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+    }
+
+    /* Search Bar Styles */
+    .search-container {
+        flex: 1;
+        max-width: 550px;
+        margin: 0 2.5rem;
+        position: relative;
+    }
+
+    .search-box {
+        width: 100%;
+        padding: 1.2rem 3.5rem;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        outline: none;
+        font-size: 1rem;
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .search-box:focus {
+        border-color: #3498db;
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
+        transform: scale(1.02);
+    }
+
+    .search-icon {
+        position: absolute;
+        left: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #3498db;
+        font-size: 1.2rem;
+        transition: all 0.4s ease;
+    }
+
+    .search-box:focus + .search-icon {
+        color: #2c3e50;
+        transform: translateY(-50%) scale(1.2);
+    }
+
+    /* Navigation Links */
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.5rem;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .nav-link {
+        color: #2c3e50;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 0.8rem 1.2rem;
+        border-radius: 12px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 500;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .nav-link::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        opacity: 0;
+        z-index: -1;
+        transition: all 0.4s ease;
+        transform: translateX(-100%) skewX(-15deg);
+    }
+
+    .nav-link:hover::before {
+        opacity: 1;
+        transform: translateX(0) skewX(-15deg);
+    }
+
+    .nav-link:hover {
+        color: #ffffff;
+        transform: translateY(-2px);
+    }
+
+    .nav-link i {
+        font-size: 1.3rem;
+        transition: all 0.4s ease;
+    }
+
+    .nav-link:hover i {
+        transform: scale(1.2) rotate(5deg);
+    }
+
+    /* Tagline Bar */
+    .tagline-bar {
+        background: linear-gradient(135deg, #2c3e50, #3498db);
+        padding: 1.2rem 0;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .tagline-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 2rem;
+        color: #ffffff;
+        position: relative;
+        z-index: 2;
+    }
+
+    .tagline-icon {
+        font-size: 1.8rem;
+        opacity: 0.9;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    .tagline-text {
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .tagline-highlight {
+        color: #ffd700;
+        font-weight: 700;
+        position: relative;
+        display: inline-block;
+        padding: 0 5px;
+    }
+
+    .tagline-highlight::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: #ffd700;
+        transform: scaleX(0);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tagline-highlight:hover::before {
+        transform: scaleX(1);
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.9; }
+        50% { transform: scale(1.2); opacity: 1; }
+    }
+
+    .tagline-bar::before,
+    .tagline-bar::after {
+        content: '';
+        position: absolute;
+        width: 250px;
+        height: 250px;
+        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
+        border-radius: 50%;
+        animation: rotate 20s linear infinite;
+    }
+
+    .tagline-bar::before {
+        top: -125px;
+        left: -125px;
+    }
+
+    .tagline-bar::after {
+        bottom: -125px;
+        right: -125px;
+        animation-delay: -10s;
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+
+    /* Modern Profile Container Styles */
+    .profile-main-container {
+        display: flex;
+        gap: 2.5rem;
+        padding: 2.5rem;
+        background: #f4f6f9;
+        min-height: calc(100vh - 60px - 400px);
+        margin-top: 20px;
+    }
+
+    /* Modern Sidebar Styles */
+    .profile-sidebar {
+        width: 320px;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        height: fit-content;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-sidebar:hover {
+        transform: translateY(-5px);
+    }
+
+    .profile-user-info {
+        text-align: center;
+        margin-bottom: 2.5rem;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 140px;
+        height: 140px;
+        margin: 0 auto 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: linear-gradient(45deg, #3498db, #2c3e50);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .profile-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+    .profile-avatar img:hover {
+        transform: scale(1.05);
+    }
+
+    .profile-avatar i {
+        font-size: 3.5rem;
+        color: #ffffff;
+    }
+
+    .profile-image-upload {
+        position: absolute;
+        bottom: 5px;
+        right: 5px;
+    }
+
+    .upload-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #3498db;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+        transition: all 0.3s ease;
+    }
+
+    .upload-btn:hover {
+        background: #2c3e50;
+        transform: scale(1.1);
+    }
+
+    .profile-nav {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .profile-nav li {
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.8rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .profile-nav li.active {
+        background: linear-gradient(45deg, #3498db, #2c3e50);
+        color: white;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .profile-nav li:hover:not(.active) {
+        background: rgba(52, 152, 219, 0.1);
+        transform: translateX(5px);
+    }
+
+    .profile-nav i {
+        margin-right: 1rem;
+        width: 20px;
+        font-size: 1.2rem;
+    }
+
+    /* Modern Content Area Styles */
+    .profile-content {
+        flex: 1;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    .profile-tab h2 {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .profile-tab h2 i {
+        color: #3498db;
+    }
+
+    /* Dashboard Stats Cards */
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .stat-card {
+        background: linear-gradient(135deg, #ffffff, #f8f9fa);
+        border-radius: 15px;
+        padding: 1.8rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 15px;
+        background: linear-gradient(45deg, #3498db, #2c3e50);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    /* Form Styles */
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+
+    .form-control {
+        border-radius: 12px;
+        border: 2px solid #e1e8ef;
+        padding: 0.8rem 1.2rem;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+    }
+
+    .form-control:focus {
+        border-color: #3498db;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+    }
+
+    .btn-save {
+        background: linear-gradient(45deg, #3498db, #2c3e50);
+        color: white;
+        border: none;
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .profile-main-container {
+            flex-direction: column;
+            padding: 1.5rem;
+        }
+
+        .profile-sidebar {
+            width: 100%;
+        }
+
+        .main-header {
+            flex-direction: column;
+            gap: 1rem;
+            padding: 1rem;
+        }
+
+        .search-container {
+            margin: 1rem 0;
+            width: 100%;
+        }
+
+        .nav-links {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
+<!-- Header -->
+<header class="header">
+    <!-- Main Header -->
+    <div class="container">
+        <div class="main-header">
+            <!-- Logo -->
+            <div class="logo-container">
+                <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds Logo">
+                <h1>QuickMeds</h1>
+            </div>
 
-<!-- Header with tagline and menu -->
-<div class="header">
-    <div class="tagline">
-        <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="centered-text-container">
-            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+            <!-- Search Bar -->
+            <div class="search-container">
+                <input type="text" class="search-box" placeholder="Search medicines, health products, and more...">
+                <i class="fas fa-search search-icon"></i>
+            </div>
+
+            <!-- Navigation Links -->
+            <div class="nav-links">
+                <a href="{% url 'home' %}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{% url 'cart' %}" class="nav-link">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Cart</span>
+                </a>
+                <a href="{% url 'profile' %}" class="nav-link">
+                    <i class="fas fa-user"></i>
+                    <span>Profile</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tagline Bar -->
+    <div class="tagline-bar">
+        <div class="container">
+            <div class="tagline-content">
+                <i class="fas fa-heartbeat tagline-icon"></i>
+                <span class="tagline-text">
+                    Making <span class="tagline-highlight">Healthcare</span> Smart & Simple
+                </span>
+                <i class="fas fa-pills tagline-icon"></i>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Main Content -->
+<div class="profile-main-container">
+    <!-- Profile Sidebar -->
+    <div class="profile-sidebar">
+        <div class="profile-user-info">
+            <div class="profile-avatar-container">
+                <div class="profile-avatar">
+                    {% if user.userprofile.profile_image %}
+                    <img src="{{ user.userprofile.profile_image.url }}" alt="Profile Image">
+                    {% else %}
+                    <i class="fas fa-user"></i>
+                    {% endif %}
+                </div>
+                <div class="profile-image-upload">
+                    <label for="profile-image-upload" class="upload-btn">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="profile-image-upload" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            <h3>{{ user.get_full_name|default:user.username }}</h3>
+            <p class="user-email">{{ user.email }}</p>
+            <div class="user-status">
+                <span class="status-badge">
+                    <i class="fas fa-circle"></i> Active Member
+                </span>
+            </div>
+        </div>
+        
+        <ul class="profile-nav">
+            <li class="active" data-tab="dashboard">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </li>
+            <li data-tab="personal-info">
+                <i class="fas fa-user-edit"></i> Personal Info
+            </li>
+            <li data-tab="orders">
+                <i class="fas fa-shopping-bag"></i> My Orders
+                {% if orders_count %}
+                <span class="badge">{{ orders_count }}</span>
+                {% endif %}
+            </li>
+            <li data-tab="addresses">
+                <i class="fas fa-map-marker-alt"></i> Addresses
+            </li>
+            <li data-tab="settings">
+                <i class="fas fa-cog"></i> Account Settings
+            </li>
+            <li>
+                <a href="{% url 'logout' %}" class="logout-link">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- Dashboard Tab -->
+        <div class="profile-tab active" id="dashboard">
+            <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+            
+            <div class="dashboard-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ orders_count|default:"0" }}</h3>
+                        <p>Total Orders</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>{{ addresses_count|default:"0" }}</h3>
+                        <p>Saved Addresses</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="recent-activity">
+                <h3><i class="fas fa-history"></i> Recent Orders</h3>
+                {% if recent_orders %}
+                <div class="activity-list">
+                    {% for order in recent_orders %}
+                    <div class="activity-item">
+                        <div class="order-info">
+                            <span class="order-id">Order #{{ order.id }}</span>
+                            <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+                            <span class="order-status {{ order.status|lower }}">{{ order.status }}</span>
+                        </div>
+                        <div class="order-total">₹{{ order.total }}</div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="activity-empty">
+                    <i class="fas fa-shopping-bag"></i>
+                    <p>No orders yet</p>
+                    <a href="{% url 'shop' %}" class="btn-shop-now">Shop Now</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Personal Info Tab -->
+        <div class="profile-tab" id="personal-info">
+            <h2><i class="fas fa-user-edit"></i> Personal Information</h2>
+            <form id="profile-form" class="profile-edit-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="first_name">First Name</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="last_name">Last Name</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
+                    <small class="form-text text-muted">Email cannot be changed</small>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="address">Complete Address</label>
+                    <textarea id="address" name="address" class="form-control" rows="3" required>{{ user.userprofile.address|default:'' }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city" value="{{ user.userprofile.city|default:'' }}" class="form-control" required>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="state">State</label>
+                        <input type="text" id="state" name="state" value="{{ user.userprofile.state|default:'' }}" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="pincode">Pincode</label>
+                    <input type="text" id="pincode" name="pincode" value="{{ user.userprofile.pincode|default:'' }}" class="form-control" required>
+                </div>
+                <button type="submit" class="btn-save">Save Changes</button>
+            </form>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="profile-tab" id="orders">
+            <h2><i class="fas fa-shopping-bag"></i> My Orders</h2>
+            {% if orders %}
+            <div class="orders-list">
+                {% for order in orders %}
+                <div class="order-card">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <span class="order-id">Order #{{ order.id }}</span>
+                            <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+                        </div>
+                        <div class="order-status {{ order.status|lower }}">{{ order.status }}</div>
+                    </div>
+                    <div class="order-items">
+                        {% for item in order.items.all %}
+                        <div class="order-item">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            <div class="item-details">
+                                <h4>{{ item.product.name }}</h4>
+                                <p>Quantity: {{ item.quantity }}</p>
+                                <p>₹{{ item.price }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-total">Total: ₹{{ order.total }}</div>
+                        <a href="{% url 'order_detail' order.id %}" class="btn-view-order">View Details</a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="orders-empty">
+                <i class="fas fa-shopping-bag"></i>
+                <p>You haven't placed any orders yet</p>
+                <a href="{% url 'shop' %}" class="btn-shop-now">Shop Now</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Addresses Tab -->
+        <div class="profile-tab" id="addresses">
+            <div class="addresses-container">
+                <div class="addresses-header">
+                    <h2><i class="fas fa-map-marker-alt"></i> My Addresses</h2>
+                </div>
+                
+                <!-- Address Form Container -->
+                <div class="address-form-container" style="display: none;">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Address</h3>
+                    <form id="address-form" class="address-form">
+                        <div class="form-group">
+                            <label for="address_type">Address Type</label>
+                            <select id="address_type" name="type" class="form-control" required>
+                                <option value="Home">Home</option>
+                                <option value="Office">Office</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="full_name">Full Name</label>
+                            <input type="text" id="full_name" name="full_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_number">Phone Number</label>
+                            <input type="tel" id="phone_number" name="phone_number" class="form-control" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="address">Street Address</label>
+                            <textarea id="address" name="street_address" class="form-control" required></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City</label>
+                                <input type="text" id="city" name="city" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State</label>
+                                <input type="text" id="state" name="state" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pincode">Postal Code</label>
+                            <input type="text" id="pincode" name="postal_code" class="form-control" required pattern="[0-9]{6}" title="Please enter a valid 6-digit postal code">
+                        </div>
+                        <div class="form-group">
+                            <div class="form-check">
+                                <input type="checkbox" id="default_address" name="is_default" class="form-check-input">
+                                <label class="form-check-label" for="default_address">Set as default address</label>
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" id="cancel-address-btn" class="btn-cancel">Cancel</button>
+                            <button type="submit" class="btn-save">Save Address</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Address List -->
+                {% for address in addresses %}
+                <div class="address-card">
+                    <div class="address-type">
+                        <i class="fas fa-{% if address.type == 'Home' %}home{% elif address.type == 'Office' %}building{% else %}map-marker{% endif %}"></i>
+                        {{ address.type }}
+                        {% if address.is_default %}
+                        <span class="default-badge">Default</span>
+                        {% endif %}
+                    </div>
+                    <div class="address-details">
+                        <p><strong>{{ address.full_name }}</strong></p>
+                        <p>{{ address.phone_number }}</p>
+                        <p>{{ address.street_address }}</p>
+                        <p>{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                        <p>{{ address.country }}</p>
+                    </div>
+                    <div class="address-actions">
+                        <button class="edit-btn" onclick="editAddress({{ address.id }})">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button class="delete-btn" onclick="deleteAddress({{ address.id }})">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="address-empty">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <p>No addresses added yet.</p>
+                </div>
+                {% endfor %}
+                
+                <button id="add-address-btn" class="add-address-btn">
+                    <i class="fas fa-plus"></i> Add New Address
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="profile-tab" id="settings">
+            <h2><i class="fas fa-cog"></i> Account Settings</h2>
+            
+            <div class="settings-section">
+                <h3>Change Password</h3>
+                <form id="password-form" class="settings-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" id="new_password" name="new_password" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
+                    </div>
+                    <button type="submit" class="btn-save">Update Password</button>
+                </form>
+            </div>
+            
+            <div class="settings-section danger-zone">
+                <h3>Danger Zone</h3>
+                <button class="btn-danger" id="delete-account-btn">Delete Account</button>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
-    </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i>Our Product</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
-</div>
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container-fluid">
+        <div class="row mx-5">
+            <!-- About Section -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
+                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
+            </div>
 
-<div class="profile-container">
-    <div class="profile-header">
-        <div class="profile-avatar">
-            <i class="fas fa-user"></i>
-        </div>
-        <h2>{{ user.first_name }}'s Profile</h2>
-    </div>
+            <!-- Quick Links -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
+                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                    <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
+                </ul>
+            </div>
 
-    <div class="profile-info">
-        <div class="info-item">
-            <span class="info-label">Name:</span>
-            <span>{{ user.first_name }}</span>
+            <!-- Contact Info -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
+                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
+                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
+                </ul>
+            </div>
         </div>
-        <div class="info-item">
-            <span class="info-label">Email:</span>
-            <span>{{ user.email }}</span>
-        </div>
-        {% if user.userprofile.phone %}
-        <div class="info-item">
-            <span class="info-label">Phone:</span>
-            <span>{{ user.userprofile.phone }}</span>
-        </div>
-        {% endif %}
-    </div>
 
-    <div class="text-center">
-        <a href="{% url 'logout' %}" class="logout-btn">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
+        <!-- Social Links & Copyright -->
+        <div class="text-center border-top pt-4 mt-4">
+            <div class="mb-3">
+                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
+        </div>
     </div>
-</div>
+</footer>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/Homepage.js' %}"></script>
+<script src="{% static 'js/profile.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    function toggleSidebar() {
-        document.getElementById("sidebar").classList.toggle('active');
-    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab switching functionality
+        const tabLinks = document.querySelectorAll('.profile-nav li[data-tab]');
+        const tabs = document.querySelectorAll('.profile-tab');
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                // Remove active class from all links and tabs
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
+
+                // Add active class to clicked link and corresponding tab
+                this.classList.add('active');
+                document.getElementById(this.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Address form toggle
+        const addAddressBtn = document.getElementById('add-address-btn');
+        const cancelAddressBtn = document.getElementById('cancel-address-btn');
+        const addressFormContainer = document.querySelector('.address-form-container');
+
+        if(addAddressBtn && cancelAddressBtn && addressFormContainer) {
+            addAddressBtn.addEventListener('click', () => {
+                addressFormContainer.style.display = 'block';
+            });
+
+            cancelAddressBtn.addEventListener('click', () => {
+                addressFormContainer.style.display = 'none';
+            });
+        }
+    });
 </script>
 {% endblock %} 

@@ -185,11 +185,11 @@
             {% elif category.name == 'Personal Care & Hygiene' %}
             <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
-            <img src="{% static 'img/productCatlog/painReliever.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
+            <img src="{% static 'img/productCatlog/painReliever.jpeg' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
-            <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
+            <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
             {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
-            <img src="{% static 'img/productCatlog/otc.jpeg' %}" alt="{{ category.name }}" onerror="this.src='{% static 'img/medicines-icon.png' %}'" />
+            <img src="{% static 'img/productCatlog/otc.jpeg' %}" alt="{{ category.name }}" />
             {% else %}
             <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
             {% endif %}
@@ -316,7 +316,7 @@
 
 <!-- Include JavaScript files -->
 <script src="{% static 'js/product.js' %}"></script>
-<script src="{% static 'js/Homepage.js' %}"></script>
+<script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script>
 
     const scrollTopBtn = document.getElementById('scrollTopBtn');
