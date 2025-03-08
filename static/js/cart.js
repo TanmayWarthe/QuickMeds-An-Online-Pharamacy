@@ -2,32 +2,38 @@ function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('active');
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    const quantityButtons = document.querySelectorAll('.quantity-btn');
-    quantityButtons.forEach(button => {
-        button.addEventListener('click', function () {
-            const itemId = this.dataset.itemId;
-            const change = parseInt(this.dataset.change);
-            updateQuantity(itemId, change);
-        });
-    });
-});
-
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all quantity buttons
+    // Get all quantity buttons and inputs
     const quantityBtns = document.querySelectorAll('.quantity-btn');
     const removeBtns = document.querySelectorAll('.remove-btn');
     
-    // Add click event listeners to quantity buttons
+    // Add event listeners to quantity buttons
     quantityBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault();
             const itemId = this.dataset.itemId;
-            const change = parseInt(this.dataset.change);
-            updateQuantity(itemId, change);
+            const input = this.parentElement.querySelector('.quantity-input');
+            let value = parseInt(input.value);
+            
+            // Check if it's plus or minus button
+            if (this.classList.contains('minus')) {
+                if (value > 1) {
+                    input.value = value - 1;
+                    updateQuantityOnServer(itemId, value - 1);
+                }
+            } else {
+                if (value < 99) {
+                    input.value = value + 1;
+                    updateQuantityOnServer(itemId, value + 1);
+                }
+            }
+            
+            // Update button states
+            updateButtonStates(itemId, parseInt(input.value));
         });
     });
     
-    // Add click event listeners to remove buttons
+    // Add event listeners to remove buttons
     removeBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const itemId = this.dataset.itemId;
@@ -36,49 +42,181 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Function to update quantity
-function updateQuantity(itemId, change) {
-    const quantityInput = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-    const currentQuantity = parseInt(quantityInput.value);
-    const newQuantity = currentQuantity + change;
+// Function to update button states
+function updateButtonStates(itemId, value) {
+    const decreaseBtn = document.querySelector(`.quantity-btn.minus[data-item-id="${itemId}"]`);
+    const increaseBtn = document.querySelector(`.quantity-btn.plus[data-item-id="${itemId}"]`);
     
-    if (newQuantity < 1) return;
+    if (decreaseBtn) {
+        decreaseBtn.disabled = value <= 1;
+    }
+    if (increaseBtn) {
+        increaseBtn.disabled = value >= 99;
+    }
+}
+
+// Function to update quantity on server
+function updateQuantityOnServer(itemId, quantity) {
+    const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+    const itemContainer = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
     
-    // Update the input value
-    quantityInput.value = newQuantity;
-    
-    // Calculate new total
-    const price = parseFloat(quantityInput.dataset.price);
-    const newTotal = price * newQuantity;
-    
-    // Update the item total display
-    const itemTotal = document.querySelector(`.item-total[data-item-id="${itemId}"]`);
-    itemTotal.textContent = newTotal.toLocaleString();
-    
-    // Update cart total
-    updateCartTotal();
-    
-    // Send update to server
+    if (itemContainer) {
+        itemContainer.classList.add('updating');
+    }
+
     fetch('/update-cart-item/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': getCookie('csrftoken'),
+            'X-Requested-With': 'XMLHttpRequest'
         },
         body: JSON.stringify({
             item_id: itemId,
-            quantity: newQuantity
+            quantity: quantity
         })
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Server error: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
-            updateCartCount(data.items_count);
+            // Silently update all values
+            updateCartDisplay(data);
+            
+            // Update item total with animation
+            const totalEl = document.querySelector(`.item-total[data-item-id="${itemId}"]`);
+            if (totalEl && data.item_total) {
+                totalEl.classList.add('price-update');
+                totalEl.textContent = data.item_total;
+                setTimeout(() => totalEl.classList.remove('price-update'), 300);
+            }
+            
+            // Update quantity input
+            if (input) {
+                input.value = quantity;
+                updateButtonStates(itemId, quantity);
+            }
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        // Only show error for actual errors
+        if (input) input.value = input.defaultValue;
+    })
+    .finally(() => {
+        if (itemContainer) {
+            itemContainer.classList.remove('updating');
+        }
     });
+}
+
+// Function to update cart display
+function updateCartDisplay(data) {
+    // Update cart total with animation
+    const cartTotal = document.getElementById('cart-total');
+    if (cartTotal) {
+        cartTotal.classList.add('price-update');
+        cartTotal.textContent = data.cart_total;
+        setTimeout(() => cartTotal.classList.remove('price-update'), 300);
+    }
+    
+    // Update items count
+    const itemsCount = document.getElementById('items-count');
+    if (itemsCount) {
+        itemsCount.textContent = data.items_count;
+    }
+    
+    // Update cart count in header with animation
+    const cartCount = document.querySelector('.cart-count');
+    if (cartCount) {
+        cartCount.classList.add('cart-updated');
+        cartCount.textContent = data.items_count;
+        cartCount.style.display = data.items_count > 0 ? 'block' : 'none';
+        setTimeout(() => cartCount.classList.remove('cart-updated'), 300);
+    }
+}
+
+// Function to show error message
+function showError(message) {
+    // Remove any existing error messages
+    const existingErrors = document.querySelectorAll('.error-message');
+    existingErrors.forEach(error => error.remove());
+
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    
+    // Create icon element
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-exclamation-circle';
+    errorDiv.appendChild(icon);
+    
+    // Create message text
+    const messageText = document.createElement('span');
+    messageText.textContent = message;
+    errorDiv.appendChild(messageText);
+    
+    document.body.appendChild(errorDiv);
+    
+    // Add show class for animation
+    setTimeout(() => {
+        errorDiv.classList.add('show');
+    }, 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        errorDiv.classList.remove('show');
+        setTimeout(() => {
+            errorDiv.remove();
+        }, 300);
+    }, 3000);
+}
+
+// Function to show success message
+function showSuccess(message) {
+    // Remove any existing messages
+    const existingMessages = document.querySelectorAll('.success-message, .error-message');
+    existingMessages.forEach(msg => msg.remove());
+
+    const successDiv = document.createElement('div');
+    successDiv.className = 'success-message';
+    
+    // Create icon element
+    const icon = document.createElement('i');
+    icon.className = 'fas fa-check-circle';
+    successDiv.appendChild(icon);
+    
+    // Create message text
+    const messageText = document.createElement('span');
+    messageText.textContent = message;
+    successDiv.appendChild(messageText);
+    
+    document.body.appendChild(successDiv);
+    
+    // Add show class for animation
+    setTimeout(() => {
+        successDiv.classList.add('show');
+    }, 10);
+    
+    // Remove after delay
+    setTimeout(() => {
+        successDiv.classList.remove('show');
+        setTimeout(() => {
+            successDiv.remove();
+        }, 300);
+    }, 2000);
+}
+
+// Function to revert quantity change
+function revertQuantityChange(itemId, originalQuantity) {
+    const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
+    if (input) {
+        input.value = originalQuantity;
+        updateButtonStates(itemId, originalQuantity);
+    }
 }
 
 // Function to remove item
@@ -120,36 +258,45 @@ function removeItem(itemId) {
     });
 }
 
-// Function to update cart total
-function updateCartTotal() {
-    const itemTotals = document.querySelectorAll('.item-total');
-    let total = 0;
-    
-    itemTotals.forEach(item => {
-        total += parseFloat(item.textContent.replace(/,/g, ''));
-    });
-    
-    document.getElementById('cart-total').textContent = total.toLocaleString();
-}
-
 // Function to show empty cart message
 function showEmptyCart() {
     const cartItems = document.querySelector('.cart-items');
     const cartSummary = document.querySelector('.cart-summary');
     
+    // Fade out cart summary if it exists
+    if (cartSummary) {
+        cartSummary.style.opacity = '0';
+        cartSummary.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            cartSummary.remove();
+        }, 300);
+    }
+    
+    // Create and insert empty cart message with animation
     cartItems.innerHTML = `
-        <div class="empty-cart">
+        <div class="empty-cart" style="opacity: 0; transform: translateY(20px);">
             <i class="fas fa-shopping-basket"></i>
             <p>Your cart is empty</p>
-            <a href="/product/" class="shop-now-btn">
-                <i class="fas fa-shopping-cart"></i> Shop Now
-            </a>
+            <div class="empty-cart-actions">
+                <a href="/product/" class="shop-now-btn">
+                    <i class="fas fa-shopping-cart"></i> Shop Now
+                </a>
+                <p class="empty-cart-help">Need help? <a href="/contact">Contact us</a></p>
+            </div>
         </div>
     `;
     
-    if (cartSummary) {
-        cartSummary.remove();
-    }
+    // Trigger animation
+    setTimeout(() => {
+        const emptyCart = cartItems.querySelector('.empty-cart');
+        if (emptyCart) {
+            emptyCart.style.opacity = '1';
+            emptyCart.style.transform = 'translateY(0)';
+        }
+    }, 10);
+    
+    // Update header cart count
+    updateCartCount(0);
 }
 
 // Function to proceed to checkout
@@ -171,36 +318,6 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-// Function to show notification
-function showNotification(message, type = 'success') {
-    // Remove any existing notifications
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
-
-    // Create new notification
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Set icon based on type
-    const icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
-    
-    notification.innerHTML = `
-        <i class="fas fa-${icon}"></i>
-        <span>${message}</span>
-    `;
-    
-    // Add to body
-    document.body.appendChild(notification);
-    
-    // Remove after 3 seconds
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s forwards';
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
 }
 
 // Function to update cart count in header

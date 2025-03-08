@@ -111,12 +111,6 @@ def home(request):
     # Get 12 random products that are in stock
     random_products = Product.objects.filter(in_stock=True).order_by('?')[:12]
     
-    # Add badges to random products
-    badges = ['New', 'Popular', 'Sale', 'Best Seller', 'Top Rated', 'Featured', 'Limited', 'Trending']
-    for i, product in enumerate(random_products):
-        if i < len(badges):
-            product.badge = badges[i]
-    
     context = {
         'random_products': random_products,
         'cart_count': get_cart_count(request)
@@ -143,6 +137,23 @@ def product_view(request):
     }
     return render(request, 'product.html', context)
 
+def product_detail_view(request, product_id):
+    try:
+        product = Product.objects.get(id=product_id)
+        if not product.image:
+            product.image_url = '/static/img/medicines-icon.png'
+        else:
+            product.image_url = product.image.url
+            
+        context = {
+            'product': product,
+            'cart_count': get_cart_count(request),
+            'is_expiring_soon': product.is_expiring_soon() if product.expiry_date else False,
+        }
+        return render(request, 'shop.html', context)
+    except Product.DoesNotExist:
+        messages.error(request, 'Product not found')
+        return redirect('product')
 
 def login_view(request):
     if request.method == 'POST':
@@ -553,7 +564,8 @@ def update_cart_item(request):
                 'success': True,
                 'message': 'Cart updated successfully',
                 'cart_total': '{:,}'.format(cart_total),
-                'items_count': items_count
+                'items_count': items_count,
+                'item_total': '{:,}'.format(cart_item.get_total_price())
             })
             
         except CartItem.DoesNotExist:

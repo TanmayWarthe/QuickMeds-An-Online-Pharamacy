@@ -18,13 +18,34 @@ function moveSlider(sliderId, direction) {
     if (!slider) return;
 
     const cardWidth = slider.querySelector('.product-card').offsetWidth;
-    const gap = 20; // Gap between cards
-    const scrollAmount = (cardWidth + gap) * direction;
+    const gap = 16; // Gap between cards
+    const visibleWidth = slider.offsetWidth;
+    const scrollAmount = Math.floor(visibleWidth / (cardWidth + gap)) * (cardWidth + gap);
     
-    slider.scrollBy({
-        left: scrollAmount,
+    const newScrollPosition = slider.scrollLeft + (scrollAmount * direction);
+    
+    slider.scrollTo({
+        left: newScrollPosition,
         behavior: 'smooth'
     });
+
+    // Update button states after scroll
+    setTimeout(() => updateSliderButtons(sliderId), 300);
+}
+
+function updateSliderButtons(sliderId) {
+    const slider = document.getElementById(sliderId);
+    if (!slider) return;
+
+    const prevBtn = slider.parentElement.querySelector('.control-btn.prev');
+    const nextBtn = slider.parentElement.querySelector('.control-btn.next');
+
+    if (prevBtn) {
+        prevBtn.disabled = slider.scrollLeft <= 0;
+    }
+    if (nextBtn) {
+        nextBtn.disabled = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 5;
+    }
 }
 
 // Initialize sliders and category clicks
@@ -37,9 +58,79 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
+    // Initialize all sliders
+    document.querySelectorAll('.product-slider').forEach(slider => {
+        const sliderId = slider.id;
+        updateSliderButtons(sliderId);
+
+        // Update button states on scroll
+        slider.addEventListener('scroll', () => {
+            updateSliderButtons(sliderId);
+        });
+
+        // Add touch support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        slider.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const difference = touchStartX - touchEndX;
+            
+            if (Math.abs(difference) > 50) { // Minimum swipe distance
+                moveSlider(slider.id, difference > 0 ? 1 : -1);
+            }
+        }, { passive: true });
+    });
+
+    // Handle product card clicks
+    document.querySelectorAll('.product-card').forEach(card => {
+        card.addEventListener('click', function(e) {
+            // Don't navigate if clicking on buttons
+            if (e.target.closest('.add-btn') || e.target.closest('.view-details-btn')) {
+                return;
+            }
+            
+            const viewDetailsBtn = this.querySelector('.view-details-btn');
+            if (viewDetailsBtn) {
+                window.location.href = viewDetailsBtn.href;
+            }
+        });
+    });
+
+    // Update slider buttons on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            document.querySelectorAll('.product-slider').forEach(slider => {
+                updateSliderButtons(slider.id);
+            });
+        }, 250);
+    });
+
     // Initialize product sliders
     initializeProductSliders();
     updateCartCount();
+
+    // Initialize spotlight effect
+    const productSections = document.querySelectorAll('.product-section');
+    
+    productSections.forEach(section => {
+        const spotlight = section.querySelector('.spotlight');
+        
+        section.addEventListener('mousemove', (e) => {
+            const rect = section.getBoundingClientRect();
+            const x = ((e.clientX - rect.left) / rect.width) * 100;
+            const y = ((e.clientY - rect.top) / rect.height) * 100;
+            
+            spotlight.style.setProperty('--x', `${x}%`);
+            spotlight.style.setProperty('--y', `${y}%`);
+        });
+    });
 });
 
 // Add touch support for mobile devices
@@ -121,6 +212,8 @@ function addToCart(productId) {
     if (addButton) {
         addButton.disabled = true;
         addButton.style.opacity = '0.7';
+        // Add animation class
+        addButton.classList.add('adding-to-cart');
     }
 
     fetch('/add-to-cart/', {
@@ -142,20 +235,26 @@ function addToCart(productId) {
     })
     .then(data => {
         if (data.success) {
-            // Update cart count
+            // Update cart count with animation
             const cartCount = document.querySelector('.cart-count');
             if (cartCount) {
                 cartCount.textContent = data.cart_count;
+                cartCount.classList.add('cart-updated');
+                setTimeout(() => cartCount.classList.remove('cart-updated'), 300);
             }
             
-            // Show success message
-            showNotification('Added to cart successfully!', 'success');
+            // Add success animation to button
+            if (addButton) {
+                addButton.classList.add('added-to-cart');
+                setTimeout(() => addButton.classList.remove('added-to-cart'), 1000);
+            }
         } else {
             throw new Error(data.error || 'Failed to add to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
+        // Show error message only for actual errors
         showNotification(error.message || 'An error occurred. Please try again.', 'error');
     })
     .finally(() => {
@@ -163,6 +262,7 @@ function addToCart(productId) {
         if (addButton) {
             addButton.disabled = false;
             addButton.style.opacity = '1';
+            addButton.classList.remove('adding-to-cart');
         }
     });
 }

@@ -392,12 +392,12 @@
                     <p class="item-price">₹{{ item.product.price|intcomma }}</p>
                 </div>
                 <div class="quantity-controls">
-                    <button class="quantity-btn minus" data-item-id="{{ item.id }}" data-change="-1">
+                    <button class="quantity-btn minus" data-item-id="{{ item.id }}" data-change="-1" type="button">
                         <i class="fas fa-minus"></i>
                     </button>
-                    <input type="number" value="{{ item.quantity }}" min="1" class="quantity-input" 
+                    <input type="number" value="{{ item.quantity }}" min="1" max="99" class="quantity-input" 
                            data-item-id="{{ item.id }}" data-price="{{ item.product.price }}" readonly>
-                    <button class="quantity-btn plus" data-item-id="{{ item.id }}" data-change="1">
+                    <button class="quantity-btn plus" data-item-id="{{ item.id }}" data-change="1" type="button">
                         <i class="fas fa-plus"></i>
                     </button>
                 </div>

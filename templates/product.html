@@ -3,35 +3,59 @@
 {% block title%}Products - QuickMeds{% endblock %} 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product.css' %}" />
-<link rel="stylesheet" href="{% static 'css/pr.css' %}" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <style>
     /* Success Message */
     .success-message {
         position: fixed;
-        bottom: 2rem;
-        right: 2rem;
-        background: white;
+        top: 20px;
+        right: 20px;
+        background: #4CAF50;
+        color: white;
         padding: 1rem 2rem;
         border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         display: flex;
         align-items: center;
         gap: 1rem;
-        transform: translateY(100px);
+        transform: translateX(150%);
         opacity: 0;
-        transition: all 0.3s ease;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         z-index: 1000;
     }
 
     .success-message.show {
-        transform: translateY(0);
+        transform: translateX(0);
         opacity: 1;
     }
 
     .success-message i {
-        color: #4CAF50;
         font-size: 1.2rem;
+        color: white;
+    }
+
+    /* Error Message */
+    .error-message {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background: #f44336;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transform: translateX(150%);
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 1000;
+    }
+
+    .error-message.show {
+        transform: translateX(0);
+        opacity: 1;
     }
 
     /* Loading Animation */
@@ -185,11 +209,11 @@
             {% elif category.name == 'Personal Care & Hygiene' %}
             <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
-            <img src="{% static 'img/productCatlog/painReliever.jpeg' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
             {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
             <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
             {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
-            <img src="{% static 'img/productCatlog/otc.jpeg' %}" alt="{{ category.name }}" />
+            <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
             {% else %}
             <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
             {% endif %}
@@ -205,7 +229,8 @@
     <!-- Product Sections -->
     <div class="product-sections">
         {% for category in categories %}
-        <div class="product-section" id="{{ category.name|slugify }}">
+        <div class="product-section" id="{{ category.name|slugify }}" data-category="{{ category.name }}">
+            <div class="spotlight"></div>
             <div class="product-header">
                 <div>
                     <h2>{{ category.name }}</h2>
@@ -221,30 +246,32 @@
             </div>
             <div class="product-slider" id="productSlider{{ forloop.counter }}">
                 {% for product in category.products.all %}
-                <div class="product-card" data-product-id="{{ product.id }}">
-                    {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" />
-                    {% else %}
-                    <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" />
-                    {% endif %}
-                    <div class="product-info">
-                        <span class="category">{{ product.category.name }}</span>
-                        <h3>{{ product.name }}</h3>
-                        <div class="price-row">
-                            <div class="price">
-                                <span class="current">₹{{ product.price|intcomma }}</span>
-                                {% if product.original_price %}
-                                <span class="original">₹{{ product.original_price|intcomma }}</span>
-                                {% endif %}
+                <div class="product-slide">
+                    <div class="product-card" data-product-id="{{ product.id }}" onclick="navigateToProduct({{ product.id }}, event)">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" />
+                        {% else %}
+                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" loading="lazy" />
+                        {% endif %}
+                        <div class="product-info">
+                            <span class="category">{{ product.category.name }}</span>
+                            <h3>{{ product.name }}</h3>
+                            <div class="price-row">
+                                <div class="price">
+                                    <span class="current">₹{{ product.price|intcomma }}</span>
+                                    {% if product.original_price %}
+                                    <span class="original">₹{{ product.original_price|intcomma }}</span>
+                                    {% endif %}
+                                </div>
                             </div>
-                        </div>
-                        <div class="product-actions">
-                            <button class="add-btn" onclick="event.stopPropagation(); addToCart({{ product.id }})">
-                                + Add to Cart
-                            </button>
-                            <a href="{% url 'shop' %}?product_id={{ product.id }}" class="view-details-btn">
-                                <i class="fas fa-eye"></i> View Details
-                            </a>
+                            <div class="product-actions">
+                                <button class="add-btn" onclick="event.stopPropagation(); addToCart({{ product.id }})">
+                                    <span class="add-to-cart">Add to Cart</span>
+                                    <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <i class="fas fa-box"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -378,22 +405,43 @@
     });
 
     function addToCart(productId) {
+        if (!productId) {
+            alert('Invalid product');
+            return;
+        }
+
         const button = event.target.closest('.add-btn');
-        button.classList.add('loading');
+        if (!button) return;
+
+        button.classList.add('clicked');
         button.disabled = true;
+
+        // Get CSRF token
+        const csrftoken = getCookie('csrftoken');
+        if (!csrftoken) {
+            alert('Session expired. Please refresh the page.');
+            button.classList.remove('clicked');
+            button.disabled = false;
+            return;
+        }
 
         fetch('/add-to-cart/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': csrftoken
             },
             body: JSON.stringify({
-                product_id: productId,
-                quantity: 1
+                'product_id': parseInt(productId),
+                'quantity': 1
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.success) {
                 // Update cart count
@@ -408,19 +456,27 @@
                 // Show success message
                 const successMessage = document.getElementById('successMessage');
                 successMessage.classList.add('show');
+                
+                // Reset button after animation
                 setTimeout(() => {
+                    button.classList.remove('clicked');
+                    button.disabled = false;
                     successMessage.classList.remove('show');
-                }, 3000);
+                }, 2000);
             } else {
                 throw new Error(data.error || 'Failed to add to cart');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert(error.message || 'An error occurred. Please try again.');
-        })
-        .finally(() => {
-            button.classList.remove('loading');
+            // Show error message to user
+            const errorMessage = error.message === 'Network response was not ok' 
+                ? 'Please login to add items to cart'
+                : error.message || 'An error occurred. Please try again.';
+            alert(errorMessage);
+            
+            // Reset button state
+            button.classList.remove('clicked');
             button.disabled = false;
         });
     }
@@ -438,6 +494,12 @@
             }
         }
         return cookieValue;
+    }
+
+    function navigateToProduct(productId, event) {
+        if (!event.target.closest('.add-btn')) {
+            window.location.href = `/product/${productId}/`;
+        }
     }
 </script>
 {% endblock %}

@@ -311,130 +311,154 @@ document.addEventListener('DOMContentLoaded', function() {
 // Product Slider Functionality
 document.addEventListener('DOMContentLoaded', function() {
     const slider = document.querySelector('.product-slider');
-    const prevBtn = document.getElementById('prevProduct');
-    const nextBtn = document.getElementById('nextProduct');
-    
-    if (!slider || !prevBtn || !nextBtn) return;
-    
-    // Add click handlers to all product cards
-    const productCards = document.querySelectorAll('.product-card');
-    productCards.forEach(card => {
-        // Make the entire card clickable except the "Add to Cart" button
-        card.style.cursor = 'pointer';
-        card.addEventListener('click', (e) => {
-            // Don't navigate if clicking the "Add to Cart" button
-            if (!e.target.closest('.add-to-cart-btn')) {
-                const productId = card.dataset.productId;
-                window.location.href = `/shop/?product_id=${productId}`;
-            }
-        });
-
-        // Add hover effect
-        card.addEventListener('mouseenter', () => {
-            card.style.transform = 'translateY(-10px)';
-            card.style.boxShadow = '0 15px 30px rgba(0,0,0,0.15)';
-        });
-
-        card.addEventListener('mouseleave', () => {
-            card.style.transform = 'translateY(0)';
-            card.style.boxShadow = '0 10px 20px rgba(0,0,0,0.1)';
-        });
-    });
+    const prevBtn = document.querySelector('.prev-btn');
+    const nextBtn = document.querySelector('.next-btn');
+    const slides = document.querySelectorAll('.product-slide');
     
     let currentPosition = 0;
+    let slideWidth = 0;
+    let slidesPerView = 5;
+    let maxPosition = 0;
     
-    function getSlidesToShow() {
-        const width = window.innerWidth;
-        if (width <= 576) return 1;
-        if (width <= 992) return 2;
-        return 3;
-    }
-    
-    function updateSliderPosition(position) {
-        const slides = slider.querySelectorAll('.product-slide');
-        const totalSlides = slides.length;
-        const slidesToShow = getSlidesToShow();
+    // Calculate dimensions and limits
+    function calculateDimensions() {
+        const containerWidth = slider.parentElement.offsetWidth;
+        slideWidth = containerWidth / slidesPerView;
         
-        // If we're at the end, loop to start
-        if (position >= totalSlides) {
-            position = 0;
+        // Update slidesPerView based on screen width
+        if (window.innerWidth <= 576) {
+            slidesPerView = 1;
+        } else if (window.innerWidth <= 992) {
+            slidesPerView = 2;
+        } else if (window.innerWidth <= 1200) {
+            slidesPerView = 3;
+        } else if (window.innerWidth <= 1400) {
+            slidesPerView = 4;
+        } else {
+            slidesPerView = 5;
         }
-        // If we're before the start, loop to end
-        if (position < 0) {
-            position = totalSlides - slidesToShow;
+        
+        // Calculate max position (prevent white space at the end)
+        maxPosition = Math.max(0, slides.length - slidesPerView);
+        updateSliderPosition();
+        updateButtonStates();
+    }
+    
+    function updateSliderPosition() {
+        const position = -currentPosition * (slideWidth + 20); // 20px is the gap
+        slider.style.transform = `translate3d(${position}px, 0, 0)`;
+    }
+    
+    function updateButtonStates() {
+        prevBtn.classList.toggle('disabled', currentPosition <= 0);
+        nextBtn.classList.toggle('disabled', currentPosition >= maxPosition);
+    }
+    
+    function slideNext() {
+        if (currentPosition < maxPosition) {
+            currentPosition++;
+            updateSliderPosition();
+            updateButtonStates();
         }
-        
-        currentPosition = position;
-        
-        // Calculate the translation value
-        const slideWidth = 100 / slidesToShow;
-        const translateValue = -position * slideWidth;
-        
-        // Apply the transform with smooth transition
-        slider.style.transition = 'transform 0.5s ease';
-        slider.style.transform = `translateX(${translateValue}%)`;
-        
-        // Update button states
-        updateButtonStates(position, totalSlides, slidesToShow);
     }
     
-    function updateButtonStates(position, totalSlides, slidesToShow) {
-        // Enable both buttons for infinite loop
-        prevBtn.disabled = false;
-        nextBtn.disabled = false;
-        
-        // Optional: Add visual feedback for current position
-        prevBtn.style.opacity = "1";
-        nextBtn.style.opacity = "1";
+    function slidePrev() {
+        if (currentPosition > 0) {
+            currentPosition--;
+            updateSliderPosition();
+            updateButtonStates();
+        }
     }
     
-    // Previous button click
-    prevBtn.addEventListener('click', () => {
-        updateSliderPosition(currentPosition - 1);
-    });
+    // Event Listeners
+    nextBtn.addEventListener('click', slideNext);
+    prevBtn.addEventListener('click', slidePrev);
     
-    // Next button click
-    nextBtn.addEventListener('click', () => {
-        updateSliderPosition(currentPosition + 1);
-    });
-    
-    // Handle touch events for mobile
+    // Touch Events
     let touchStartX = 0;
     let touchEndX = 0;
     
     slider.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
-    });
+    }, { passive: true });
     
-    slider.addEventListener('touchend', (e) => {
-        touchEndX = e.changedTouches[0].clientX;
-        handleSwipe();
-    });
+    slider.addEventListener('touchmove', (e) => {
+        touchEndX = e.touches[0].clientX;
+    }, { passive: true });
     
-    function handleSwipe() {
-        const swipeThreshold = 50;
-        const diff = touchStartX - touchEndX;
-        
-        if (Math.abs(diff) > swipeThreshold) {
-            if (diff > 0) {
-                // Swiped left
-                updateSliderPosition(currentPosition + 1);
+    slider.addEventListener('touchend', () => {
+        const touchDiff = touchStartX - touchEndX;
+        if (Math.abs(touchDiff) > 50) { // Minimum swipe distance
+            if (touchDiff > 0) {
+                slideNext();
             } else {
-                // Swiped right
-                updateSliderPosition(currentPosition - 1);
+                slidePrev();
             }
         }
-    }
+    });
     
-    // Handle window resize
+    // Handle product card clicks
+    slides.forEach(slide => {
+        const card = slide.querySelector('.product-card');
+        const addToCartBtn = slide.querySelector('.add-to-cart-btn');
+        
+        addToCartBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent card click when clicking the button
+            const productId = addToCartBtn.dataset.productId;
+            addToCart(productId);
+        });
+        
+        card.addEventListener('click', () => {
+            const productId = card.dataset.productId;
+            if (productId) {
+                window.location.href = `/product/${productId}/`;
+            }
+        });
+    });
+    
+    // Initialize and handle resize
+    calculateDimensions();
     let resizeTimer;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            updateSliderPosition(currentPosition);
-        }, 250);
+        resizeTimer = setTimeout(calculateDimensions, 100);
     });
+});
+
+function addToCart(productId) {
+    // Check if user is logged in
+    if (!isUserLoggedIn()) {
+        window.location.href = '/login';
+        return;
+    }
     
-    // Initialize slider
-    updateSliderPosition(0);
-}); 
+    // Add to cart
+    fetch('/add-to-cart/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            product_id: productId,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update cart count
+            const cartBadge = document.querySelector('.badge.rounded-pill');
+            if (cartBadge) {
+                cartBadge.textContent = data.items_count;
+            }
+            // Show success message
+            showMessage('Product added to cart successfully!', 'success');
+        } else {
+            showMessage(data.error || 'Failed to add product to cart', 'error');
+        }
+    })
+    .catch(error => {
+        showMessage('An error occurred. Please try again.', 'error');
+    });
+} 
