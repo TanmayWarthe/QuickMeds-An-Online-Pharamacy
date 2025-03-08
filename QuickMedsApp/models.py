@@ -1,15 +1,75 @@
 from django.utils import timezone
-from datetime import date, timezone
+from datetime import date
 from django.db import models
 from django.contrib.auth.models import User
+from django.dispatch import receiver
+from django.db.models.signals import post_save
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    phone = models.CharField(max_length=15, null=True, blank=True)
-    address = models.TextField(blank=True, null=True)
-    
+    phone = models.CharField(max_length=15, blank=True, null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    address = models.TextField(blank=True, null=True)  # Adding address field to UserProfile
+    city = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=100, blank=True, null=True)
+    pincode = models.CharField(max_length=10, blank=True, null=True)
+    created_at = models.DateTimeField(default=timezone.now)
+    updated_at = models.DateTimeField(default=timezone.now)
+
     def __str__(self):
-        return self.user.username
+        return self.user.email
+
+    def save(self, *args, **kwargs):
+        if not self.id:  # Only set created_at for new instances
+            self.created_at = timezone.now()
+        self.updated_at = timezone.now()
+        super().save(*args, **kwargs)
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        UserProfile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    try:
+        instance.userprofile.save()
+    except UserProfile.DoesNotExist:
+        UserProfile.objects.create(user=instance)
+
+class Address(models.Model):
+    ADDRESS_TYPES = [
+        ('Home', 'Home'),
+        ('Office', 'Office'),
+        ('Other', 'Other'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='addresses')
+    type = models.CharField(max_length=20, choices=ADDRESS_TYPES, default='Home')
+    full_name = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=15)
+    street_address = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='India')
+    is_default = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Address'
+        verbose_name_plural = 'Addresses'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.type} - {self.city} ({self.full_name})"
+
+    def save(self, *args, **kwargs):
+        if self.is_default:
+            # Set all other addresses of this user to non-default
+            Address.objects.filter(user=self.user).exclude(pk=self.pk).update(is_default=False)
+        super().save(*args, **kwargs)
 
 class Category(models.Model):
     name = models.CharField(max_length=255)
