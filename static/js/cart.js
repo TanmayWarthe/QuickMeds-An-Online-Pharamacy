@@ -59,9 +59,11 @@ function updateButtonStates(itemId, value) {
 function updateQuantityOnServer(itemId, quantity) {
     const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
     const itemContainer = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-    
+    const quantityControls = input.closest('.quantity-controls');
+
     if (itemContainer) {
         itemContainer.classList.add('updating');
+        quantityControls.classList.add('loading'); // Add loading state
     }
 
     fetch('/update-cart-item/', {
@@ -100,16 +102,19 @@ function updateQuantityOnServer(itemId, quantity) {
                 input.value = quantity;
                 updateButtonStates(itemId, quantity);
             }
+        } else {
+            showError(data.message || 'Failed to update quantity.'); // Show user-friendly error
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // Only show error for actual errors
+        showError('An error occurred while updating the cart.'); // Show user-friendly error
         if (input) input.value = input.defaultValue;
     })
     .finally(() => {
         if (itemContainer) {
             itemContainer.classList.remove('updating');
+            quantityControls.classList.remove('loading'); // Remove loading state
         }
     });
 }

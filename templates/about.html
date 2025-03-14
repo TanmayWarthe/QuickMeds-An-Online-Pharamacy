@@ -4,77 +4,126 @@
 {% block title %}About Us - QuickMeds{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/header.css' %}">
 <link rel="stylesheet" href="{% static 'css/about.css' %}">
-<link rel="stylesheet" href="{% static 'css/product.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 {% endblock %}
 
+{% block extra_js %}
+<script src="{% static 'js/Homepage_updated.js' %}"></script>
+{% endblock %}
+
 {% block content %}
 
-<!-- Header with tagline and menu -->
-<div class="header">
-    <div class="tagline">
-        <button class="menu-btn" onclick="toggleSidebar()">
-            &#9776; 
-        </button>
-        <div class="centered-text-container">
-            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+
+ <!-- Navbar -->
+ <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <div class="nav-start">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                <span class="toggle-icon"></span>
+                <span class="toggle-icon"></span>
+                <span class="toggle-icon"></span>
+            </button>
+            <div class="brand-section">
+                <div class="logo-wrapper">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+                </div>
+                <a class="navbar-brand" href="#">QuickMeds</a>
+            </div>
         </div>
-        <div class="header-icons">
+        
+        <div class="nav-actions">
+            <a href="{% url 'product' %}" class="quick-order-btn">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
+            </a>
             {% if user.is_authenticated %}
-                <a href="{% url 'cart' %}" class="nav-icon">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span class="cart-count">{{ cart_count|default:0 }}</span>
+            <div class="nav-icons">
+                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="badge">{{ cart_count|default:0 }}</span>
                 </a>
                 <div class="dropdown">
-                    <a href="#" class="nav-icon">
-                        <i class="fas fa-user"></i>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
-                        <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
-                    </div>
+                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
                 </div>
+            </div>
             {% else %}
-                <a href="{% url 'login' %}" class="nav-icon">
-                    <i class="fas fa-user"></i>
-                </a>
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
+            </div>
             {% endif %}
         </div>
     </div>
-</div>
+</nav>
 
-<!-- Sidebar -->
+<!-- Sidebar Navigation -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        <div class="sidebar-brand">
+            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i> Our Products</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Products</span>
+        </a>
+        <a href="#purchase" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Purchase</span>
+        </a>
+        <a href="{% url 'about' %}" class="nav-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>About</span>
+        </a>
+        <a href="#contact" class="nav-item">
+            <i class="fas fa-phone"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-info">
+            <i class="fas fa-headset"></i>
+            <div class="support-text">
+                <small>Need Help?</small>
+                <p>1-234-567-890</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+
+    <!--  Tagline and menu -->
+    <div class="tagline">
+        <div class="centered-text-container">
+            <i class="fas fa-heartbeat tagline-icon"></i>
+            <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+            <i class="fas fa-pills tagline-icon"></i>
+        </div>
     </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i>Our Product</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
-</div>
 
 <!-- About Hero Section -->
 <div class="container about-hero py-5">
@@ -205,7 +254,6 @@
         </div>
     </div>
 </footer>
-<script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Animate mission list items

@@ -345,6 +345,9 @@
 {% endblock %}
 
 {% block content %}
+<!-- Notification Area -->
+<div class="notification" id="notification" style="display: none;"></div>
+
 <!-- Header with tagline and menu -->
 <div class="header">
     <div class="tagline">
@@ -382,11 +385,7 @@
         {% if cart_items %}
             {% for item in cart_items %}
             <div class="cart-item" data-item-id="{{ item.id }}">
-                {% if item.product.image %}
-                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
-                {% else %}
-                <img src="{% static 'img/default-product.png' %}" alt="{{ item.product.name }}" class="item-image">
-                {% endif %}
+                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ item.product.name }}" class="item-image">
                 <div class="item-details">
                     <h3>{{ item.product.name }}</h3>
                     <p class="item-price">₹{{ item.product.price|intcomma }}</p>

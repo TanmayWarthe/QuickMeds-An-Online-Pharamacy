@@ -1,13 +1,110 @@
-// Quantity buttons
-document.querySelectorAll('.quantity-btn').forEach(button => {
-    button.addEventListener('click', () => {
-        const input = button.parentElement.querySelector('.quantity-input');
-        let value = parseInt(input.value);
-        if (button.textContent === '-') {
-            if (value > 1) input.value = value - 1;
-        } else {
-            input.value = value + 1;
+class QuantityController {
+    constructor() {
+        this.input = document.getElementById('quantity');
+        this.minusBtn = document.querySelector('.quantity-btn.minus');
+        this.plusBtn = document.querySelector('.quantity-btn.plus');
+        this.maxStock = parseInt(this.input.getAttribute('max')) || 99999;
+        
+        this.initialize();
+    }
+
+    initialize() {
+        // Set initial state
+        this.updateButtonStates();
+
+        // Add event listeners
+        this.minusBtn.addEventListener('click', () => this.decrease());
+        this.plusBtn.addEventListener('click', () => this.increase());
+        
+        // Input event listeners
+        this.input.addEventListener('input', () => this.handleManualInput());
+        this.input.addEventListener('blur', () => this.validateOnBlur());
+        this.input.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.input.blur();
+            }
+        });
+
+        // Add touch feedback
+        [this.minusBtn, this.plusBtn].forEach(btn => {
+            btn.addEventListener('click', () => this.addClickEffect(btn));
+        });
+    }
+
+    decrease() {
+        const currentValue = parseInt(this.input.value);
+        if (currentValue > 1) {
+            this.updateValue(currentValue - 1);
         }
+    }
+
+    increase() {
+        const currentValue = parseInt(this.input.value);
+        if (currentValue < this.maxStock) {
+            this.updateValue(currentValue + 1);
+        }
+    }
+
+    updateValue(value) {
+        this.input.value = value;
+        this.updateButtonStates();
+        this.triggerChangeEvent();
+    }
+
+    handleManualInput() {
+        let value = this.input.value.replace(/[^\d]/g, '');
+        
+        // Remove leading zeros
+        value = value.replace(/^0+/, '') || '1';
+        
+        // Ensure the value is within bounds
+        value = Math.max(1, Math.min(parseInt(value) || 1, this.maxStock));
+        
+        this.updateValue(value);
+    }
+
+    validateOnBlur() {
+        let value = parseInt(this.input.value) || 1;
+        value = Math.max(1, Math.min(value, this.maxStock));
+        this.updateValue(value);
+    }
+
+    updateButtonStates() {
+        const currentValue = parseInt(this.input.value);
+        
+        // Update minus button
+        this.minusBtn.classList.toggle('disabled', currentValue <= 1);
+        this.minusBtn.disabled = currentValue <= 1;
+
+        // Update plus button
+        this.plusBtn.classList.toggle('disabled', currentValue >= this.maxStock);
+        this.plusBtn.disabled = currentValue >= this.maxStock;
+    }
+
+    addClickEffect(button) {
+        button.classList.add('pressed');
+        setTimeout(() => button.classList.remove('pressed'), 200);
+    }
+
+    triggerChangeEvent() {
+        const event = new Event('quantity-changed', {
+            bubbles: true,
+            cancelable: true
+        });
+        this.input.dispatchEvent(event);
+    }
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    const quantityController = new QuantityController();
+
+    // Listen for quantity changes
+    document.getElementById('quantity').addEventListener('quantity-changed', (e) => {
+        const quantity = parseInt(e.target.value);
+        // You can perform additional actions here when quantity changes
+        console.log('Quantity changed to:', quantity);
     });
 });
 
@@ -30,15 +127,12 @@ document.querySelectorAll('.thumbnails img').forEach(thumb => {
 });
 
 function addToCart(productId) {
-    // Get the quantity
-    const quantityInput = document.getElementById('quantity');
-    const quantity = parseInt(quantityInput.value);
-    
-    // Disable the button to prevent multiple clicks
+    const quantity = parseInt(document.getElementById('quantity').value);
     const addButton = document.querySelector('.add-to-cart-btn');
+    
     if (addButton) {
         addButton.disabled = true;
-        addButton.style.opacity = '0.7';
+        addButton.classList.add('loading');
     }
 
     fetch('/add-to-cart/', {
@@ -61,26 +155,24 @@ function addToCart(productId) {
     .then(data => {
         if (data.success) {
             // Update cart count
-            const cartCount = document.getElementById('cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.cart_count;
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge) {
+                cartBadge.textContent = data.cart_count;
             }
             
-            // Show success message
-            showMessage('success', 'Added to cart successfully!');
+            showNotification('Added to cart successfully!', 'success');
         } else {
             throw new Error(data.error || 'Failed to add to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showMessage('error', error.message || 'An error occurred. Please try again.');
+        showNotification(error.message, 'error');
     })
     .finally(() => {
-        // Re-enable the button
         if (addButton) {
             addButton.disabled = false;
-            addButton.style.opacity = '1';
+            addButton.classList.remove('loading');
         }
     });
 }
@@ -100,97 +192,21 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function showMessage(type, message) {
-    const successMsg = document.getElementById('successMessage');
-    const errorMsg = document.getElementById('errorMessage');
-    const errorText = document.getElementById('errorText');
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
     
-    successMsg.style.display = 'none';
-    errorMsg.style.display = 'none';
+    document.body.appendChild(notification);
     
-    if (type === 'success') {
-        successMsg.style.display = 'block';
+    setTimeout(() => {
+        notification.classList.add('show');
         setTimeout(() => {
-            successMsg.style.display = 'none';
-        }, 3000);
-    } else {
-        errorText.textContent = message;
-        errorMsg.style.display = 'block';
-        setTimeout(() => {
-            errorMsg.style.display = 'none';
-        }, 3000);
-    }
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    }, 100);
 }
-
-function updateQuantity(change) {
-    const input = document.getElementById('quantity');
-    const newValue = parseInt(input.value) + change;
-    const maxStock = parseInt(input.getAttribute('max'));
-    const errorDiv = document.getElementById('quantityError');
-    
-    if (newValue >= 1 && newValue <= maxStock) {
-        input.value = newValue;
-        errorDiv.style.display = 'none';
-    } else if (newValue > maxStock) {
-        errorDiv.textContent = 'Quantity exceeds available stock';
-        errorDiv.style.display = 'block';
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    const addToCartForm = document.querySelector('.add-to-cart-form');
-    const quantityInput = document.getElementById('quantity');
-
-    quantityInput.addEventListener('change', function() {
-        const value = parseInt(this.value);
-        const max = parseInt(this.getAttribute('max'));
-        const errorDiv = document.getElementById('quantityError');
-        
-        if (value < 1 || isNaN(value)) {
-            this.value = 1;
-            errorDiv.style.display = 'none';
-        } else if (value > max) {
-            this.value = max;
-            errorDiv.textContent = 'Quantity exceeds available stock';
-            errorDiv.style.display = 'block';
-        } else {
-            errorDiv.style.display = 'none';
-        }
-    });
-
-    addToCartForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const submitBtn = this.querySelector('button[type="submit"]');
-        submitBtn.classList.add('loading');
-        
-        const formData = new FormData(this);
-
-        fetch(this.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            submitBtn.classList.remove('loading');
-            if (data.success) {
-                showMessage('success', 'Added to cart successfully!');
-                if (data.cart_count !== undefined) {
-                    const cartCount = document.getElementById('cart-count');
-                    if (cartCount) {
-                        cartCount.textContent = data.cart_count;
-                    }
-                }
-            } else {
-                showMessage('error', data.message || 'Failed to add to cart');
-            }
-        })
-        .catch(error => {
-            submitBtn.classList.remove('loading');
-            showMessage('error', 'An error occurred. Please try again.');
-            console.error('Error:', error);
-        });
-    });
-});

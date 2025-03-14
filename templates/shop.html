@@ -49,10 +49,22 @@
                 <div class="purchase-section">
                     <div class="quantity-controls">
                         <span class="quantity-label">Quantity:</span>
-                        <button class="quantity-btn" onclick="updateQuantity(-1)">-</button>
-                        <input type="number" value="1" min="1" max="{{ product.stock }}" 
-                               class="quantity-input" id="quantity">
-                        <button class="quantity-btn" onclick="updateQuantity(1)">+</button>
+                        <div class="quantity-wrapper">
+                            <button type="button" class="quantity-btn minus" aria-label="Decrease quantity">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="text" 
+                                   id="quantity" 
+                                   class="quantity-input" 
+                                   value="1" 
+                                   min="1" 
+                                   max="{{ product.stock }}"
+                                   aria-label="Product quantity">
+                            <button type="button" class="quantity-btn plus" aria-label="Increase quantity">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                        <span class="stock-info">{{ product.stock }} pieces available</span>
                     </div>
                     <div class="quantity-error" id="quantityError"></div>
 

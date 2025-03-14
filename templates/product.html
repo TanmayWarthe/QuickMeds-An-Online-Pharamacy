@@ -3,138 +3,9 @@
 {% block title%}Products - QuickMeds{% endblock %} 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product.css' %}" />
+<link rel="stylesheet" href="{% static 'css/home.css' %}" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-<style>
-    /* Success Message */
-    .success-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #4CAF50;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transform: translateX(150%);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-    }
-
-    .success-message.show {
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    .success-message i {
-        font-size: 1.2rem;
-        color: white;
-    }
-
-    /* Error Message */
-    .error-message {
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        background: #f44336;
-        color: white;
-        padding: 1rem 2rem;
-        border-radius: 8px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        transform: translateX(150%);
-        opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        z-index: 1000;
-    }
-
-    .error-message.show {
-        transform: translateX(0);
-        opacity: 1;
-    }
-
-    /* Loading Animation */
-    .loading {
-        position: relative;
-        pointer-events: none;
-    }
-
-    .loading::after {
-        content: "";
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        width: 20px;
-        height: 20px;
-        margin: -10px 0 0 -10px;
-        border: 2px solid rgba(255,255,255,0.3);
-        border-radius: 50%;
-        border-top-color: white;
-        animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-        to { transform: rotate(360deg); }
-    }
-    
-    /* View Details Button Styling */
-    .view-details-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 0.5rem 1rem;
-        background-color: #78ade5;
-        color: white;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: 500;
-        transition: all 0.3s ease;
-        margin-left: 0.5rem;
-        border: none;
-        cursor: pointer;
-    }
-    
-    .view-details-btn i {
-        margin-right: 5px;
-    }
-    
-    .view-details-btn:hover {
-        background-color: #5c91c9;
-        transform: translateY(-2px);
-        color: white;
-        box-shadow: 0 3px 8px rgba(0,0,0,0.1);
-    }
-    
-    .product-actions {
-        display: flex;
-        margin-top: 1rem;
-        gap: 8px;
-    }
-    
-    .add-btn {
-        flex: 1;
-    }
-    
-    .view-details-btn {
-        flex: 1;
-    }
-    
-    @media (max-width: 576px) {
-        .product-actions {
-            flex-direction: column;
-        }
-        
-        .view-details-btn {
-            margin-left: 0;
-            margin-top: 0.5rem;
-        }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
 {% endblock %} 
 
 {% block content %}
@@ -143,50 +14,111 @@
     <span>Added to cart successfully!</span>
 </div>
 
-<!-- Header with tagline and menu -->
-<div class="header">
-    <div class="tagline">
-        <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
-        <div class="centered-text-container">
-            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+ <!-- Navbar -->
+ <nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <div class="nav-start">
+            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                <span class="toggle-icon"></span>
+                <span class="toggle-icon"></span>
+                <span class="toggle-icon"></span>
+            </button>
+            <div class="brand-section">
+                <div class="logo-wrapper">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+                </div>
+                <a class="navbar-brand" href="#">QuickMeds</a>
+            </div>
         </div>
-        <div class="header-icons">
-            {% if user.is_authenticated %}
-            <a href="{% url 'cart' %}" class="nav-icon">
-                <i class="fas fa-shopping-cart"></i>
-                <span class="cart-count" id="cart-count">{{ cart_count|default:0 }}</span>
+        
+        <div class="nav-actions">
+            <a href="{% url 'product' %}" class="quick-order-btn">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
             </a>
-            <div class="dropdown">
-                <a href="#" class="nav-icon">
-                    <i class="fas fa-user"></i>
+            {% if user.is_authenticated %}
+            <div class="nav-icons">
+                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="badge">{{ cart_count|default:0 }}</span>
                 </a>
-                <div class="dropdown-menu">
-                    <a href="{% url 'profile' %}" class="dropdown-item">My Profile</a>
-                    <a href="{% url 'logout' %}" class="dropdown-item">Logout</a>
+                <div class="dropdown">
+                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
                 </div>
             </div>
             {% else %}
-            <a href="{% url 'login' %}" class="nav-icon">
-                <i class="fas fa-user"></i>
-            </a>
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
+            </div>
             {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Products</span>
+        </a>
+        <a href="#purchase" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Purchase</span>
+        </a>
+        <a href="{% url 'about' %}" class="nav-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>About</span>
+        </a>
+        <a href="#contact" class="nav-item">
+            <i class="fas fa-phone"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-info">
+            <i class="fas fa-headset"></i>
+            <div class="support-text">
+                <small>Need Help?</small>
+                <p>1-234-567-890</p>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo" />
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Header with tagline and menu -->
+<div class="tagline">
+    <div class="centered-text-container">
+        <i class="fas fa-heartbeat tagline-icon"></i>
+        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+        <i class="fas fa-pills tagline-icon"></i>
     </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i> Our Products</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url 'about' %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
 </div>
 
 <!-- Main Content -->
@@ -195,35 +127,39 @@
         <img src="{% static 'img/basket-bg.png' %}" alt="FreshCart Logo" />
         <div class="banner-content">
             <h2>Welcome to QuickMeds</h2>
+            <p>Your trusted online pharmacy for all your medical needs.</p>
         </div>
     </div>
 
     <!-- Category Grid -->
-    <div class="category-grid">
-        {% for category in categories %}
-        <div class="category-card" data-category-id="{{ category.name|slugify }}">
-            {% if category.name == 'Baby Care' %}
-            <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Wellness & Nutrition' %}
-            <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Personal Care & Hygiene' %}
-            <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
-            <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
-            <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
-            {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
-            <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
-            {% else %}
-            <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
-            {% endif %}
-            <p>{{ category.name }}</p>
+    <div class="category-section">
+        <h2 class="category-grid-heading">Browse Our Categories</h2>
+        <div class="category-grid">
+            {% for category in categories %} 
+            <div class="category-card" data-category-id="{{ category.name|slugify }}">
+                {% if category.name == 'Baby Care' %}
+                <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
+                {% elif category.name == 'Wellness & Nutrition' %}
+                <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
+                {% elif category.name == 'Personal Care & Hygiene' %}
+                <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
+                {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
+                <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
+                {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
+                <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
+                {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
+                <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
+                {% else %}
+                <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
+                {% endif %}
+                <p>{{ category.name }}</p>
+            </div>
+            {% empty %}
+            <div class="no-categories">
+                <p>No categories available</p>
+            </div>
+            {% endfor %}
         </div>
-        {% empty %}
-        <div class="no-categories">
-            <p>No categories available</p>
-        </div>
-        {% endfor %}
     </div>
 
     <!-- Product Sections -->
@@ -265,11 +201,11 @@
                                 </div>
                             </div>
                             <div class="product-actions">
-                                <button class="add-btn" onclick="event.stopPropagation(); addToCart({{ product.id }})">
+                                <button class="add-btn" onclick="addToCart({{ product.id }})" {% if not product.in_stock %}disabled{% endif %}>
                                     <span class="add-to-cart">Add to Cart</span>
                                     <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
-                                    <i class="fas fa-shopping-cart"></i>
-                                    <i class="fas fa-box"></i>
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                    <i class="fa-solid fa-box"></i>
                                 </button>
                             </div>
                         </div>
@@ -286,15 +222,13 @@
     </div>
 </div>
 
-
 <!-- Replace the existing fab-container div with this -->
 <button class="scroll-top-btn" id="scrollTopBtn">
     <i class="fas fa-arrow-up"></i>
 </button>
 
-
- <!-- Footer -->
- <footer class="bg-dark text-white py-5">
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
     <div class="container-fluid">
         <div class="row mx-5">
             <!-- About Section -->
@@ -340,166 +274,8 @@
 {% endblock %} 
 
 {% block extra_js %}
-
-<!-- Include JavaScript files -->
-<script src="{% static 'js/product.js' %}"></script>
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
-<script>
-
-    const scrollTopBtn = document.getElementById('scrollTopBtn');
-    let lastScrollTop = 0;
-    let scrollTimeout;
-
-    window.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        
-        const currentScroll = window.pageYOffset;
-        
-        // Show/hide button based on scroll position
-        if (currentScroll > 300) {
-            scrollTopBtn.classList.add('visible');
-        } else {
-            scrollTopBtn.classList.remove('visible');
-        }
-        
-        // Add extra class when scrolling up
-        if (currentScroll < lastScrollTop) {
-            scrollTopBtn.classList.add('scroll-up');
-        } else {
-            scrollTopBtn.classList.remove('scroll-up');
-        }
-        
-        lastScrollTop = currentScroll;
-        
-        // Hide button after 2 seconds of no scrolling
-        scrollTimeout = setTimeout(() => {
-            if (currentScroll < 300) {
-                scrollTopBtn.classList.remove('visible');
-            }
-        }, 2000);
-    });
-
-    scrollTopBtn.addEventListener('click', () => {
-        // Add click animation class
-        scrollTopBtn.classList.add('clicked');
-        
-        // Smooth scroll to top
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-        });
-        
-        // Remove click animation class after animation completes
-        setTimeout(() => {
-            scrollTopBtn.classList.remove('clicked');
-        }, 300);
-    });
-
-    // Add hover sound effect (optional)
-    scrollTopBtn.addEventListener('mouseenter', () => {
-        scrollTopBtn.style.transform = 'scale(1.1) translateY(-5px)';
-    });
-
-    scrollTopBtn.addEventListener('mouseleave', () => {
-        scrollTopBtn.style.transform = 'scale(1) translateY(0)';
-    });
-
-    function addToCart(productId) {
-        if (!productId) {
-            alert('Invalid product');
-            return;
-        }
-
-        const button = event.target.closest('.add-btn');
-        if (!button) return;
-
-        button.classList.add('clicked');
-        button.disabled = true;
-
-        // Get CSRF token
-        const csrftoken = getCookie('csrftoken');
-        if (!csrftoken) {
-            alert('Session expired. Please refresh the page.');
-            button.classList.remove('clicked');
-            button.disabled = false;
-            return;
-        }
-
-        fetch('/add-to-cart/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            },
-            body: JSON.stringify({
-                'product_id': parseInt(productId),
-                'quantity': 1
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Update cart count
-                const cartCount = document.getElementById('cart-count');
-                if (cartCount) {
-                    cartCount.textContent = data.items_count;
-                    cartCount.classList.remove('animate');
-                    void cartCount.offsetWidth; // Trigger reflow
-                    cartCount.classList.add('animate');
-                }
-                
-                // Show success message
-                const successMessage = document.getElementById('successMessage');
-                successMessage.classList.add('show');
-                
-                // Reset button after animation
-                setTimeout(() => {
-                    button.classList.remove('clicked');
-                    button.disabled = false;
-                    successMessage.classList.remove('show');
-                }, 2000);
-            } else {
-                throw new Error(data.error || 'Failed to add to cart');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            // Show error message to user
-            const errorMessage = error.message === 'Network response was not ok' 
-                ? 'Please login to add items to cart'
-                : error.message || 'An error occurred. Please try again.';
-            alert(errorMessage);
-            
-            // Reset button state
-            button.classList.remove('clicked');
-            button.disabled = false;
-        });
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    function navigateToProduct(productId, event) {
-        if (!event.target.closest('.add-btn')) {
-            window.location.href = `/product/${productId}/`;
-        }
-    }
-</script>
+<script src="{% static 'js/product.js' %}"></script>
 {% endblock %}
+
+

@@ -18,18 +18,15 @@ function moveSlider(sliderId, direction) {
     if (!slider) return;
 
     const cardWidth = slider.querySelector('.product-card').offsetWidth;
-    const gap = 16; // Gap between cards
+    const gap = 16;
     const visibleWidth = slider.offsetWidth;
     const scrollAmount = Math.floor(visibleWidth / (cardWidth + gap)) * (cardWidth + gap);
     
-    const newScrollPosition = slider.scrollLeft + (scrollAmount * direction);
-    
     slider.scrollTo({
-        left: newScrollPosition,
+        left: slider.scrollLeft + (scrollAmount * direction),
         behavior: 'smooth'
     });
 
-    // Update button states after scroll
     setTimeout(() => updateSliderButtons(sliderId), 300);
 }
 
@@ -42,11 +39,35 @@ function updateSliderButtons(sliderId) {
 
     if (prevBtn) {
         prevBtn.disabled = slider.scrollLeft <= 0;
+        prevBtn.style.opacity = slider.scrollLeft <= 0 ? '0.5' : '1';
     }
     if (nextBtn) {
-        nextBtn.disabled = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 5;
+        const isAtEnd = slider.scrollLeft + slider.offsetWidth >= slider.scrollWidth - 5;
+        nextBtn.disabled = isAtEnd;
+        nextBtn.style.opacity = isAtEnd ? '0.5' : '1';
     }
 }
+
+// Sidebar toggle functionality
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.toggle('active');
+    }
+}
+
+// Ensure the sidebar closes when clicking outside of it
+document.addEventListener('click', (e) => {
+    const sidebar = document.getElementById('sidebar');
+    const menuBtn = document.querySelector('.menu-btn');
+    const closeBtn = document.querySelector('.close-btn');
+
+    if (sidebar && menuBtn && closeBtn) {
+        if (!sidebar.contains(e.target) && !menuBtn.contains(e.target) && !closeBtn.contains(e.target)) {
+            sidebar.classList.remove('active');
+        }
+    }
+});
 
 // Initialize sliders and category clicks
 document.addEventListener('DOMContentLoaded', function() {
@@ -131,6 +152,88 @@ document.addEventListener('DOMContentLoaded', function() {
             spotlight.style.setProperty('--y', `${y}%`);
         });
     });
+
+    // Dropdown functionality for profile icon
+    const dropdowns = document.querySelectorAll('.dropdown');
+    dropdowns.forEach(dropdown => {
+        const trigger = dropdown.querySelector('.nav-icon');
+        const menu = dropdown.querySelector('.dropdown-menu');
+
+        if (trigger && menu) {
+            trigger.addEventListener('click', (e) => {
+                e.preventDefault();
+                menu.classList.toggle('show');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdown.contains(e.target)) {
+                    menu.classList.remove('show');
+                }
+            });
+        }
+    });
+
+    // Initialize scroll-to-top button functionality after DOM is fully loaded
+    const scrollTopBtn = document.getElementById('scrollTopBtn');
+    let lastScrollTop = 0;
+    let scrollTimeout;
+
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', () => {
+            clearTimeout(scrollTimeout);
+            
+            const currentScroll = window.pageYOffset;
+            
+            // Show/hide button based on scroll position
+            if (currentScroll > 300) {
+                scrollTopBtn.classList.add('visible');
+            } else {
+                scrollTopBtn.classList.remove('visible');
+            }
+            
+            // Add extra class when scrolling up
+            if (currentScroll < lastScrollTop) {
+                scrollTopBtn.classList.add('scroll-up');
+            } else {
+                scrollTopBtn.classList.remove('scroll-up');
+            }
+            
+            lastScrollTop = currentScroll;
+            
+            // Hide button after 2 seconds of no scrolling
+            scrollTimeout = setTimeout(() => {
+                if (currentScroll < 300) {
+                    scrollTopBtn.classList.remove('visible');
+                }
+            }, 2000);
+        });
+
+        scrollTopBtn.addEventListener('click', () => {
+            // Add click animation class
+            scrollTopBtn.classList.add('clicked');
+            
+            // Smooth scroll to top
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+            
+            // Remove click animation class after animation completes
+            setTimeout(() => {
+                scrollTopBtn.classList.remove('clicked');
+            }, 300);
+        });
+
+        scrollTopBtn.addEventListener('mouseenter', () => {
+            scrollTopBtn.style.transform = 'scale(1.1) translateY(-5px)';
+        });
+
+        scrollTopBtn.addEventListener('mouseleave', () => {
+            scrollTopBtn.style.transform = 'scale(1) translateY(0)';
+        });
+    }
+
+    updateCartCount(); // Call this function to set the initial cart count
 });
 
 // Add touch support for mobile devices
@@ -156,50 +259,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-
 // Product Slider Functionality
 function initializeProductSliders() {
-    const productSections = document.querySelectorAll('.product-section');
+    const sliders = document.querySelectorAll('.product-slider');
     
-    productSections.forEach((section, index) => {
-        const counter = index + 1;
-        const slider = document.getElementById(`productSlider${counter}`);
-        const prevBtn = document.getElementById(`prevBtn${counter}`);
-        const nextBtn = document.getElementById(`nextBtn${counter}`);
-
-        if (!slider || !prevBtn || !nextBtn) return;
-
-        const cardWidth = 300; // Width + gap
-
-        const updateButtonStates = () => {
-            const isAtStart = slider.scrollLeft <= 0;
-            const isAtEnd = slider.scrollLeft >= slider.scrollWidth - slider.offsetWidth;
+    sliders.forEach(slider => {
+        const sliderId = slider.id;
+        const prevBtn = slider.parentElement.querySelector('.control-btn.prev');
+        const nextBtn = slider.parentElement.querySelector('.control-btn.next');
+        
+        // Initialize slider buttons
+        updateSliderButtons(sliderId);
+        
+        // Add scroll event listener
+        slider.addEventListener('scroll', () => {
+            updateSliderButtons(sliderId);
+        });
+        
+        // Add touch support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        slider.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const difference = touchStartX - touchEndX;
             
-            prevBtn.disabled = isAtStart;
-            nextBtn.disabled = isAtEnd;
-            prevBtn.style.opacity = isAtStart ? '0.5' : '1';
-            nextBtn.style.opacity = isAtEnd ? '0.5' : '1';
-        };
-
-        nextBtn.addEventListener('click', () => {
-            slider.scrollBy({
-                left: cardWidth * 2,
-                behavior: 'smooth'
-            });
-            setTimeout(updateButtonStates, 100);
-        });
-
-        prevBtn.addEventListener('click', () => {
-            slider.scrollBy({
-                left: -cardWidth * 2,
-                behavior: 'smooth'
-            });
-            setTimeout(updateButtonStates, 100);
-        });
-
-        slider.addEventListener('scroll', updateButtonStates);
-        window.addEventListener('resize', updateButtonStates);
-        updateButtonStates();
+            if (Math.abs(difference) > 50) {
+                moveSlider(sliderId, difference > 0 ? 1 : -1);
+            }
+        }, { passive: true });
     });
 }
 
@@ -207,13 +299,10 @@ function initializeProductSliders() {
 let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
 function addToCart(productId) {
-    // Disable the button to prevent multiple clicks
-    const addButton = document.querySelector(`[data-product-id="${productId}"] .add-btn`);
-    if (addButton) {
-        addButton.disabled = true;
-        addButton.style.opacity = '0.7';
-        // Add animation class
-        addButton.classList.add('adding-to-cart');
+    const button = document.querySelector(`[data-product-id="${productId}"] .add-btn`);
+    if (button) {
+        button.classList.add('clicked'); // Add clicked class for animation
+        button.disabled = true; // Disable button during the process
     }
 
     fetch('/add-to-cart/', {
@@ -235,92 +324,50 @@ function addToCart(productId) {
     })
     .then(data => {
         if (data.success) {
-            // Update cart count with animation
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.cart_count;
-                cartCount.classList.add('cart-updated');
-                setTimeout(() => cartCount.classList.remove('cart-updated'), 300);
+            // Update cart count
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge) {
+                cartBadge.textContent = data.cart_count;
             }
-            
-            // Add success animation to button
-            if (addButton) {
-                addButton.classList.add('added-to-cart');
-                setTimeout(() => addButton.classList.remove('added-to-cart'), 1000);
-            }
+            // Reset button after animation
+            setTimeout(() => {
+                if (button) {
+                    button.classList.remove('clicked');
+                    button.disabled = false;
+                }
+            }, 2000); // Reset after 2 seconds
+            showNotification('Added to cart successfully!', 'success');
         } else {
             throw new Error(data.error || 'Failed to add to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        // Show error message only for actual errors
-        showNotification(error.message || 'An error occurred. Please try again.', 'error');
-    })
-    .finally(() => {
-        // Re-enable the button
-        if (addButton) {
-            addButton.disabled = false;
-            addButton.style.opacity = '1';
-            addButton.classList.remove('adding-to-cart');
+        if (button) {
+            button.classList.remove('clicked');
+            button.disabled = false;
         }
+        showNotification(error.message || 'An error occurred. Please try again.', 'error');
     });
 }
 
 function showNotification(message, type = 'success') {
-    // Remove any existing notifications first
-    const existingNotifications = document.querySelectorAll('.notification');
-    existingNotifications.forEach(notification => notification.remove());
-
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
-    notification.textContent = message;
-    
-    // Add an icon based on the type
-    const icon = document.createElement('i');
-    icon.className = type === 'success' ? 'fas fa-check-circle' : 'fas fa-exclamation-circle';
-    icon.style.marginRight = '8px';
-    notification.insertBefore(icon, notification.firstChild);
+    notification.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
     
     document.body.appendChild(notification);
     
-    // Enhanced CSS for notifications
-    notification.style.position = 'fixed';
-    notification.style.top = '20px';
-    notification.style.right = '20px';
-    notification.style.padding = '15px 25px';
-    notification.style.borderRadius = '4px';
-    notification.style.backgroundColor = type === 'success' ? '#4CAF50' : '#f44336';
-    notification.style.color = 'white';
-    notification.style.zIndex = '1000';
-    notification.style.display = 'flex';
-    notification.style.alignItems = 'center';
-    notification.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-    notification.style.animation = 'slideIn 0.3s ease-out';
-    
-    // Add animation keyframes if they don't exist
-    if (!document.querySelector('#notification-styles')) {
-        const style = document.createElement('style');
-        style.id = 'notification-styles';
-        style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
     setTimeout(() => {
-        notification.style.animation = 'slideIn 0.3s ease-out reverse';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+        notification.classList.add('show');
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    }, 100);
 }
 
 function getCookie(name) {
@@ -358,9 +405,29 @@ function updateServerCart(productId) {
 }
 
 function updateCartCount() {
-    const cartCount = document.querySelector('.cart-count');
-    if (cartCount) {
-        const count = cartItems.reduce((total, item) => total + item.quantity, 0);
-        cartCount.textContent = count;
-    }
+    fetch('/get-cart-count/') // Ensure this endpoint returns the current cart count
+        .then(response => response.json())
+        .then(data => {
+            const cartCount = document.querySelector('.cart-count');
+            if (cartCount) {
+                cartCount.textContent = data.cart_count; // Set the initial count
+            }
+        })
+        .catch(error => console.error('Error fetching cart count:', error));
 }
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProductSliders();
+    
+    // Update slider buttons on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            document.querySelectorAll('.product-slider').forEach(slider => {
+                updateSliderButtons(slider.id);
+            });
+        }, 250);
+    });
+});

@@ -1,14 +1,21 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Make sure toggleSidebar is defined in the global scope
+    // Sidebar Toggle Function
     window.toggleSidebar = function() {
         const sidebar = document.getElementById("sidebar");
-        if (sidebar) {
-            sidebar.classList.toggle('active');
-        }
-    };
+        sidebar.classList.toggle('active');
+    }
+
+    // Menu button click handler
+    const menuBtn = document.querySelector('.menu-btn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleSidebar();
+        });
+    }
 
     // Profile icon click handler
-    const profileIcon = document.querySelector('.nav-icon');
+    const profileIcon = document.querySelector('.nav-icon.profile-icon');
     if (profileIcon) {
         profileIcon.addEventListener('click', function(e) {
             e.preventDefault();

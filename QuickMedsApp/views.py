@@ -23,70 +23,35 @@ from django.shortcuts import render
 
 def search_products(request):
     query = request.GET.get('q', '')
-    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
-    
-    if is_ajax:
-        suggestions = []
-        if query:
-            products = Product.objects.filter(
-                Q(name__icontains=query) |
-                Q(category__name__icontains=query) |
-                Q(description__icontains=query)
-            ).distinct()[:5]
-            
-            categories = Category.objects.filter(name__icontains=query)[:3]
-            
-            for product in products:
-                suggestions.append({
-                    'type': 'product',
-                    'id': product.id,
-                    'name': product.name,
-                    'category': product.category.name,
-                    'price': str(product.price),
-                    'image_url': product.image.url if product.image else '/static/img/medicines-icon.png'
-                })
-            
-            for category in categories:
-                suggestions.append({
-                    'type': 'category',
-                    'id': category.id,
-                    'name': category.name,
-                    'count': category.products.count()
-                })
-        
-        return JsonResponse({'suggestions': suggestions})
     
     if query:
+        # Search in products
         products = Product.objects.filter(
             Q(name__icontains=query) |
-            Q(category__name__icontains=query) |
             Q(description__icontains=query)
-        ).distinct().select_related('category')
+        ).select_related('category')
         
+        # Get unique categories from the filtered products
         categories = Category.objects.filter(
-            Q(name__icontains=query) |
-            Q(products__name__icontains=query)
+            products__in=products
         ).distinct()
     else:
         products = Product.objects.none()
         categories = Category.objects.none()
     
     context = {
+        'query': query,
         'products': products,
         'categories': categories,
-        'query': query,
-        'cart_count': get_cart_count(request),
-        'total_results': products.count()
+        'total_results': products.count(),
+        'cart_count': get_cart_count(request)
     }
+    
     return render(request, 'search_results.html', context)
 
 
-def shop_view(request):
-    product_id = request.GET.get('product_id')
-    if not product_id:
-        messages.error(request, 'No product selected')
-        return redirect('product')
-        
+
+def shop_view(request, product_id):
     try:
         product = Product.objects.get(id=product_id)
         if not product.image:
