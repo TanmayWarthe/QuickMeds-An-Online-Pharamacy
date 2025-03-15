@@ -110,14 +110,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle product card clicks
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', function(e) {
-            // Don't navigate if clicking on buttons
-            if (e.target.closest('.add-btn') || e.target.closest('.view-details-btn')) {
+            if (e.target.closest('.cart-button')) {
+                e.preventDefault();
+                e.stopPropagation();
                 return;
             }
             
-            const viewDetailsBtn = this.querySelector('.view-details-btn');
-            if (viewDetailsBtn) {
-                window.location.href = viewDetailsBtn.href;
+            const productId = this.getAttribute('data-product-id');
+            if (productId) {
+                navigateToProduct(productId, e);
             }
         });
     });
@@ -298,56 +299,58 @@ function initializeProductSliders() {
 // Cart Management
 let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
 
-function addToCart(productId) {
-    const button = document.querySelector(`[data-product-id="${productId}"] .add-btn`);
-    if (button) {
-        button.classList.add('clicked'); // Add clicked class for animation
-        button.disabled = true; // Disable button during the process
+function cartClick(event, productId) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const button = event.currentTarget;
+    if (button.disabled || button.classList.contains('clicked')) {
+        return;
     }
 
-    fetch('/add-to-cart/', {
-        method: 'POST',
+    button.classList.add('clicked');
+    
+    // Make the AJAX call to add to cart with proper URL
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json'
         },
-        body: JSON.stringify({
-            product_id: productId,
-            quantity: 1
-        })
+        credentials: 'same-origin'  // This will send cookies including sessionid
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            if (response.status === 403) {
+                window.location.href = '/login/';  // Redirect to login if not authenticated
+                return;
+            }
+            throw new Error('Network response was not ok');
         }
         return response.json();
     })
     .then(data => {
         if (data.success) {
-            // Update cart count
+            // Update cart count in header
             const cartBadge = document.querySelector('.cart-icon .badge');
-            if (cartBadge) {
+            if (cartBadge && data.cart_count !== undefined) {
                 cartBadge.textContent = data.cart_count;
             }
+            
+            // Show success message
+            showNotification('Item added to cart successfully', 'success');
+
             // Reset button after animation
             setTimeout(() => {
-                if (button) {
-                    button.classList.remove('clicked');
-                    button.disabled = false;
-                }
-            }, 2000); // Reset after 2 seconds
-            showNotification('Added to cart successfully!', 'success');
+                button.classList.remove('clicked');
+            }, 2000);
         } else {
-            throw new Error(data.error || 'Failed to add to cart');
+            throw new Error(data.message || 'Failed to add item to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        if (button) {
-            button.classList.remove('clicked');
-            button.disabled = false;
-        }
-        showNotification(error.message || 'An error occurred. Please try again.', 'error');
+        button.classList.remove('clicked');
+        showNotification(error.message || 'Failed to add item to cart', 'error');
     });
 }
 
@@ -355,34 +358,30 @@ function showNotification(message, type = 'success') {
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        <span>${message}</span>
+        <div class="notification-content">
+            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+            <span>${message}</span>
+        </div>
     `;
     
     document.body.appendChild(notification);
     
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove notification after delay
     setTimeout(() => {
-        notification.classList.add('show');
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    }, 100);
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
 }
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
+function navigateToProduct(productId, event) {
+    if (event) {
+        event.preventDefault();
+        event.stopPropagation();
     }
-    return cookieValue;
+    window.location.href = `/product/${productId}/`;
 }
 
 function updateServerCart(productId) {
@@ -431,3 +430,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 250);
     });
 });
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

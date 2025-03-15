@@ -126,8 +126,15 @@ document.querySelectorAll('.thumbnails img').forEach(thumb => {
     });
 });
 
-function addToCart(productId) {
+function addToCart(productId, stockLimit) {
     const quantity = parseInt(document.getElementById('quantity').value);
+    
+    // Validate quantity against stock limit
+    if (quantity > stockLimit) {
+        showNotification('Requested quantity exceeds available stock!', 'error');
+        return;
+    }
+    
     const addButton = document.querySelector('.add-to-cart-btn');
     
     if (addButton) {

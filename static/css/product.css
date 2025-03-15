@@ -627,82 +627,94 @@ body {
     width: 100%;
     position: relative;
     z-index: 2;
+    padding: 0 15px 15px;
 }
 
-.add-btn {
+.price-row {
+    padding: 0 15px;
+}
+
+/* Cart Button Styles */
+.cart-button {
     position: relative;
-    width: 100%;
-    height: 40px;
+    padding: 10px;
+    width: 200px;
+    height: 60px;
     border: 0;
     border-radius: 5px;
-    background-color: #78ade5;
+    background-color: #00fffc;
     outline: none;
     cursor: pointer;
     color: #000;
     transition: .3s ease-in-out;
     overflow: hidden;
     font-weight: 700;
-    font-size: 14px;
 }
 
-.add-btn:hover {
-    background-color: #5cecdd;
+.cart-button:hover {
+    background-color: #00fffc;
 }
 
-.add-btn:active {
+.cart-button:active {
     transform: scale(.9);
 }
 
-.add-btn .fa-shopping-cart {
+.cart-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cart-button .fa-cart-shopping {
     position: absolute;
     z-index: 2;
     top: 50%;
     left: -10%;
-    font-size: 1.2em;
+    font-size: 2em;
     transform: translate(-50%, -50%);
 }
 
-.add-btn .fa-box {
+.cart-button .fa-box {
     position: absolute;
     z-index: 3;
     top: -20%;
     left: 52%;
-    font-size: 1em;
+    font-size: 1.2em;
     transform: translate(-50%, -50%);
     color: gold;
 }
 
-.add-btn span {
+.cart-button span {
     position: absolute;
     z-index: 3;
     left: 50%;
     top: 50%;
-    font-size: 1em;
+    font-size: 1.3em;
     color: #000;
     transform: translate(-50%, -50%);
 }
 
-.add-btn span.add-to-cart {
+.cart-button span.add-to-cart {
     opacity: 1;
 }
 
-.add-btn span.added {
+.cart-button span.added {
     opacity: 0;
 }
 
-.add-btn.clicked .fa-shopping-cart {
+.cart-button.clicked .fa-cart-shopping {
     animation: truck 2s ease-in-out forwards;
 }
 
-.add-btn.clicked .fa-box {
+.cart-button.clicked .fa-box {
     animation: box 2s ease-in-out forwards;
 }
 
-.add-btn.clicked span.add-to-cart {
+.cart-button.clicked span.add-to-cart {
     animation: txt1 2s ease-in-out forwards;
 }
 
-.add-btn.clicked span.added {
+.cart-button.clicked span.added {
     animation: txt2 2s ease-in-out forwards;
 }
 
@@ -726,11 +738,6 @@ body {
 @keyframes txt2 {
     0%, 80% { opacity: 0; }
     100% { opacity: 1; }
-}
-
-/* Remove view-details-btn completely */
-.view-details-btn {
-    display: none !important;
 }
 
 /* Slider Controls */
@@ -791,14 +798,6 @@ body {
 
 .control-btn:active {
     transform: translateY(0);
-}
-
-.control-btn.prev:hover i {
-    animation: arrowBounceLeft 0.8s infinite;
-}
-
-.control-btn.next:hover i {
-    animation: arrowBounceRight 0.8s infinite;
 }
 
 .control-btn:disabled {
@@ -1195,4 +1194,185 @@ footer .social-links a:hover {
     background: linear-gradient(135deg, rgba(255, 240, 250, 0.95) 0%, rgba(255, 255, 255, 0.9) 100%);
     box-shadow: 0 8px 32px rgba(255, 102, 178, 0.1);
     border: 1px solid rgba(255, 102, 178, 0.1);
+}
+
+/* Cart Animation Styles */
+.cart-button {
+    position: relative;
+    padding: 10px;
+    width: 200px;
+    height: 60px;
+    border: 0;
+    border-radius: 5px;
+    background-color: #00fffc;
+    outline: none;
+    cursor: pointer;
+    color: #000;
+    transition: .3s ease-in-out;
+    overflow: hidden;
+    font-weight: 700;
+}
+
+.cart-button:hover {
+    background-color: #00fffc;
+}
+
+.cart-button:active {
+    transform: scale(.9);
+}
+
+.cart-button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cart-button .fa-cart-shopping {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: -10%;
+    font-size: 2em;
+    transform: translate(-50%, -50%);
+}
+
+.cart-button .fa-box {
+    position: absolute;
+    z-index: 3;
+    top: -20%;
+    left: 52%;
+    font-size: 1.2em;
+    transform: translate(-50%, -50%);
+    color: gold;
+}
+
+.cart-button span {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    font-size: 1.3em;
+    color: #000;
+    transform: translate(-50%, -50%);
+}
+
+.cart-button span.add-to-cart {
+    opacity: 1;
+}
+
+.cart-button span.added {
+    opacity: 0;
+}
+
+.cart-button.clicked .fa-cart-shopping {
+    animation: truck 2s ease-in-out forwards;
+}
+
+.cart-button.clicked .fa-box {
+    animation: box 2s ease-in-out forwards;
+}
+
+.cart-button.clicked span.add-to-cart {
+    animation: txt1 2s ease-in-out forwards;
+}
+
+.cart-button.clicked span.added {
+    animation: txt2 2s ease-in-out forwards;
+}
+
+@keyframes truck {
+    0% { left: -10%; }
+    40%, 55% { left: 50%; }
+    100% { left: 110%; }
+}
+
+@keyframes box {
+    0%, 40% { top: -20%; left: -5%; }
+    55% { top: 37%; left: 52%; }
+    100% { top: 37%; left: 110%; }
+}
+
+@keyframes txt1 {
+    0% { opacity: 1; }
+    20%, 100% { opacity: 0; }
+}
+
+@keyframes txt2 {
+    0%, 80% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+/* Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.notification.show {
+    transform: translateX(0);
+}
+
+.notification.success {
+    border-left: 4px solid #00fffc;
+}
+
+.notification.error {
+    border-left: 4px solid #ff4444;
+}
+
+.notification-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.notification i {
+    font-size: 20px;
+}
+
+.notification.success i {
+    color: #00fffc;
+}
+
+.notification.error i {
+    color: #ff4444;
+}
+
+.notification span {
+    color: #333;
+    font-weight: 500;
+}
+
+/* Success Message */
+#successMessage {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 255, 252, 0.9);
+    color: #000;
+    padding: 15px 30px;
+    border-radius: 8px;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    z-index: 1000;
+    animation: fadeInOut 0.3s ease;
+}
+
+#successMessage i {
+    font-size: 20px;
+}
+
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translate(-50%, -60%); }
+    100% { opacity: 1; transform: translate(-50%, -50%); }
 }

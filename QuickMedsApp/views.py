@@ -4,11 +4,10 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from .models import UserProfile, Address
+from django.db.models import Q, Sum
+from .models import UserProfile, Address, Product, CartItem, Cart, Category
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
-from .models import Product, CartItem, Cart, Category
-from django.db.models import Q
 import json
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
@@ -448,44 +447,58 @@ def delete_account(request):
         }, status=400)
 
 @login_required
-def add_to_cart(request):
-    if request.method == 'POST':
+def add_to_cart(request, product_id):
+    if request.method == 'GET':
         try:
-            data = json.loads(request.body)
-            product_id = data.get('product_id')
-            quantity = data.get('quantity', 1)
-            
-            # Get or create cart for user
-            cart, created = Cart.objects.get_or_create(user=request.user)
+            # Check if product exists and is in stock
+            product = Product.objects.get(id=product_id)
+            if not product.in_stock:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Product is out of stock'
+                }, status=400)
+
+            # Get or create cart
+            cart, _ = Cart.objects.get_or_create(user=request.user)
             
             # Get or create cart item
             cart_item, created = CartItem.objects.get_or_create(
                 cart=cart,
-                product_id=product_id,
-                defaults={'quantity': quantity}
+                product=product,
+                defaults={'quantity': 1}
             )
             
+            # If item already exists, increment quantity
             if not created:
-                cart_item.quantity += quantity
+                cart_item.quantity += 1
                 cart_item.save()
             
-            # Get updated cart information
-            cart_total = cart.get_total()
-            items_count = cart.cartitem_set.count()
+            # Get total cart items count
+            cart_count = CartItem.objects.filter(cart=cart).aggregate(
+                total=Sum('quantity')
+            )['total'] or 0
             
             return JsonResponse({
                 'success': True,
-                'message': 'Item added to cart successfully',
-                'cart_total': '{:,}'.format(cart_total),
-                'items_count': items_count
+                'message': 'Product added to cart successfully',
+                'cart_count': cart_count
             })
             
         except Product.DoesNotExist:
-            return JsonResponse({'success': False, 'error': 'Product not found'})
+            return JsonResponse({
+                'success': False,
+                'message': 'Product not found'
+            }, status=404)
         except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-            
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+            return JsonResponse({
+                'success': False,
+                'message': 'An error occurred while adding to cart'
+            }, status=500)
+    
+    return JsonResponse({
+        'success': False,
+        'message': 'Invalid request method'
+    }, status=400)
 
 @login_required
 def cart_view(request):

@@ -2,7 +2,7 @@
 {% load static %}
 {% load humanize %}
 
-{% block title %}{{ product.name }} - QuickMeds{% endblock %}
+{% block title %}Shop - {{ product.name }}{% endblock %}
 
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -10,110 +10,147 @@
 {% endblock %}
 
 {% block content %}
-<div class="success-message" id="successMessage">
-    <i class="fas fa-check-circle"></i> Added to cart successfully!
-</div>
+<!-- Notification Container -->
+<div id="notification-container"></div>
 
-<div class="error-message" id="errorMessage">
-    <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
-</div>
-<div class="dialog-overlay">
-    <div class="dialog-content">
-        <button class="popup-close" onclick="window.history.back()"></button>
-        <div class="product-container">
-            <!-- Left Section - Product Image -->
-            <div class="product-image-section">
-                <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
-            </div>
+<!-- Breadcrumb -->
+<nav class="breadcrumb-nav">
+    <div class="container">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
+            <li class="breadcrumb-item"><a href="#">{{ product.category.name }}</a></li>
+            <li class="breadcrumb-item active">{{ product.name }}</li>
+        </ol>
+    </div>
+</nav>
 
-            <!-- Right Section - Product Details -->
-            <div class="product-info">
-                <!-- Basic Info -->
-                <div class="product-header">
-                    <span class="category">{{ product.category.name }}</span>
-                    <h1 class="product-title">{{ product.name }}</h1>
+<div class="container">
+    <div class="success-message" id="successMessage">
+        <i class="fas fa-check-circle"></i> Added to cart successfully!
+    </div>
+
+    <div class="error-message" id="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> <span id="errorText"></span>
+    </div>
+    <div class="dialog-overlay">
+        <div class="dialog-content">
+            <button class="popup-close" onclick="window.history.back()"></button>
+            <div class="product-container">
+                <!-- Left Section - Product Image -->
+                <div class="product-image-section">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
                 </div>
 
-                <!-- Price Section -->
-                <div class="price-section">
-                    <div class="price-container">
-                        <span class="current-price">₹{{ product.price|intcomma }}</span>
-                        {% if product.original_price %}
-                        <span class="original-price">₹{{ product.original_price|intcomma }}</span>
-                        <span class="discount">{{ product.discount_percentage }}% OFF</span>
-                        {% endif %}
+                <!-- Right Section - Product Details -->
+                <div class="product-info">
+                    <!-- Basic Info -->
+                    <div class="product-header">
+                        <span class="category">{{ product.category.name }}</span>
+                        <h1 class="product-title">{{ product.name }}</h1>
                     </div>
-                </div>
 
-                <!-- Quantity and Actions -->
-                <div class="purchase-section">
-                    <div class="quantity-controls">
-                        <span class="quantity-label">Quantity:</span>
-                        <div class="quantity-wrapper">
-                            <button type="button" class="quantity-btn minus" aria-label="Decrease quantity">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                            <input type="text" 
-                                   id="quantity" 
-                                   class="quantity-input" 
-                                   value="1" 
-                                   min="1" 
-                                   max="{{ product.stock }}"
-                                   aria-label="Product quantity">
-                            <button type="button" class="quantity-btn plus" aria-label="Increase quantity">
-                                <i class="fas fa-plus"></i>
-                            </button>
-                        </div>
-                        <span class="stock-info">{{ product.stock }} pieces available</span>
-                    </div>
-                    <div class="quantity-error" id="quantityError"></div>
-
-                    <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
-                        <button onclick="addToCart({{ product.id }})" 
-                                class="add-to-cart-btn" 
-                                {% if not product.in_stock %}disabled{% endif %}>
-                            <i class="fas fa-shopping-cart"></i>
-                            {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
-                        </button>
-                        <button class="buy-now-btn" {% if not product.in_stock %}disabled{% endif %}>
-                            <i class="fas fa-bolt"></i>
-                            Buy Now
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Additional Details -->
-                <div class="additional-details">
-                    <div class="detail-section">
-                        <h3 class="section-title">Product Details</h3>
-                        <div class="product-details">
-                            <div class="detail-item">
-                                <span class="detail-label">Product Code:</span>
-                                <span class="detail-value">{{ product.code }}</span>
-                            </div>
-                            {% if product.expiry_date %}
-                            <div class="detail-item {% if product.is_expiring_soon %}expiring-soon{% endif %}">
-                                <span class="detail-label">Expiry Date:</span>
-                                <span class="detail-value">{{ product.expiry_date|date:"d M Y" }}</span>
-                                {% if product.is_expiring_soon %}
-                                <span class="badge bg-warning">Expiring Soon</span>
-                                {% endif %}
-                            </div>
+                    <!-- Price Section -->
+                    <div class="price-section">
+                        <div class="price-container">
+                            <span class="current-price">₹{{ product.price|intcomma }}</span>
+                            {% if product.original_price %}
+                            <span class="original-price">₹{{ product.original_price|intcomma }}</span>
+                            <span class="discount">{{ product.discount_percentage }}% OFF</span>
                             {% endif %}
                         </div>
                     </div>
 
-                    <div class="detail-section">
-                        <h3 class="section-title">Product Description</h3>
-                        <div class="description-content">
-                            {{ product.description|linebreaks }}
+                    <!-- Quantity and Actions -->
+                    <div class="purchase-section">
+                        <div class="quantity-controls">
+                            <label for="quantity">Quantity:</label>
+                            <div class="quantity-wrapper">
+                                <button type="button" class="quantity-btn minus" aria-label="Decrease quantity">
+                                    <i class="fas fa-minus"></i>
+                                </button>
+                                <input type="number" 
+                                       id="quantity" 
+                                       class="quantity-input" 
+                                       value="1" 
+                                       min="1" 
+                                       max="{{ product.stock }}"
+                                       aria-label="Product quantity">
+                                <button type="button" class="quantity-btn plus" aria-label="Increase quantity">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <span class="stock-info">{{ product.stock }} pieces available</span>
+                        </div>
+                        <div class="quantity-error" id="quantityError"></div>
+
+                        <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
+                            <button onclick="addToCart('{{ product.id }}')" 
+                                    class="add-to-cart-btn" 
+                                    {% if not product.in_stock %}disabled="disabled"{% endif %}>
+                                <i class="fas fa-shopping-cart"></i>
+                                {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                            </button>
+                            <button class="buy-now-btn" {% if not product.in_stock %}disabled="disabled"{% endif %}>
+                                <i class="fas fa-bolt"></i>
+                                Buy Now
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Additional Details -->
+                    <div class="additional-details">
+                        <div class="detail-section">
+                            <h3 class="section-title">Product Details</h3>
+                            <div class="product-details">
+                                <div class="detail-item">
+                                    <span class="detail-label">Product Code:</span>
+                                    <span class="detail-value">{{ product.code }}</span>
+                                </div>
+                                {% if product.expiry_date %}
+                                <div class="detail-item {% if product.is_expiring_soon %}expiring-soon{% endif %}">
+                                    <span class="detail-label">Expiry Date:</span>
+                                    <span class="detail-value">{{ product.expiry_date|date:"d M Y" }}</span>
+                                    {% if product.is_expiring_soon %}
+                                    <span class="badge bg-warning">Expiring Soon</span>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="detail-section">
+                            <h3 class="section-title">Product Description</h3>
+                            <div class="description-content">
+                                {{ product.description|linebreaks }}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Similar Products Section -->
+    <div class="similar-products">
+        <h2 class="section-title">Similar Products</h2>
+        <div class="similar-products-grid">
+            {% for similar_product in similar_products|slice:":5" %}
+            <div class="similar-product-card">
+                <img src="{{ similar_product.image_url }}" alt="{{ similar_product.name }}" class="similar-product-image">
+                <div class="similar-product-info">
+                    <h3 class="similar-product-title">{{ similar_product.name }}</h3>
+                    <div class="similar-product-price">₹{{ similar_product.price|intcomma }}</div>
+                    <button class="similar-product-btn" onclick="addToCart('{{ similar_product.id }}')">
+                        <i class="fas fa-cart-plus"></i>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
