@@ -54,14 +54,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Product Slider Configuration
-    const slider = document.getElementById('productSlider');
-    const prevBtn = document.getElementById('prevProduct');
-    const nextBtn = document.getElementById('nextProduct');
+    const slider = document.querySelector('.product-slider');
+    if (!slider) return;
+
     let slideIndex = 0;
     let slidesToShow = getSlidesToShow();
     let autoSlideInterval;
     let isHovered = false;
-    let progressDots = [];
 
     // Responsive slides calculation
     function getSlidesToShow() {
@@ -78,37 +77,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const slideWidth = slider.querySelector('.product-slide')?.offsetWidth || 0;
         slider.style.transition = smooth ? 'transform 0.8s cubic-bezier(0.4, 0, 0.2, 1)' : 'none';
         slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
-        updateProgressDots();
-    }
-
-    // Progress Dots
-    function createProgressDots() {
-        if (!slider) return;
-        
-        const dotsContainer = document.createElement('div');
-        dotsContainer.className = 'progress-dots';
-        const totalDots = Math.ceil((slider.children.length || 0) / slidesToShow);
-        
-        for (let i = 0; i < totalDots; i++) {
-            const dot = document.createElement('button');
-            dot.className = 'progress-dot';
-            dot.setAttribute('aria-label', `Go to slide ${i + 1}`);
-            dot.addEventListener('click', () => {
-                slideIndex = i;
-                updateSliderPosition();
-            });
-            dotsContainer.appendChild(dot);
-            progressDots.push(dot);
-        }
-        
-        slider.parentElement?.appendChild(dotsContainer);
-        updateProgressDots();
-    }
-
-    function updateProgressDots() {
-        progressDots.forEach((dot, index) => {
-            dot.classList.toggle('active', index === slideIndex);
-        });
     }
 
     // Auto Slide Functionality
@@ -134,6 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Slider Event Listeners
+    const prevBtn = document.getElementById('prevProduct');
+    const nextBtn = document.getElementById('nextProduct');
+
     if (prevBtn) {
         prevBtn.addEventListener('click', () => {
             if (slideIndex > 0) {
@@ -155,23 +126,21 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Handle slider hover states
-    if (slider?.parentElement) {
-        slider.parentElement.addEventListener('mouseenter', () => {
-            isHovered = true;
-        });
+    slider.parentElement.addEventListener('mouseenter', () => {
+        isHovered = true;
+    });
 
-        slider.parentElement.addEventListener('mouseleave', () => {
-            isHovered = false;
-        });
-    }
+    slider.parentElement.addEventListener('mouseleave', () => {
+        isHovered = false;
+    });
 
     // Cart Functionality
     function addToCart(productId) {
-        const button = document.querySelector(`[data-product-id="${productId}"]`);
-        if (!button || button.disabled) return;
-
-        button.classList.add('loading');
+        const button = event.target.closest('.cart-button');
+        if (button.disabled) return;
         
+        button.disabled = true;
+
         fetch('/add-to-cart/', {
             method: 'POST',
             headers: {
@@ -186,24 +155,21 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                button.classList.remove('loading');
-                button.classList.add('success');
-                
                 // Update cart count
                 const cartBadge = document.querySelector('.cart-icon .badge');
                 if (cartBadge) {
                     cartBadge.textContent = data.cart_count;
                 }
-
-                // Reset button after animation
-                setTimeout(() => {
-                    button.classList.remove('success');
-                }, 2000);
+                button.disabled = false;
+            } else {
+                button.disabled = false;
+                showNotification('Failed to add item to cart', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            button.classList.remove('loading');
+            button.disabled = false;
+            showNotification('Error adding item to cart', 'error');
         });
     }
 
@@ -256,13 +222,53 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 250));
 
     // Initialize components
-    if (slider) {
-        createProgressDots();
-        updateSliderPosition();
-        startAutoSlide();
-    }
+    updateSliderPosition();
+    startAutoSlide();
 
     // Make addToCart function globally available
     window.addToCart = addToCart;
 });
+
+// Profile Icon Dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const userIcon = document.querySelector('.user-icon');
+    const dropdownMenu = document.querySelector('.user-icon + .dropdown-menu');
+    
+    if (userIcon && dropdownMenu) {
+        // Toggle dropdown on icon click
+        userIcon.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            // Close any other open dropdowns first
+            const allDropdowns = document.querySelectorAll('.dropdown-menu');
+            allDropdowns.forEach(dropdown => {
+                if (dropdown !== dropdownMenu) {
+                    dropdown.classList.remove('show');
+                }
+            });
+            
+            dropdownMenu.classList.toggle('show');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userIcon.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Close dropdown when pressing Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+});
+
+
+
+
+
 

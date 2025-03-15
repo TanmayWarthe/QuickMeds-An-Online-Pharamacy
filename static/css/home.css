@@ -149,8 +149,7 @@
 .brand-section {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    margin-left: 1rem;
+    gap: 15px;
 }
 
 .logo-wrapper {
@@ -1242,100 +1241,30 @@
 
 /* Cart Button */
 .cart-button {
-    position: relative;
-    padding: 10px;
-    width: 200px;
-    height: 60px;
-    border: 0;
-    border-radius: 5px;
-    background-color: #00fffc;
-    outline: none;
-    cursor: pointer;
-    color: #000;
-    transition: .3s ease-in-out;
-    overflow: hidden;
-    font-weight: 700;
+    width: 100%;
+    height: 40px;
+    font-size: 14px;
+    margin-top: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .cart-button:hover {
-    background-color: #00fffc;
+    background-color: #0056b3;
 }
 
-.cart-button:active {
-    transform: scale(.9);
+.cart-button i {
+    font-size: 16px;
 }
 
-.cart-button .fa-cart-shopping {
-    position: absolute;
-    z-index: 2;
-    top: 50%; left: -10%;
-    font-size: 2em;
-    transform: translate(-50%, -50%);
-}
-
-.cart-button .fa-box {
-    position: absolute;
-    z-index: 3;
-    top: -20%; left: 52%;
-    font-size: 1.2em;
-    transform: translate(-50%, -50%);
-    color: gold;
-}
-
-.cart-button span {
-    position: absolute;
-    z-index: 3;
-    left: 50%;
-    top: 50%;
-    font-size: 1.3em;
-    color: #000;
-    transform: translate(-50%, -50%);
-}
-
-.cart-button span.add-to-cart {
-    opacity: 1;
-}
-
-.cart-button span.added {
-    opacity: 0;
-}
-
-.cart-button.clicked .fa-cart-shopping {
-    animation: truck 2s ease-in-out forwards;
-}
-
-.cart-button.clicked .fa-box {
-    animation: box 2s ease-in-out forwards;
-}
-
-.cart-button.clicked span.add-to-cart {
-    animation: txt1 2s ease-in-out forwards;
-}
-
-.cart-button.clicked span.added {
-    animation: txt2 2s ease-in-out forwards;
-}
-
-@keyframes truck {
-    0% { left: -10%; }
-    40%, 55% { left: 50%; }
-    100% { left: 110%; }
-}
-
-@keyframes box {
-    0%, 40% { top: -20%; left: -5%; }
-    55% { top: 37%; left: 52%; }
-    100% { top: 37%; left: 110%; }
-}
-
-@keyframes txt1 {
-    0% { opacity: 1; }
-    20%, 100% { opacity: 0; }
-}
-
-@keyframes txt2 {
-    0%, 80% { opacity: 0; }
-    100% { opacity: 1; }
+.cart-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 /* Navigation Arrows - Semi-transparent until hover */
@@ -2398,66 +2327,212 @@ body.sidebar-open {
     box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
 }
 
-/* Profile Icon Dropdown */
+/* Profile Icon and Dropdown Styles */
 .user-icon {
-    position: relative;
-    z-index: 1050;
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-    overflow: hidden;
-}
-
-.user-icon::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, #78ade5, #5c91c9);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    z-index: -1;
-}
-
-.user-icon:hover::before,
-.user-icon[aria-expanded="true"]::before {
-    opacity: 1;
-}
-
-.user-icon:hover i,
-.user-icon[aria-expanded="true"] i {
-    color: white;
-    transform: scale(1.1);
+    background: transparent;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .user-icon i {
-    position: relative;
-    z-index: 1;
+    font-size: 1.2rem;
+    color: #333;
     transition: all 0.3s ease;
 }
 
-/* Fix dropdown positioning */
-.dropdown {
-    position: relative;
+.user-icon:hover {
+    background-color: rgba(52, 152, 219, 0.1);
 }
 
+.user-icon:hover i {
+    color: #3498db;
+}
+
+/* Dropdown Menu Styles */
 .dropdown-menu {
+    display: none;
     position: absolute;
+    top: 100%;
     right: 0;
-    top: calc(100% + 0.5rem);
-    transform-origin: top right;
-    animation: dropdownFade 0.2s ease;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    min-width: 200px;
+    z-index: 1000;
+    margin-top: 5px;
+    padding: 8px 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.dropdown-menu.show {
+    display: block;
+    animation: dropdownFade 0.3s ease;
+}
+
+.dropdown-item {
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #333;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+
+/* Cart Button Animation Styles */
+.button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.button {
+    --background: #3498db;
+    --text: #fff;
+    --cart: #fff;
+    --tick: var(--background);
+    position: relative;
+    border: none;
+    background: none;
+    padding: 8px 28px;
+    border-radius: 8px;
+    -webkit-appearance: none;
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+    display: flex;
+    color: var(--text);
+    background: var(--background);
+    transform: scale(var(--scale, 1));
+    transition: transform 0.3s;
+}
+
+.button:hover {
+    --scale: 1.05;
+}
+
+.button span {
+    display: block;
+    font-size: 14px;
+    line-height: 25px;
+    font-weight: 600;
+    opacity: var(--span-opacity, 1);
+    transform: translateX(var(--span-x, 0)) translateZ(0);
+    transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.button .success {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: var(--success-opacity, 0);
+    transition: opacity 0.3s ease;
+}
+
+.button .cart {
+    position: relative;
+    margin: 0 0 0 10px;
+    width: 18px;
+    height: 14px;
+    transform: scale(var(--cart-scale, 1));
+    transition: transform 0.3s ease;
+}
+
+.button .cart svg {
+    width: 18px;
+    height: 14px;
+    stroke: var(--cart);
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    display: block;
+}
+
+.button .cart svg polyline:last-child {
+    stroke: var(--tick);
+    stroke-dasharray: 10px;
+    stroke-dashoffset: var(--tick-offset, 10px);
+    transition: stroke-dashoffset 0.4s ease;
+}
+
+.button.loading {
+    --scale: 0.95;
+    --span-opacity: 0;
+    --cart-scale: 0.9;
+}
+
+.button.loading .cart {
+    animation: cart 1.4s linear infinite;
+}
+
+.button.success {
+    --success-opacity: 1;
+    --span-opacity: 0;
+    --tick-offset: 0;
+    --span-x: 20px;
+    animation: success 0.3s ease forwards;
+}
+
+@keyframes cart {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes success {
+    from {
+        transform: scale(0.95);
+    }
+    to {
+        transform: scale(1);
+    }
+}
+
+/* Make sure these don't conflict with other styles */
+.button.success .cart {
+    animation: none;
+}
+
+.button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background-color: #eee;
+    margin: 8px 0;
 }
 
 @keyframes dropdownFade {
     from {
         opacity: 0;
-        transform: scale(0.95) translateY(-10px);
+        transform: translateY(-10px);
     }
-
     to {
         opacity: 1;
-        transform: scale(1) translateY(0);
+        transform: translateY(0);
     }
 }
 
@@ -2554,19 +2629,68 @@ body.sidebar-open {
 .sidebar-toggle {
     background: transparent;
     border: none;
-    padding: 10px;
+    padding: 8px;
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     border-radius: 8px;
     transition: all 0.3s ease;
+    margin-right: 5px;
 }
 
 .toggle-icon {
-    width: 24px;
+    display: block;
+    width: 22px;
     height: 2px;
-    background: #2c3e50;
+    background-color: #2c3e50;
+    transition: all 0.3s ease;
+}
+
+/* Hover effects for toggle button */
+.sidebar-toggle:hover {
+    background: rgba(52, 152, 219, 0.1);
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15);
+}
+
+.sidebar-toggle:hover .toggle-icon {
+    background: #3498db;
+}
+
+/* Animation for each line */
+.sidebar-toggle:hover .toggle-icon:nth-child(1) {
+    transform: scaleX(0.8);
+}
+
+.sidebar-toggle:hover .toggle-icon:nth-child(2) {
+    transform: scaleX(1);
+}
+
+.sidebar-toggle:hover .toggle-icon:nth-child(3) {
+    transform: scaleX(0.6);
+}
+
+/* Active state animations */
+.sidebar-toggle.active .toggle-icon:nth-child(1) {
+    transform: rotate(45deg) translate(0, -2px);
+}
+
+.sidebar-toggle.active .toggle-icon:nth-child(2) {
+    opacity: 0;
+}
+
+.sidebar-toggle.active .toggle-icon:nth-child(3) {
+    transform: rotate(-45deg) translate(0, 2px);
+}
+
+/* Brand Section */
+.brand-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.brand-section:hover {
     border-radius: 4px;
     transition: all 0.3s ease;
     transform-origin: left;

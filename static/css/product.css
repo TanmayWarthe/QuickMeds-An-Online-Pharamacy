@@ -632,45 +632,44 @@ body {
 .add-btn {
     position: relative;
     width: 100%;
-    height: 50px; /* Increased height for better appearance */
+    height: 40px;
     border: 0;
-    border-radius: 8px; /* Rounded corners */
-    background-color: #78ade5; /* Primary color */
+    border-radius: 5px;
+    background-color: #78ade5;
     outline: none;
     cursor: pointer;
-    color: #fff; /* White text */
-    transition: background-color 0.3s ease-in-out, transform 0.2s ease; /* Smooth transition */
+    color: #000;
+    transition: .3s ease-in-out;
+    overflow: hidden;
     font-weight: 700;
-    font-size: 16px; /* Increased font size */
-    display: flex; /* Flexbox for alignment */
-    align-items: center; /* Center items vertically */
-    justify-content: center; /* Center items horizontally */
+    font-size: 14px;
 }
 
 .add-btn:hover {
-    background-color: #5cecdd; /* Lighter shade on hover */
+    background-color: #5cecdd;
 }
 
 .add-btn:active {
-    transform: scale(0.95); /* Scale down on click */
+    transform: scale(.9);
 }
 
 .add-btn .fa-shopping-cart {
     position: absolute;
     z-index: 2;
     top: 50%;
-    left: 10%; /* Adjusted for better positioning */
-    font-size: 1.5em; /* Increased icon size */
+    left: -10%;
+    font-size: 1.2em;
     transform: translate(-50%, -50%);
 }
 
 .add-btn .fa-box {
     position: absolute;
     z-index: 3;
-    top: 50%; /* Centered vertically */
-    right: 10%; /* Adjusted for better positioning */
-    font-size: 1.5em; /* Increased icon size */
+    top: -20%;
+    left: 52%;
+    font-size: 1em;
     transform: translate(-50%, -50%);
+    color: gold;
 }
 
 .add-btn span {
@@ -679,7 +678,7 @@ body {
     left: 50%;
     top: 50%;
     font-size: 1em;
-    color: #fff; /* White text */
+    color: #000;
     transform: translate(-50%, -50%);
 }
 
@@ -707,7 +706,6 @@ body {
     animation: txt2 2s ease-in-out forwards;
 }
 
-/* Keyframes for animations */
 @keyframes truck {
     0% { left: -10%; }
     40%, 55% { left: 50%; }
@@ -801,27 +799,6 @@ body {
 
 .control-btn.next:hover i {
     animation: arrowBounceRight 0.8s infinite;
-}
-
-.control-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-}
-
-.control-btn:disabled:hover {
-    transform: none;
-    background: rgba(255, 255, 255, 0.95);
-}
-
-.control-btn:disabled:hover::before {
-    transform: scale(0);
-}
-
-.control-btn:disabled:hover i {
-    color: #78ade5;
-    animation: none;
 }
 
 .control-btn:disabled {

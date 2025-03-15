@@ -18,12 +18,12 @@
  <nav class="navbar navbar-expand-lg">
     <div class="container-fluid px-4">
         <div class="nav-start">
-            <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
-                <span class="toggle-icon"></span>
-                <span class="toggle-icon"></span>
-                <span class="toggle-icon"></span>
-            </button>
             <div class="brand-section">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                </button>
                 <div class="logo-wrapper">
                     <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
                 </div>
@@ -201,11 +201,12 @@
                                 </div>
                             </div>
                             <div class="product-actions">
-                                <button class="add-btn" onclick="addToCart({{ product.id }})" {% if not product.in_stock %}disabled{% endif %}>
+                                <button class="cart-button" onclick="event.stopPropagation(); addToCart({{ product.id }})"
+                                        {% if not product.in_stock %}disabled{% endif %}>
                                     <span class="add-to-cart">Add to Cart</span>
                                     <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
                                     <i class="fa-solid fa-cart-shopping"></i>
-                                    <i class="fa-solid fa-box"></i>
+                                    <i class="fas fa-box"></i>
                                 </button>
                             </div>
                         </div>
@@ -277,5 +278,3 @@
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script src="{% static 'js/product.js' %}"></script>
 {% endblock %}
-
-

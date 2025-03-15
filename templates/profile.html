@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block title %}My Profile - QuickMeds{% endblock %}
 
@@ -663,7 +664,7 @@
                 <div class="activity-empty">
                     <i class="fas fa-shopping-bag"></i>
                     <p>No orders yet</p>
-                    <a href="{% url 'shop' %}" class="btn-shop-now">Shop Now</a>
+                    <a href="{% url 'product' %}" class="btn-shop-now">Shop Now</a>
                 </div>
                 {% endif %}
             </div>
@@ -750,7 +751,7 @@
             <div class="orders-empty">
                 <i class="fas fa-shopping-bag"></i>
                 <p>You haven't placed any orders yet</p>
-                <a href="{% url 'shop' %}" class="btn-shop-now">Shop Now</a>
+                <a href="{% url 'product' %}" class="btn-shop-now">Shop Now</a>
             </div>
             {% endif %}
         </div>
