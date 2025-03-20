@@ -13,18 +13,6 @@
 <!-- Notification Container -->
 <div id="notification-container"></div>
 
-<!-- Breadcrumb -->
-<nav class="breadcrumb-nav">
-    <div class="container">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
-            <li class="breadcrumb-item"><a href="{% url 'shop' %}">Shop</a></li>
-            <li class="breadcrumb-item"><a href="#">{{ product.category.name }}</a></li>
-            <li class="breadcrumb-item active">{{ product.name }}</li>
-        </ol>
-    </div>
-</nav>
-
 <div class="container">
     <div class="success-message" id="successMessage">
         <i class="fas fa-check-circle"></i> Added to cart successfully!
@@ -128,25 +116,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Similar Products Section -->
-    <div class="similar-products">
-        <h2 class="section-title">Similar Products</h2>
-        <div class="similar-products-grid">
-            {% for similar_product in similar_products|slice:":5" %}
-            <div class="similar-product-card">
-                <img src="{{ similar_product.image_url }}" alt="{{ similar_product.name }}" class="similar-product-image">
-                <div class="similar-product-info">
-                    <h3 class="similar-product-title">{{ similar_product.name }}</h3>
-                    <div class="similar-product-price">₹{{ similar_product.price|intcomma }}</div>
-                    <button class="similar-product-btn" onclick="addToCart('{{ similar_product.id }}')">
-                        <i class="fas fa-cart-plus"></i>
-                    </button>
-                </div>
-            </div>
-            {% endfor %}
         </div>
     </div>
 </div>

@@ -447,58 +447,61 @@ def delete_account(request):
         }, status=400)
 
 @login_required
+@require_POST
 def add_to_cart(request, product_id):
-    if request.method == 'GET':
-        try:
-            # Check if product exists and is in stock
-            product = Product.objects.get(id=product_id)
-            if not product.in_stock:
-                return JsonResponse({
-                    'success': False,
-                    'message': 'Product is out of stock'
-                }, status=400)
+    try:
+        data = json.loads(request.body)
+        quantity = data.get('quantity', 1)
+        
+        # Check if product exists and is in stock
+        product = Product.objects.get(id=product_id)
+        if not product.in_stock:
+            return JsonResponse({
+                'success': False,
+                'message': 'Product is out of stock'
+            }, status=400)
 
-            # Get or create cart
-            cart, _ = Cart.objects.get_or_create(user=request.user)
-            
-            # Get or create cart item
-            cart_item, created = CartItem.objects.get_or_create(
-                cart=cart,
-                product=product,
-                defaults={'quantity': 1}
-            )
-            
-            # If item already exists, increment quantity
-            if not created:
-                cart_item.quantity += 1
-                cart_item.save()
-            
-            # Get total cart items count
-            cart_count = CartItem.objects.filter(cart=cart).aggregate(
-                total=Sum('quantity')
-            )['total'] or 0
-            
-            return JsonResponse({
-                'success': True,
-                'message': 'Product added to cart successfully',
-                'cart_count': cart_count
-            })
-            
-        except Product.DoesNotExist:
-            return JsonResponse({
-                'success': False,
-                'message': 'Product not found'
-            }, status=404)
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': 'An error occurred while adding to cart'
-            }, status=500)
-    
-    return JsonResponse({
-        'success': False,
-        'message': 'Invalid request method'
-    }, status=400)
+        # Get or create cart
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        
+        # Get or create cart item
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={'quantity': quantity}
+        )
+        
+        # If item already exists, update quantity
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+        
+        # Get total cart items count
+        cart_count = CartItem.objects.filter(cart=cart).aggregate(
+            total=Sum('quantity')
+        )['total'] or 0
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Product added to cart successfully',
+            'cart_count': cart_count
+        })
+        
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Product not found'
+        }, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'An error occurred while adding to cart'
+        }, status=500)
 
 @login_required
 def cart_view(request):

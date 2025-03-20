@@ -7,6 +7,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/search_result.css' %}">
 <link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
+<link rel="stylesheet" href="{% static 'css/message-overlay.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -17,38 +18,67 @@
         </button>
         <div class="search-bar">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-input" placeholder="Search medicines, categories..." value="{{ query }}" required>
-            <i class="fas fa-times clear-search"></i>
+            <input type="text" 
+                   id="searchInput"
+                   class="search-input" 
+                   placeholder="Search medicines, health products..." 
+                   value="{{ query }}" 
+                   autocomplete="off"
+                   required>
+            <i class="fas fa-times clear-search" id="clearSearch"></i>
         </div>
     </div>
 
-    <div class="search-suggestions"></div>
+    <div class="search-suggestions" id="searchSuggestions"></div>
 
     {% if query %}
         <div class="search-stats">
-            Found {{ total_results }} result{{ total_results|pluralize }} for "{{ query }}"
+            <span class="results-count">{{ total_results }} result{{ total_results|pluralize }}</span> found for "<span class="search-query">{{ query }}</span>"
         </div>
 
         {% if categories %}
             <div class="category-filters">
-                <div class="category-filter active">All</div>
+                <button class="category-filter active" data-category="all">
+                    <i class="fas fa-th-large"></i> All
+                </button>
                 {% for category in categories %}
-                    <div class="category-filter">{{ category.name }}</div>
+                    <button class="category-filter" data-category="{{ category.name|lower }}">
+                        <i class="fas fa-{{ category.icon|default:'tag' }}"></i> {{ category.name }}
+                    </button>
                 {% endfor %}
             </div>
         {% endif %}
 
-        <div class="search-results">
+        <div class="search-results" id="searchResults">
             {% if products %}
                 {% for product in products %}
-                    <div class="product-card" data-category="{{ product.category.name }}" data-product-id="{{ product.id }}">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
-                        {% else %}
-                            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-image">
-                        {% endif %}
+                    <div class="product-card" data-category="{{ product.category.name|lower }}">
+                        <div class="product-image-wrapper">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                            {% else %}
+                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-image">
+                            {% endif %}
+                            {% if product.discount_percentage %}
+                                <div class="discount-badge">-{{ product.discount_percentage }}%</div>
+                            {% endif %}
+                        </div>
                         <div class="product-info">
-                            <div class="product-category">{{ product.category.name }}</div>
+                            <div class="product-header">
+                                <div class="product-category">
+                                    <i class="fas fa-{{ product.category.icon|default:'tag' }}"></i>
+                                    {{ product.category.name }}
+                                </div>
+                                {% if product.in_stock %}
+                                    <div class="stock-badge in-stock">
+                                        <i class="fas fa-check-circle"></i> In Stock
+                                    </div>
+                                {% else %}
+                                    <div class="stock-badge out-of-stock">
+                                        <i class="fas fa-times-circle"></i> Out of Stock
+                                    </div>
+                                {% endif %}
+                            </div>
                             <h3 class="product-name">{{ product.name }}</h3>
                             <div class="price-row">
                                 <div class="price">
@@ -60,36 +90,62 @@
                             </div>
                             <div class="product-actions">
                                 <div class="quantity-controls">
-                                    <button class="quantity-btn minus-btn" onclick="event.stopPropagation(); updateQuantity({{ product.id }}, 'decrease')">
+                                    <button class="quantity-btn minus-btn" 
+                                            onclick="handleQuantityClick(event, '{{ product.id }}', 'decrease')"
+                                            {% if not product.in_stock %}disabled{% endif %}>
                                         <i class="fas fa-minus"></i>
                                     </button>
-                                    <input type="number" class="quantity-input" value="1" min="1" max="10" 
+                                    <input type="number" 
+                                           class="quantity-input" 
+                                           value="1" 
+                                           min="1" 
+                                           max="{{ product.stock }}" 
                                            data-product-id="{{ product.id }}" 
-                                           onchange="event.stopPropagation(); validateQuantity(this)"
-                                           onclick="event.stopPropagation()">
-                                    <button class="quantity-btn plus-btn" onclick="event.stopPropagation(); updateQuantity({{ product.id }}, 'increase')">
+                                           onchange="handleQuantityChange(event, this)"
+                                           onclick="handleInputClick(event)"
+                                           {% if not product.in_stock %}disabled{% endif %}>
+                                    <button class="quantity-btn plus-btn" 
+                                            onclick="handleQuantityClick(event, '{{ product.id }}', 'increase')"
+                                            {% if not product.in_stock %}disabled{% endif %}>
                                         <i class="fas fa-plus"></i>
                                     </button>
                                 </div>
-                                <button class="cart-button" onclick="event.stopPropagation(); addToCart({{ product.id }})"
-                                        {% if not product.in_stock %}disabled{% endif %}>
-                                    <span class="add-to-cart">Add to Cart</span>
-                                    <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
-                                    <i class="fa-solid fa-cart-shopping"></i>
-                                    <i class="fas fa-box"></i>
-                                </button>
-                                <a href="{% url 'shop' product_id=product.id %}" class="view-details-btn">
-                                    <i class="fas fa-eye"></i> View Details
-                                </a>
+                                <div class="action-buttons">
+                                    <button class="cart-button" 
+                                            onclick="handleCartClick(event, '{{ product.id }}')"
+                                            {% if not product.in_stock %}disabled{% endif %}>
+                                        <span class="add-to-cart">Add to Cart</span>
+                                        <span class="added">
+                                            <i class="fas fa-check"></i> Added
+                                        </span>
+                                        <i class="fas fa-cart-shopping cart-icon"></i>
+                                    </button>
+                                    <a href="{% url 'shop_detail' product_id=product.id %}" class="view-details-btn">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 {% endfor %}
             {% else %}
                 <div class="no-results">
-                    <i class="fas fa-search" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                    <div class="no-results-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
                     <h2>No results found</h2>
-                    <p>Try different keywords or browse our categories</p>
+                    <p>We couldn't find any products matching "{{ query }}"</p>
+                    <div class="suggestions">
+                        <h3>Suggestions:</h3>
+                        <ul>
+                            <li>Check your spelling</li>
+                            <li>Try more general keywords</li>
+                            <li>Try different keywords</li>
+                        </ul>
+                    </div>
+                    <button onclick="window.history.back()" class="back-to-search">
+                        <i class="fas fa-arrow-left"></i> Back to Search
+                    </button>
                 </div>
             {% endif %}
         </div>
@@ -100,7 +156,7 @@
 <div class="message-overlay">
     <div class="success-message" id="successMessage">
         <i class="fas fa-check-circle message-icon"></i>
-        <span>Item added to cart successfully!</span>
+        <span>Added to cart successfully!</span>
     </div>
     <div class="error-message" id="errorMessage">
         <i class="fas fa-exclamation-circle message-icon"></i>
@@ -111,4 +167,5 @@
 
 {% block extra_js %}
 <script src="{% static 'js/search_result.js' %}"></script>
-{% endblock %} 
+<script src="{% static 'js/search_handlers.js' %}"></script>
+{% endblock %}
