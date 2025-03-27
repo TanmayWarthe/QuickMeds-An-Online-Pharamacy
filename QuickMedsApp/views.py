@@ -447,11 +447,18 @@ def delete_account(request):
         }, status=400)
 
 @login_required
-@require_POST
+@require_http_methods(["GET", "POST"])
 def add_to_cart(request, product_id):
     try:
-        data = json.loads(request.body)
-        quantity = data.get('quantity', 1)
+        # Handle both GET and POST requests
+        if request.method == 'POST':
+            try:
+                data = json.loads(request.body)
+                quantity = data.get('quantity', 1)
+            except json.JSONDecodeError:
+                quantity = 1
+        else:
+            quantity = 1
         
         # Check if product exists and is in stock
         product = Product.objects.get(id=product_id)
@@ -492,15 +499,10 @@ def add_to_cart(request, product_id):
             'success': False,
             'message': 'Product not found'
         }, status=404)
-    except json.JSONDecodeError:
-        return JsonResponse({
-            'success': False,
-            'message': 'Invalid JSON data'
-        }, status=400)
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'message': 'An error occurred while adding to cart'
+            'message': f'An error occurred while adding to cart: {str(e)}'
         }, status=500)
 
 @login_required

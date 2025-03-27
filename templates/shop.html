@@ -23,11 +23,15 @@
     </div>
     <div class="dialog-overlay">
         <div class="dialog-content">
-            <button class="popup-close" onclick="window.history.back()"></button>
+            <button class="popup-close" onclick="window.history.back()" aria-label="Close product view"></button>
             <div class="product-container">
                 <!-- Left Section - Product Image -->
                 <div class="product-image-section">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}" class="product-image">
+                    {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    {% else %}
+                    <img src="{% static 'img/product-placeholder.png' %}" alt="{{ product.name }}" class="product-image">
+                    {% endif %}
                 </div>
 
                 <!-- Right Section - Product Details -->
@@ -73,13 +77,17 @@
                         <div class="quantity-error" id="quantityError"></div>
 
                         <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
-                            <button onclick="addToCart('{{ product.id }}')" 
+                            <button type="button" 
+                                    onclick="addToCart('{{ product.id }}')" 
                                     class="add-to-cart-btn" 
                                     {% if not product.in_stock %}disabled="disabled"{% endif %}>
                                 <i class="fas fa-shopping-cart"></i>
                                 {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
                             </button>
-                            <button class="buy-now-btn" {% if not product.in_stock %}disabled="disabled"{% endif %}>
+                            <button type="button" 
+                                    class="buy-now-btn" 
+                                    data-product-id="{{ product.id }}"
+                                    {% if not product.in_stock %}disabled="disabled"{% endif %}>
                                 <i class="fas fa-bolt"></i>
                                 Buy Now
                             </button>

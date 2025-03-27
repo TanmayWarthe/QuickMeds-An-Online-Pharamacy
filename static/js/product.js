@@ -355,25 +355,56 @@ function cartClick(event, productId) {
 }
 
 function showNotification(message, type = 'success') {
+    const notificationContainer = document.getElementById('notification-container');
+    
+    if (!notificationContainer) {
+        const container = document.createElement('div');
+        container.id = 'notification-container';
+        document.body.appendChild(container);
+    }
+    
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
+    
+    // Modern success message with icon and animation
+    const successIcon = type === 'success' ? 
+        '<i class="fas fa-check-circle success-icon"></i>' : 
+        '<i class="fas fa-exclamation-circle"></i>';
+    
+    let displayMessage = type === 'success' ? 'Added to Cart' : message;
+    
     notification.innerHTML = `
         <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-            <span>${message}</span>
+            ${successIcon}
+            <span class="notification-text">${displayMessage}</span>
+            <button class="close-notification">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        ${type === 'success' ? '<div class="notification-progress"></div>' : ''}
     `;
     
-    document.body.appendChild(notification);
+    // Add close button functionality
+    const closeBtn = notification.querySelector('.close-notification');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        });
+    }
     
-    // Trigger animation
-    setTimeout(() => notification.classList.add('show'), 100);
+    document.getElementById('notification-container').appendChild(notification);
     
-    // Remove notification after delay
-    setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+    // Show notification with animation
+    requestAnimationFrame(() => {
+        notification.classList.add('show');
+        
+        // Auto-hide after 2 seconds
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 300);
+        }, 2000);
+    });
 }
 
 function navigateToProduct(productId, event) {
