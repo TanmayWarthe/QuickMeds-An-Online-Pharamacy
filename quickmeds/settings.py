@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 import os
-from decouple import config
+from pathlib import Path
+from decouple import config, Csv
+import ssl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('DJANGO_SECRET_KEY', default='django-insecure-il%rqza*wq2$^g$n8==&1^r6+3$)d*uvmnav#9_zsi*1cg28l7')
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['*']
 
 # For production, enable this
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
@@ -141,3 +142,56 @@ LOGIN_REDIRECT_URL = 'home'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Email Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = 'rhushabhgumte01@gmail.com'
+EMAIL_HOST_PASSWORD = 'usdu abpw algn pjtl'
+DEFAULT_FROM_EMAIL = 'QuickMeds <rhushabhgumte01@gmail.com>'
+EMAIL_TIMEOUT = 60
+
+# Additional email settings
+EMAIL_USE_LOCALTIME = True
+EMAIL_USE_SSL = True
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL_VERIFY = True
+EMAIL_USE_SSL_VERIFY_HOST = True
+EMAIL_USE_SSL_VERIFY_CERT = True
+
+# Cache Configuration
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
+# Logging Configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    },
+}
+
+# Razorpay Configuration
+RAZORPAY_KEY_ID = 'rzp_test_DeORVu8n2XzJo5'  # Replace with your actual test key
+RAZORPAY_KEY_SECRET = '27mq5JpsBnnB84R43N6GgBLU'  # Replace with your actual secret key

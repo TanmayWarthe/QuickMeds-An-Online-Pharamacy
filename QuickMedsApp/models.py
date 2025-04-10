@@ -191,3 +191,55 @@ class CheckoutSession(models.Model):
 
     def is_valid(self):
         return not self.is_completed and timezone.now() < self.expires_at
+
+class Order(models.Model):
+    PAYMENT_METHODS = [
+        ('cod', 'Cash on Delivery'),
+        ('online', 'Online Payment'),
+    ]
+    
+    PAYMENT_STATUS = [
+        ('pending', 'Pending'),
+        ('paid', 'Paid'),
+        ('failed', 'Failed'),
+    ]
+    
+    ORDER_STATUS = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
+    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
+    payment_id = models.CharField(max_length=100, null=True, blank=True)
+    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='cod')
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='pending')
+    order_status = models.CharField(max_length=10, choices=ORDER_STATUS, default='pending')
+    address = models.TextField()
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.email}"
+    
+    def get_subtotal(self):
+        return sum(item.get_total() for item in self.items.all())
+    
+    def get_total(self):
+        return self.get_subtotal() + 50  # Adding delivery fee of ₹50
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    def __str__(self):
+        return f"{self.quantity}x {self.product.name} in Order #{self.order.id}"
+    
+    def get_total(self):
+        return self.quantity * self.price

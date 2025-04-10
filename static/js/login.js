@@ -113,4 +113,45 @@ document.addEventListener('DOMContentLoaded', function() {
             input.parentElement.classList.remove('focused');
         });
     });
+
+    // Handle logout
+    function handleLogout(event) {
+        event.preventDefault();
+        
+        // Clear all browser storage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // Clear any cookies
+        document.cookie.split(";").forEach(function(c) { 
+            document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+        });
+        
+        // Clear any indexedDB databases
+        if (window.indexedDB) {
+            window.indexedDB.databases().then(dbs => {
+                dbs.forEach(db => {
+                    window.indexedDB.deleteDatabase(db.name);
+                });
+            });
+        }
+        
+        // Clear any service worker caches
+        if ('caches' in window) {
+            caches.keys().then(keys => {
+                keys.forEach(key => {
+                    caches.delete(key);
+                });
+            });
+        }
+        
+        // Redirect to logout URL
+        window.location.href = event.target.href;
+    }
+
+    // Add logout handler to all logout links
+    const logoutLinks = document.querySelectorAll('a[href*="logout"]');
+    logoutLinks.forEach(link => {
+        link.addEventListener('click', handleLogout);
+    });
 });

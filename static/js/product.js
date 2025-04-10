@@ -312,11 +312,20 @@ function cartClick(event, productId) {
     button.classList.add('clicked');
     
     fetch(`/add-to-cart/${productId}/`, {
-        method: 'GET',
+        method: 'POST',
         headers: {
-            'Accept': 'application/json'
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
         },
+<<<<<<< HEAD
         credentials: 'same-origin'
+=======
+        body: JSON.stringify({
+            quantity: 1
+        }),
+        credentials: 'same-origin'  // This will send cookies including sessionid
+>>>>>>> 586320bd7f94acf3ad3d5ebb5b663d7d21425872
     })
     .then(response => {
         if (!response.ok) {
@@ -446,22 +455,34 @@ function navigateToProduct(productId, event) {
 }
 
 function updateServerCart(productId) {
-    fetch('/add-to-cart/', {
+    fetch(`/add-to-cart/${productId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
-            product_id: productId,
             quantity: 1
         })
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) updateCartCount();
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to add to cart');
+        }
+        return response.json();
     })
-    .catch(error => console.error('Error:', error));
+    .then(data => {
+        if (data.success) {
+            updateCartCount();
+            showNotification('Item added to cart successfully', 'success');
+        } else {
+            throw new Error(data.message || 'Failed to add to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message, 'error');
+    });
 }
 
 function updateCartCount() {
