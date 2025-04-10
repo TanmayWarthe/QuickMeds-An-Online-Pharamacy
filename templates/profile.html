@@ -509,6 +509,237 @@
             justify-content: center;
         }
     }
+
+    /* Address Management Styles */
+    .addresses-container {
+        padding: 1rem;
+    }
+
+    .addresses-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(45deg, #3498db, #2c3e50);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .address-form-container {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-icon {
+        background: none;
+        border: none;
+        color: #666;
+        cursor: pointer;
+        padding: 0.5rem;
+        border-radius: 50%;
+        transition: all 0.3s ease;
+    }
+
+    .btn-icon:hover {
+        background: #f8f9fa;
+        color: #dc3545;
+    }
+
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 250px;
+    }
+
+    .address-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 1px solid #eee;
+    }
+
+    .address-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .address-type {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #3498db;
+        font-weight: 500;
+        margin-bottom: 1rem;
+    }
+
+    .default-badge {
+        background: #2ecc71;
+        color: white;
+        padding: 0.2rem 0.5rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+    }
+
+    .address-details h4 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+    }
+
+    .address-details p {
+        margin: 0.2rem 0;
+        color: #666;
+    }
+
+    .address-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-set-default,
+    .btn-edit,
+    .btn-delete {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-set-default {
+        background: #f8f9fa;
+        color: #f39c12;
+    }
+
+    .btn-set-default:hover {
+        background: #f39c12;
+        color: white;
+    }
+
+    .btn-edit {
+        background: #f8f9fa;
+        color: #3498db;
+    }
+
+    .btn-edit:hover {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-delete {
+        background: #f8f9fa;
+        color: #e74c3c;
+    }
+
+    .btn-delete:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .address-empty {
+        text-align: center;
+        padding: 3rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-top: 2rem;
+    }
+
+    .address-empty i {
+        font-size: 3rem;
+        color: #bdc3c7;
+        margin-bottom: 1rem;
+    }
+
+    .address-empty p {
+        margin: 0;
+        color: #7f8c8d;
+    }
+
+    .address-empty .subtitle {
+        font-size: 0.9rem;
+        margin-top: 0.5rem;
+        color: #95a5a6;
+    }
+
+    /* Form Validation Styles */
+    .form-control.is-invalid {
+        border-color: #dc3545;
+    }
+
+    .invalid-feedback {
+        display: none;
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-control.is-invalid + .invalid-feedback {
+        display: block;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .addresses-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .form-row {
+            flex-direction: column;
+        }
+        
+        .address-actions {
+            flex-direction: column;
+        }
+        
+        .btn-set-default,
+        .btn-edit,
+        .btn-delete {
+            width: 100%;
+            justify-content: center;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -622,49 +853,82 @@
     <div class="profile-content">
         <!-- Dashboard Tab -->
         <div class="profile-tab active" id="dashboard">
-            <h2><i class="fas fa-tachometer-alt"></i> Dashboard</h2>
+            <div class="dashboard-header">
+                <h2>Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
+            </div>
             
             <div class="dashboard-stats">
-                <div class="stat-card">
+                <div class="stat-card orders">
                     <div class="stat-icon">
                         <i class="fas fa-shopping-bag"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ orders_count|default:"0" }}</h3>
-                        <p>Total Orders</p>
+                        <h3>{{ orders_count|default:"1" }}</h3>
+                        <p>Total Orders Placed</p>
                     </div>
                 </div>
-                <div class="stat-card">
+                
+                <div class="stat-card savings">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3>₹{{ total_savings|default:"0" }}</h3>
+                        <p>Total Savings</p>
+                    </div>
+                </div>
+                
+                <div class="stat-card addresses">
                     <div class="stat-icon">
                         <i class="fas fa-map-marker-alt"></i>
                     </div>
                     <div class="stat-info">
-                        <h3>{{ addresses_count|default:"0" }}</h3>
+                        <h3>{{ addresses_count|default:"1" }}</h3>
                         <p>Saved Addresses</p>
                     </div>
                 </div>
             </div>
 
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <a href="{% url 'product' %}" class="action-btn">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Shop Now</span>
+                    </a>
+                    <button class="action-btn" onclick="showAddressForm()">
+                        <i class="fas fa-plus"></i>
+                        <span>Add Address</span>
+                    </button>
+                    <a href="{% url 'orders' %}" class="action-btn">
+                        <i class="fas fa-history"></i>
+                        <span>Order History</span>
+                    </a>
+                </div>
+            </div>
+
             <div class="recent-activity">
-                <h3><i class="fas fa-history"></i> Recent Orders</h3>
+                <h3>Recent Activity</h3>
                 {% if recent_orders %}
-                <div class="activity-list">
-                    {% for order in recent_orders %}
+                <div class="activity-timeline">
+                    {% for activity in recent_activities %}
                     <div class="activity-item">
-                        <div class="order-info">
-                            <span class="order-id">Order #{{ order.id }}</span>
-                            <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
-                            <span class="order-status {{ order.status|lower }}">{{ order.status }}</span>
+                        <div class="activity-icon">
+                            <i class="{{ activity.icon }}"></i>
                         </div>
-                        <div class="order-total">₹{{ order.total }}</div>
+                        <div class="activity-content">
+                            <h4>{{ activity.title }}</h4>
+                            <p>{{ activity.description }}</p>
+                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                        </div>
                     </div>
                     {% endfor %}
                 </div>
                 {% else %}
                 <div class="activity-empty">
-                    <i class="fas fa-shopping-bag"></i>
-                    <p>No orders yet</p>
-                    <a href="{% url 'product' %}" class="btn-shop-now">Shop Now</a>
+                    <i class="fas fa-history"></i>
+                    <p>No recent activity</p>
+                    <a href="{% url 'product' %}" class="btn-primary">Start Shopping</a>
                 </div>
                 {% endif %}
             </div>
@@ -675,42 +939,62 @@
             <h2><i class="fas fa-user-edit"></i> Personal Information</h2>
             <form id="profile-form" class="profile-edit-form">
                 {% csrf_token %}
-                <div class="form-group">
-                    <label for="first_name">First Name</label>
-                    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="last_name">Last Name</label>
-                    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email Address</label>
-                    <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
-                    <small class="form-text text-muted">Email cannot be changed</small>
-                </div>
-                <div class="form-group">
-                    <label for="phone">Phone Number</label>
-                    <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="address">Complete Address</label>
-                    <textarea id="address" name="address" class="form-control" rows="3" required>{{ user.userprofile.address|default:'' }}</textarea>
-                </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="city">City</label>
-                        <input type="text" id="city" name="city" value="{{ user.userprofile.city|default:'' }}" class="form-control" required>
+                <div class="form-sections">
+                    <div class="form-section">
+                        <h3>Basic Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
+                                <small class="form-text text-muted">Email cannot be changed</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="phone">Phone Number</label>
+                                <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required pattern="[0-9]{10}">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
                     </div>
-                    <div class="form-group col-md-6">
-                        <label for="state">State</label>
-                        <input type="text" id="state" name="state" value="{{ user.userprofile.state|default:'' }}" class="form-control" required>
+
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">Gender</label>
+                                <select id="gender" name="gender" class="form-control">
+                                    <option value="">Select Gender</option>
+                                    <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
+                                    <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
+                                    <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="dob">Date of Birth</label>
+                                <input type="date" id="dob" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="pincode">Pincode</label>
-                    <input type="text" id="pincode" name="pincode" value="{{ user.userprofile.pincode|default:'' }}" class="form-control" required>
+                
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="resetForm()">Cancel</button>
+                    <button type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Save Changes
+                    </button>
                 </div>
-                <button type="submit" class="btn-save">Save Changes</button>
             </form>
         </div>
 
@@ -723,30 +1007,37 @@
                 <div class="order-card">
                     <div class="order-header">
                         <div class="order-info">
-                            <span class="order-id">Order #{{ order.id }}</span>
-                            <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
-                        </div>
-                        <div class="order-status {{ order.order_status|lower }}">{{ order.get_order_status_display }}</div>
-                    </div>
-                    <div class="order-items">
-                        {% for item in order.items.all %}
-                        <div class="order-item">
-                            {% if item.product.image %}
-                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-                            {% else %}
-                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
-                            {% endif %}
-                            <div class="item-details">
-                                <h4>{{ item.product.name }}</h4>
-                                <p>Quantity: {{ item.quantity }}</p>
-                                <p>₹{{ item.price|intcomma }}</p>
+                            <div class="order-id-date">
+                                <span class="order-id">Order #{{ order.id }}</span>
+                                <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
                             </div>
+                            <span class="order-status {{ order.order_status|lower }}">
+                                <i class="fas fa-circle"></i>
+                                {{ order.order_status }}
+                            </span>
                         </div>
-                        {% endfor %}
+                        <div class="order-payment">
+                            <span class="payment-method">{{ order.payment_method }}</span>
+                            <span class="payment-status {{ order.payment_status|lower }}">{{ order.payment_status }}</span>
+                        </div>
                     </div>
                     <div class="order-footer">
-                        <div class="order-total">Total: ₹{{ order.total_amount|intcomma }}</div>
-                        <a href="{% url 'order_confirmation' order.id %}" class="btn-view-order">View Details</a>
+                        <div class="order-summary">
+                            <div class="summary-item total">
+                                <span>Total Amount:</span>
+                                <span>₹{{ order.total_amount|intcomma }}</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <a href="{% url 'order_detail' order.id %}" class="btn-view-details">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
+                            <button class="btn-cancel-order" onclick="cancelOrder({{ order.id }})">
+                                <i class="fas fa-times"></i> Cancel
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
                 {% endfor %}
@@ -755,7 +1046,7 @@
             <div class="orders-empty">
                 <i class="fas fa-shopping-bag"></i>
                 <p>You haven't placed any orders yet</p>
-                <a href="{% url 'product' %}" class="btn-shop-now">Shop Now</a>
+                <a href="{% url 'product' %}" class="btn-shop-now">Start Shopping</a>
             </div>
             {% endif %}
         </div>
@@ -765,95 +1056,130 @@
             <div class="addresses-container">
                 <div class="addresses-header">
                     <h2><i class="fas fa-map-marker-alt"></i> My Addresses</h2>
+                    <button id="add-address-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </button>
                 </div>
                 
                 <!-- Address Form Container -->
                 <div class="address-form-container" style="display: none;">
-                    <h3><i class="fas fa-plus-circle"></i> Add New Address</h3>
-                    <form id="address-form" class="address-form">
-                        <div class="form-group">
-                            <label for="address_type">Address Type</label>
-                            <select id="address_type" name="type" class="form-control" required>
-                                <option value="Home">Home</option>
-                                <option value="Office">Office</option>
-                                <option value="Other">Other</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="full_name">Full Name</label>
-                            <input type="text" id="full_name" name="full_name" class="form-control" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="phone_number">Phone Number</label>
-                            <input type="tel" id="phone_number" name="phone_number" class="form-control" required pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
-                        </div>
-                        <div class="form-group">
-                            <label for="address">Street Address</label>
-                            <textarea id="address" name="street_address" class="form-control" required></textarea>
-                        </div>
+                    <div class="form-header">
+                        <h3><i class="fas fa-plus-circle"></i> <span class="form-title">Add New Address</span></h3>
+                        <button type="button" id="cancel-address-btn" class="btn-icon">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="address-form" class="address-form" novalidate>
+                        {% csrf_token %}
                         <div class="form-row">
-                            <div class="form-group">
-                                <label for="city">City</label>
+                            <div class="form-group col-md-6">
+                                <label for="full_name">Full Name*</label>
+                                <input type="text" id="full_name" name="full_name" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="phone_number">Phone Number*</label>
+                                <input type="tel" id="phone_number" name="phone_number" class="form-control" required 
+                                       pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="type">Address Type*</label>
+                                <select id="type" name="type" class="form-control" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="street_address">Street Address*</label>
+                            <textarea id="street_address" name="street_address" class="form-control" rows="3" required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="city">City*</label>
                                 <input type="text" id="city" name="city" class="form-control" required>
+                                <div class="invalid-feedback"></div>
                             </div>
-                            <div class="form-group">
-                                <label for="state">State</label>
+                            <div class="form-group col-md-4">
+                                <label for="state">State*</label>
                                 <input type="text" id="state" name="state" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="postal_code">Postal Code*</label>
+                                <input type="text" id="postal_code" name="postal_code" class="form-control" required 
+                                       pattern="[0-9]{6}" title="Please enter a valid 6-digit postal code">
+                                <div class="invalid-feedback"></div>
                             </div>
                         </div>
+
                         <div class="form-group">
-                            <label for="pincode">Postal Code</label>
-                            <input type="text" id="pincode" name="postal_code" class="form-control" required pattern="[0-9]{6}" title="Please enter a valid 6-digit postal code">
-                        </div>
-                        <div class="form-group">
-                            <div class="form-check">
-                                <input type="checkbox" id="default_address" name="is_default" class="form-check-input">
-                                <label class="form-check-label" for="default_address">Set as default address</label>
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" id="is_default" name="is_default" class="custom-control-input">
+                                <label class="custom-control-label" for="is_default">Set as default address</label>
                             </div>
                         </div>
+
                         <div class="form-actions">
-                            <button type="button" id="cancel-address-btn" class="btn-cancel">Cancel</button>
-                            <button type="submit" class="btn-save">Save Address</button>
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Save Address
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="resetAddressForm()">
+                                <i class="fas fa-times"></i> Reset
+                            </button>
                         </div>
                     </form>
                 </div>
                 
                 <!-- Address List -->
-                {% for address in addresses %}
-                <div class="address-card">
-                    <div class="address-type">
-                        <i class="fas fa-{% if address.type == 'Home' %}home{% elif address.type == 'Office' %}building{% else %}map-marker{% endif %}"></i>
-                        {{ address.type }}
-                        {% if address.is_default %}
-                        <span class="default-badge">Default</span>
-                        {% endif %}
+                <div class="addresses-list">
+                    {% for address in addresses %}
+                    <div class="address-card" data-id="{{ address.id }}">
+                        <div class="address-type">
+                            <i class="fas fa-{% if address.type == 'Home' %}home{% elif address.type == 'Office' %}building{% else %}map-marker{% endif %}"></i>
+                            {{ address.type }}
+                            {% if address.is_default %}
+                            <span class="default-badge">Default</span>
+                            {% endif %}
+                        </div>
+                        <div class="address-details">
+                            <h4>{{ address.full_name }}</h4>
+                            <p class="phone">{{ address.phone_number }}</p>
+                            <p class="street">{{ address.street_address }}</p>
+                            <p class="city-state">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                        </div>
+                        <div class="address-actions">
+                            {% if not address.is_default %}
+                            <button class="btn-set-default" onclick="setDefaultAddress({{ address.id }})">
+                                <i class="fas fa-star"></i> Set as Default
+                            </button>
+                            {% endif %}
+                            <button class="btn-edit" onclick="editAddress({{ address.id }})">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-delete" onclick="deleteAddress({{ address.id }})">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
                     </div>
-                    <div class="address-details">
-                        <p><strong>{{ address.full_name }}</strong></p>
-                        <p>{{ address.phone_number }}</p>
-                        <p>{{ address.street_address }}</p>
-                        <p>{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
-                        <p>{{ address.country }}</p>
+                    {% empty %}
+                    <div class="address-empty">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>No addresses added yet</p>
+                        <p class="subtitle">Add your first delivery address to make checkout easier</p>
                     </div>
-                    <div class="address-actions">
-                        <button class="edit-btn" onclick="editAddress({{ address.id }})">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                        <button class="delete-btn" onclick="deleteAddress({{ address.id }})">
-                            <i class="fas fa-trash-alt"></i> Delete
-                        </button>
-                    </div>
+                    {% endfor %}
                 </div>
-                {% empty %}
-                <div class="address-empty">
-                    <i class="fas fa-map-marker-alt"></i>
-                    <p>No addresses added yet.</p>
-                </div>
-                {% endfor %}
-                
-                <button id="add-address-btn" class="add-address-btn">
-                    <i class="fas fa-plus"></i> Add New Address
-                </button>
             </div>
         </div>
 
@@ -972,5 +1298,43 @@
             });
         }
     });
+
+    function cancelOrder(orderId) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            fetch(`/orders/${orderId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to cancel order');
+                }
+            })
+            .catch(error => {
+                alert('Failed to cancel order. Please try again.');
+            });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 </script>
-{% endblock %} 
+{% endblock %}

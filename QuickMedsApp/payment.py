@@ -13,29 +13,16 @@ client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_S
 @require_POST
 def create_payment_order(request):
     try:
-        # Parse request data
-        data = json.loads(request.body)
-        address = data.get('address')
-        
-        if not address:
-            return JsonResponse({
-                'success': False,
-                'message': 'Address is required'
-            }, status=400)
-        
-        # Get cart and calculate total amount
         cart = Cart.objects.get(user=request.user)
-        amount = int((cart.get_total() + 50) * 100)  # Convert to paise (including delivery fee)
+        # Convert total to paise (including delivery fee)
+        amount = int((cart.get_total() + 50) * 100)
         
-        # Create Razorpay Order
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         razorpay_order = client.order.create({
             'amount': amount,
             'currency': 'INR',
             'payment_capture': '1'
         })
-        
-        # Store address in session for later use
-        request.session['checkout_address'] = address
         
         return JsonResponse({
             'success': True,
@@ -59,23 +46,21 @@ def create_payment_order(request):
 def payment_callback(request):
     try:
         data = json.loads(request.body)
-        razorpay_payment_id = data.get('razorpay_payment_id')
-        razorpay_order_id = data.get('razorpay_order_id')
-        razorpay_signature = data.get('razorpay_signature')
         
-        # Get address from session
-        address = request.session.get('checkout_address')
-        if not address:
-            return JsonResponse({
-                'success': False,
-                'message': 'Address not found'
-            }, status=400)
+        # Extract payment details
+        payment_id = data.get('razorpay_payment_id')
+        order_id = data.get('razorpay_order_id')
+        signature = data.get('razorpay_signature')
         
-        # Verify payment signature
+        # Get form data
+        form_data = data.get('form_data', {})
+        
+        # Verify signature
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         params_dict = {
-            'razorpay_payment_id': razorpay_payment_id,
-            'razorpay_order_id': razorpay_order_id,
-            'razorpay_signature': razorpay_signature
+            'razorpay_payment_id': payment_id,
+            'razorpay_order_id': order_id,
+            'razorpay_signature': signature
         }
         
         try:
@@ -86,19 +71,23 @@ def payment_callback(request):
                 'message': 'Invalid payment signature'
             }, status=400)
         
-        # Get cart
-        cart = Cart.objects.get(user=request.user)
-        
         # Create order
+        cart = Cart.objects.get(user=request.user)
         order = Order.objects.create(
             user=request.user,
-            order_id=razorpay_order_id,
-            payment_id=razorpay_payment_id,
-            payment_method='online',
+            payment_id=payment_id,
+            order_id=order_id,
+            payment_method='razorpay',
             payment_status='paid',
-            order_status='processing',
-            address=address,
-            total_amount=cart.get_total() + 50  # Including delivery fee
+            total_amount=cart.get_total() + 50,  # Including delivery fee
+            first_name=form_data.get('first_name'),
+            last_name=form_data.get('last_name'),
+            email=form_data.get('email'),
+            phone=form_data.get('phone'),
+            address=form_data.get('address'),
+            city=form_data.get('city'),
+            state=form_data.get('state'),
+            pincode=form_data.get('pincode')
         )
         
         # Create order items
@@ -110,10 +99,8 @@ def payment_callback(request):
                 price=cart_item.product.price
             )
         
-        # Clear cart and session data
-        cart.cartitem_set.all().delete()
-        if 'checkout_address' in request.session:
-            del request.session['checkout_address']
+        # Clear cart
+        cart.delete()
         
         return JsonResponse({
             'success': True,
@@ -180,4 +167,4 @@ def place_order(request):
         return JsonResponse({
             'success': False,
             'message': str(e)
-        }, status=500) 
+        }, status=500)

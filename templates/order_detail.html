@@ -1,0 +1,371 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Order #{{ order.id }} - Details{% endblock %}
+
+{% block content %}
+<div class="order-detail-container">
+    <div class="order-detail-header">
+        <h1>Order Details</h1>
+        <div class="order-meta">
+            <div class="order-number">
+                <span class="label">Order #:</span>
+                <span class="value">{{ order.id }}</span>
+            </div>
+            <div class="order-date">
+                <span class="label">Ordered on:</span>
+                <span class="value">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+            </div>
+        </div>
+        <div class="status-container">
+            <div class="order-status {{ order.order_status|lower }}">
+                <i class="fas fa-circle"></i>
+                {{ order.get_order_status_display }}
+            </div>
+            <div class="payment-status {{ order.payment_status|lower }}">
+                {{ order.payment_status }}
+            </div>
+        </div>
+    </div>
+
+    <div class="order-content">
+        <div class="order-items-section">
+            <h2>Order Items</h2>
+            {% for item in order.items.all %}
+            <div class="order-item">
+                <div class="item-image">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                    {% endif %}
+                </div>
+                <div class="item-details">
+                    <h3 class="item-name">{{ item.product.name }}</h3>
+                    <div class="item-meta">
+                        <span class="item-quantity">Quantity: {{ item.quantity }}</span>
+                        <span class="item-price">Price: ₹{{ item.price|intcomma }}</span>
+                        <span class="item-total">Total: ₹{{ item.get_total|intcomma }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="order-info-section">
+            <div class="delivery-address">
+                <h2>Delivery Address</h2>
+                <div class="address-card">
+                    <p class="name">{{ order.first_name }} {{ order.last_name }}</p>
+                    <p class="address">{{ order.address }}</p>
+                    <p class="locality">{{ order.city }}, {{ order.state }} {{ order.pincode }}</p>
+                    <p class="phone">Phone: {{ order.phone }}</p>
+                </div>
+            </div>
+
+            <div class="payment-info">
+                <h2>Payment Information</h2>
+                <div class="payment-details">
+                    <div class="payment-row">
+                        <span class="label">Payment Method:</span>
+                        <span class="value">{{ order.payment_method }}</span>
+                    </div>
+                    {% if order.transaction_id %}
+                    <div class="payment-row">
+                        <span class="label">Transaction ID:</span>
+                        <span class="value">{{ order.transaction_id }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="price-summary">
+                <h2>Price Details</h2>
+                <div class="summary-list">
+                    <div class="summary-item">
+                        <span class="label">Items Total</span>
+                        <span class="value">₹{{ order.get_subtotal|intcomma }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Delivery Fee</span>
+                        <span class="value">₹50</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span class="label">Total Amount</span>
+                        <span class="value">₹{{ order.total_amount|intcomma }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
+    <div class="order-actions">
+        <button class="btn-cancel-order" onclick="cancelOrder({{ order.id }})">
+            <i class="fas fa-times"></i> Cancel Order
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.order-detail-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.order-detail-header {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.order-detail-header h1 {
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+}
+
+.order-meta {
+    display: flex;
+    gap: 2rem;
+    margin-bottom: 1rem;
+}
+
+.order-number, .order-date {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.label {
+    color: #6c757d;
+}
+
+.value {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.status-container {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.order-status, .payment-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.order-content {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+}
+
+.order-items-section, .order-info-section {
+    background: white;
+    border-radius: 15px;
+    padding: 2rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.order-item {
+    display: flex;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item:last-child {
+    border-bottom: none;
+}
+
+.item-image {
+    width: 100px;
+    height: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-name {
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+    color: #2c3e50;
+}
+
+.item-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    color: #6c757d;
+}
+
+.delivery-address, .payment-info, .price-summary {
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+}
+
+.address-card {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.address-card p {
+    margin: 0.25rem 0;
+    color: #6c757d;
+}
+
+.address-card .name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.payment-details {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.summary-list {
+    background: #f8f9fa;
+    padding: 1rem;
+    border-radius: 10px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+}
+
+.summary-item.total {
+    border-top: 1px dashed #dee2e6;
+    margin-top: 0.5rem;
+    padding-top: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.order-actions {
+    margin-top: 2rem;
+    text-align: right;
+}
+
+.btn-cancel-order {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.btn-cancel-order:hover {
+    background: #c82333;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 992px) {
+    .order-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .order-meta {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .status-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .order-item {
+        flex-direction: column;
+    }
+    
+    .item-image {
+        width: 80px;
+        height: 80px;
+    }
+}
+</style>
+
+<script>
+function cancelOrder(orderId) {
+    if (confirm('Are you sure you want to cancel this order?')) {
+        fetch(`/orders/${orderId}/cancel/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                window.location.reload();
+            } else {
+                alert(data.message);
+            }
+        })
+        .catch(error => {
+            alert('Failed to cancel order. Please try again.');
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

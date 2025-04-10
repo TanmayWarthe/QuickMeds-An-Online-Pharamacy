@@ -318,14 +318,7 @@ function cartClick(event, productId) {
             'Accept': 'application/json',
             'X-CSRFToken': getCookie('csrftoken')
         },
-<<<<<<< HEAD
         credentials: 'same-origin'
-=======
-        body: JSON.stringify({
-            quantity: 1
-        }),
-        credentials: 'same-origin'  // This will send cookies including sessionid
->>>>>>> 586320bd7f94acf3ad3d5ebb5b663d7d21425872
     })
     .then(response => {
         if (!response.ok) {

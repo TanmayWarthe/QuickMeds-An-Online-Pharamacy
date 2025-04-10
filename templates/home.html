@@ -15,6 +15,11 @@
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        initializeProductSliders(); // Ensure sliders are initialized
+    });
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Add cart button animation
         const cartButtons = document.querySelectorAll('.cart-button');
@@ -247,8 +252,7 @@
                                     <button class="cart-button" onclick="addToCart({{ product.id }})">
                                         <span class="add-to-cart">Add to cart</span>
                                         <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
-                                        <i class="fa-solid fa-cart-shopping"></i>   
-                                        <i class="fas fa-box"></i>
+                                        <i class="fa-solid fa-cart-shopping"></i>
                                     </button>
                                 </div>
                             </div>

@@ -5,6 +5,48 @@
 {% block title %}Search Results - {{ query }} | QuickMeds{% endblock %}
 
 {% block extra_css %}
+{{ block.super }}
+<style>
+    /* Override any Bootstrap styles that might interfere */
+    .cart-button {
+        width: 100% !important;
+        height: 40px !important;
+        font-size: 14px !important;
+        margin-top: 10px !important;
+        background-color: #007bff !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 0 !important;
+    }
+
+    .cart-button:hover:not(:disabled) {
+        background: #0056b3 !important;
+    }
+
+    .cart-button:active:not(:disabled) {
+        background: #004494 !important;
+    }
+
+    .cart-button:disabled {
+        background: #e0e0e0 !important;
+        color: #999 !important;
+        cursor: not-allowed !important;
+    }
+
+    /* Ensure product card has correct dimensions */
+    .product-card {
+        min-height: 340px !important;
+        padding: 1.25rem !important;
+    }
+
+    /* Fix search results grid */
+    .search-results {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)) !important;
+        gap: 1.25rem !important;
+    }
+</style>
 <link rel="stylesheet" href="{% static 'css/search_result.css' %}">
 <link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
 <link rel="stylesheet" href="{% static 'css/message-overlay.css' %}">

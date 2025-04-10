@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
@@ -9,6 +9,7 @@ from .models import UserProfile, Address, Product, CartItem, Cart, Category, Che
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
+from random import sample
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.hashers import check_password
@@ -16,6 +17,7 @@ from django.core.files.storage import default_storage
 from utils.otp import generate_otp, send_otp_email, store_otp, verify_otp
 from django.conf import settings
 from .payment import create_payment_order, payment_callback, place_order
+import razorpay
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -74,8 +76,16 @@ def shop_view(request, product_id):
 def base(request):
     return render(request, 'base.html')
 
+
 def home(request):
-    return render(request, 'home.html')
+    products = list(Product.objects.filter(in_stock=True))  # Fetch all in-stock products
+    random_products = sample(products, min(len(products), 10))  # Select up to 10 random products
+
+    context = {
+        'random_products': random_products,
+        'cart_count': get_cart_count(request),
+    }
+    return render(request, 'home.html', context)
 
 def about_view(request):
     context = {
@@ -298,18 +308,23 @@ def logout_view(request):
 @login_required
 def profile_view(request):
     user = request.user
+    orders = Order.objects.filter(user=user).order_by('-created_at')
     addresses = Address.objects.filter(user=user)
-    orders = user.orders.all().order_by('-created_at')[:5] if hasattr(user, 'orders') else []
+    
+    # Calculate statistics
+    orders_count = orders.count()
     addresses_count = addresses.count()
-    orders_count = user.orders.count() if hasattr(user, 'orders') else 0
-
+    total_spent = orders.aggregate(total=Sum('total_amount'))['total'] or 0
+    
     context = {
         'user': user,
-        'addresses': addresses,
         'orders': orders,
-        'recent_orders': orders[:3],
-        'addresses_count': addresses_count,
+        'addresses': addresses,
         'orders_count': orders_count,
+        'addresses_count': addresses_count,
+        'total_spent': total_spent,
+        'recent_orders': orders[:5],  # Last 5 orders
+        'orders_progress': min(orders_count * 10, 100),  # Progress bar calculation
     }
     return render(request, 'profile.html', context)
 
@@ -412,94 +427,137 @@ def update_profile_image(request):
         }, status=400)
 
 @login_required
-@require_POST
 def add_address(request):
-    try:
-        data = json.loads(request.body)
-        address = Address.objects.create(
-            user=request.user,
-            address_type=data.get('address_type'),
-            full_name=data.get('full_name'),
-            phone_number=data.get('phone_number'),
-            address=data.get('address'),
-            city=data.get('city'),
-            state=data.get('state'),
-            pincode=data.get('pincode'),
-            is_default=data.get('is_default', False)
-        )
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Address added successfully',
-            'address': {
-                'id': address.id,
-                'address_type': address.address_type,
-                'full_name': address.full_name,
-                'address': address.address,
-                'city': address.city,
-                'state': address.state,
-                'pincode': address.pincode
-            }
-        })
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=400)
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            address = Address.objects.create(
+                user=request.user,
+                full_name=data.get('full_name'),
+                phone_number=data.get('phone_number'),
+                type=data.get('type'),
+                street_address=data.get('street_address'),
+                city=data.get('city'),
+                state=data.get('state'),
+                postal_code=data.get('postal_code'),
+                is_default=data.get('is_default', False)
+            )
+            
+            if data.get('is_default'):
+                # Set all other addresses as non-default
+                Address.objects.filter(user=request.user).exclude(id=address.id).update(is_default=False)
+            
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Address added successfully',
+                'address': {
+                    'id': address.id,
+                    'full_name': address.full_name,
+                    'type': address.type,
+                    'is_default': address.is_default
+                }
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
-@require_POST
 def update_address(request, address_id):
     try:
         address = Address.objects.get(id=address_id, user=request.user)
-        data = json.loads(request.body)
-        
-        address.address_type = data.get('address_type', address.address_type)
-        address.full_name = data.get('full_name', address.full_name)
-        address.phone_number = data.get('phone_number', address.phone_number)
-        address.address = data.get('address', address.address)
-        address.city = data.get('city', address.city)
-        address.state = data.get('state', address.state)
-        address.pincode = data.get('pincode', address.pincode)
-        address.is_default = data.get('is_default', address.is_default)
-        address.save()
-        
-        return JsonResponse({
-            'success': True,
-            'message': 'Address updated successfully'
-        })
+        if request.method == 'PUT':
+            data = json.loads(request.body)
+            address.full_name = data.get('full_name', address.full_name)
+            address.phone_number = data.get('phone_number', address.phone_number)
+            address.type = data.get('type', address.type)
+            address.street_address = data.get('street_address', address.street_address)
+            address.city = data.get('city', address.city)
+            address.state = data.get('state', address.state)
+            address.postal_code = data.get('postal_code', address.postal_code)
+            address.is_default = data.get('is_default', address.is_default)
+            
+            if data.get('is_default'):
+                # Set all other addresses as non-default
+                Address.objects.filter(user=request.user).exclude(id=address.id).update(is_default=False)
+            
+            address.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Address updated successfully'
+            })
     except Address.DoesNotExist:
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': 'Address not found'
         }, status=404)
     except Exception as e:
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': str(e)
         }, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
-@require_POST
 def delete_address(request, address_id):
+    if request.method == 'DELETE':
+        try:
+            address = Address.objects.get(id=address_id, user=request.user)
+            address.delete()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Address deleted successfully'
+            })
+        except Address.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Address not found'
+            }, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@login_required
+def set_default_address(request, address_id):
+    if request.method == 'POST':
+        try:
+            address = Address.objects.get(id=address_id, user=request.user)
+            # Set all addresses as non-default first
+            Address.objects.filter(user=request.user).update(is_default=False)
+            # Set the selected address as default
+            address.is_default = True
+            address.save()
+            return JsonResponse({
+                'status': 'success',
+                'message': 'Default address updated successfully'
+            })
+        except Address.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Address not found'
+            }, status=404)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+
+@login_required
+def get_address(request, address_id):
     try:
         address = Address.objects.get(id=address_id, user=request.user)
-        address.delete()
-        
         return JsonResponse({
-            'success': True,
-            'message': 'Address deleted successfully'
+            'id': address.id,
+            'full_name': address.full_name,
+            'phone_number': address.phone_number,
+            'type': address.type,
+            'street_address': address.street_address,
+            'city': address.city,
+            'state': address.state,
+            'postal_code': address.postal_code,
+            'is_default': address.is_default
         })
     except Address.DoesNotExist:
         return JsonResponse({
-            'success': False,
+            'status': 'error',
             'message': 'Address not found'
         }, status=404)
-    except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=400)
 
 @login_required
 @require_POST
@@ -650,7 +708,7 @@ def update_cart_item(request):
                 'message': 'Cart updated successfully',
                 'cart_total': '{:,}'.format(cart_total),
                 'items_count': items_count,
-                'item_total': '{:,}'.format(cart_item.get_total_price())
+                'item_total': '{:,}'.format(cart_item.get_total())
             })
             
         except CartItem.DoesNotExist:
@@ -709,9 +767,13 @@ def checkout_view(request):
         messages.warning(request, 'Your cart is empty')
         return redirect('cart')
         
+    # Get user's addresses
+    addresses = request.user.addresses.all().order_by('-is_default', '-created_at')
+        
     context = {
         'cart': cart,
         'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+        'addresses': addresses,
     }
     return render(request, 'checkout.html', context)
 
@@ -1011,3 +1073,209 @@ def order_confirmation_view(request, order_id):
     except Order.DoesNotExist:
         messages.error(request, 'Order not found.')
         return redirect('home')
+
+def create_razorpay_order(request):
+    if request.method == 'POST':
+        try:
+            cart = Cart.objects.get(user=request.user)
+            total_amount = cart.get_total() + 50  # Adding delivery fee
+            
+            # Create Razorpay Order
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            payment = client.order.create({
+                'amount': total_amount * 100,  # Amount in paise
+                'currency': 'INR',
+                'payment_capture': '1'
+            })
+            
+            return JsonResponse({
+                'success': True,
+                'amount': payment['amount'],
+                'currency': payment['currency'],
+                'order_id': payment['id']
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def process_payment(request):
+    if request.method == 'POST':
+        try:
+            payment_id = request.POST.get('razorpay_payment_id')
+            order_id = request.POST.get('razorpay_order_id')
+            signature = request.POST.get('razorpay_signature')
+            
+            # Verify signature
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            params_dict = {
+                'razorpay_payment_id': payment_id,
+                'razorpay_order_id': order_id,
+                'razorpay_signature': signature
+            }
+            
+            try:
+                client.utility.verify_payment_signature(params_dict)
+                # Create order and clear cart
+                order = create_order(request, payment_id, 'razorpay')
+                return JsonResponse({'success': True, 'order_id': order.id})
+            except:
+                return JsonResponse({'success': False, 'error': 'Invalid signature'})
+                
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+
+def create_order(request, transaction_id=None, payment_method='cod'):
+    cart = Cart.objects.get(user=request.user)
+    
+    # Create order
+    order = Order.objects.create(
+        user=request.user,
+        first_name=request.POST.get('first_name'),
+        last_name=request.POST.get('last_name'),
+        email=request.POST.get('email'),
+        phone=request.POST.get('phone'),
+        address=request.POST.get('address'),
+        city=request.POST.get('city'),
+        state=request.POST.get('state'),
+        pincode=request.POST.get('pincode'),
+        country=request.POST.get('country'),
+        total_amount=cart.get_total() + 50,  # Adding delivery fee
+        payment_method=payment_method,
+        transaction_id=transaction_id
+    )
+    
+    # Create order items
+    for item in cart.cartitem_set.all():
+        OrderItem.objects.create(
+            order=order,
+            product=item.product,
+            quantity=item.quantity,
+            price=item.product.price
+        )
+    
+    # Clear cart
+    cart.delete()
+    
+    return order
+
+def process_cod_order(request):
+    if request.method == 'POST':
+        try:
+            # Get cart
+            cart = Cart.objects.get(user=request.user)
+            if not cart.cartitem_set.exists():
+                return JsonResponse({'success': False, 'message': 'Cart is empty'})
+
+            # Create order
+            order = Order.objects.create(
+                user=request.user,
+                payment_method='COD',
+                payment_status='Pending',
+                order_status='Placed',
+                total_amount=cart.get_total() + 50,  # Adding delivery fee
+                first_name=request.POST.get('first_name'),
+                last_name=request.POST.get('last_name'),
+                email=request.POST.get('email'),
+                phone=request.POST.get('phone'),
+                address=request.POST.get('address'),
+                city=request.POST.get('city'),
+                state=request.POST.get('state'),
+                pincode=request.POST.get('pincode')
+            )
+
+            # Create order items
+            for cart_item in cart.cartitem_set.all():
+                OrderItem.objects.create(
+                    order=order,
+                    product=cart_item.product,
+                    quantity=cart_item.quantity,
+                    price=cart_item.product.price
+                )
+
+            # Clear cart after successful order
+            cart.delete()
+
+            return JsonResponse({
+                'success': True,
+                'order_id': order.id,
+                'redirect_url': f'/order-confirmation/{order.id}/'
+            })
+
+        except Cart.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Cart not found'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'message': str(e)})
+
+    return JsonResponse({'success': False, 'message': 'Invalid request method'})
+
+@login_required
+def orders_view(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    context = {
+        'orders': orders,
+        'orders_count': orders.count()
+    }
+    return render(request, 'orders.html', context)
+
+@login_required
+def order_detail(request, order_id):
+    try:
+        order = get_object_or_404(Order, id=order_id, user=request.user)
+        context = {
+            'order': order,
+            'order_items': order.items.all(),
+            'can_cancel': order.order_status in ['PENDING', 'PROCESSING']
+        }
+        return render(request, 'order_detail.html', context)
+    except Order.DoesNotExist:
+        messages.error(request, 'Order not found.')
+        return redirect('orders')
+
+@login_required
+def cancel_order(request, order_id):
+    if request.method == 'POST':
+        try:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+            if order.order_status in ['PENDING', 'PROCESSING']:
+                order.order_status = 'CANCELLED'
+                order.save()
+                messages.success(request, 'Order cancelled successfully.')
+                return JsonResponse({'status': 'success'})
+            return JsonResponse({
+                'status': 'error',
+                'message': 'This order cannot be cancelled.'
+            }, status=400)
+        except Order.DoesNotExist:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Order not found.'
+            }, status=404)
+    return JsonResponse({
+        'status': 'error',
+        'message': 'Invalid request method.'
+    }, status=405)
+
+from django.shortcuts import render
+from .models import Product, Category
+from django.contrib.auth.decorators import login_required
+
+def product(request):
+    products = Product.objects.all().order_by('-created_at')
+    categories = Category.objects.all()
+    
+    # Filter by category if specified
+    category = request.GET.get('category')
+    if category:
+        products = products.filter(category__name=category)
+    
+    # Search functionality
+    search_query = request.GET.get('search')
+    if search_query:
+        products = products.filter(name__icontains=search_query)
+    
+    context = {
+        'products': products,
+        'categories': categories,
+    }
+    return render(request, 'product.html', context)

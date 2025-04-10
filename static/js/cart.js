@@ -63,7 +63,7 @@ function updateQuantityOnServer(itemId, quantity) {
 
     if (itemContainer) {
         itemContainer.classList.add('updating');
-        quantityControls.classList.add('loading'); // Add loading state
+        quantityControls.classList.add('loading');
     }
 
     fetch('/update-cart-item/', {
@@ -86,7 +86,7 @@ function updateQuantityOnServer(itemId, quantity) {
     })
     .then(data => {
         if (data.success) {
-            // Silently update all values
+            // Update cart display
             updateCartDisplay(data);
             
             // Update item total with animation
@@ -103,18 +103,17 @@ function updateQuantityOnServer(itemId, quantity) {
                 updateButtonStates(itemId, quantity);
             }
         } else {
-            showError(data.message || 'Failed to update quantity.'); // Show user-friendly error
+            showError(data.message || 'Failed to update quantity.');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showError('An error occurred while updating the cart.'); // Show user-friendly error
-        if (input) input.value = input.defaultValue;
+        showError('An error occurred while updating the cart.');
     })
     .finally(() => {
         if (itemContainer) {
             itemContainer.classList.remove('updating');
-            quantityControls.classList.remove('loading'); // Remove loading state
+            quantityControls.classList.remove('loading');
         }
     });
 }

@@ -193,44 +193,47 @@ class CheckoutSession(models.Model):
         return not self.is_completed and timezone.now() < self.expires_at
 
 class Order(models.Model):
-    PAYMENT_METHODS = [
-        ('cod', 'Cash on Delivery'),
-        ('online', 'Online Payment'),
+    ORDER_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled')
+    ]
+    PAYMENT_STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('COMPLETED', 'Completed'),
+        ('FAILED', 'Failed'),
+        ('REFUNDED', 'Refunded')
+    ]
+    PAYMENT_METHOD_CHOICES = [
+        ('COD', 'Cash on Delivery'),
+        ('RAZORPAY', 'RazorPay'),
+        ('CARD', 'Credit/Debit Card')
     ]
     
-    PAYMENT_STATUS = [
-        ('pending', 'Pending'),
-        ('paid', 'Paid'),
-        ('failed', 'Failed'),
-    ]
-    
-    ORDER_STATUS = [
-        ('pending', 'Pending'),
-        ('processing', 'Processing'),
-        ('shipped', 'Shipped'),
-        ('delivered', 'Delivered'),
-        ('cancelled', 'Cancelled'),
-    ]
-    
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-    order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
-    payment_id = models.CharField(max_length=100, null=True, blank=True)
-    payment_method = models.CharField(max_length=10, choices=PAYMENT_METHODS, default='cod')
-    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS, default='pending')
-    order_status = models.CharField(max_length=10, choices=ORDER_STATUS, default='pending')
-    address = models.TextField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    order_status = models.CharField(max_length=20, choices=ORDER_STATUS_CHOICES, default='PENDING')
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    transaction_id = models.CharField(max_length=100, null=True, blank=True)
+    
+    # Shipping Information
+    first_name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20)
+    address = models.TextField()
+    city = models.CharField(max_length=100)
+    state = models.CharField(max_length=100)
+    pincode = models.CharField(max_length=10)
+    country = models.CharField(max_length=100, default='India')
     
     def __str__(self):
-        return f"Order #{self.id} - {self.user.email}"
-    
-    def get_subtotal(self):
-        return sum(item.get_total() for item in self.items.all())
-    
-    def get_total(self):
-        return self.get_subtotal() + 50  # Adding delivery fee of ₹50
+        return f"Order #{self.id} by {self.user.email}"
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
