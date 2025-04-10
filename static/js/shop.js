@@ -98,36 +98,43 @@ class QuantityController {
 
 // Initialize when DOM is loaded
 document.addEventListener('DOMContentLoaded', () => {
-    const quantityController = new QuantityController();
-
-    // Listen for quantity changes
-    document.getElementById('quantity').addEventListener('quantity-changed', (e) => {
-        const quantity = parseInt(e.target.value);
-        // You can perform additional actions here when quantity changes
-        console.log('Quantity changed to:', quantity);
-    });
+    // Initialize quantity controller if element exists
+    if (document.getElementById('quantity')) {
+        const quantityController = new QuantityController();
+        
+        // Listen for quantity changes
+        document.getElementById('quantity').addEventListener('quantity-changed', (e) => {
+            const quantity = parseInt(e.target.value);
+            console.log('Quantity changed to:', quantity);
+        });
+    }
+    
+    // Initialize Buy Now button
+    const buyNowBtn = document.querySelector('.buy-now-btn');
+    if (buyNowBtn) {
+        buyNowBtn.addEventListener('click', function() {
+            const productId = this.getAttribute('data-product-id');
+            const quantity = document.getElementById('quantity').value;
+            
+            // Redirect to checkout with product and quantity
+            window.location.href = `/checkout/?product_id=${productId}&quantity=${quantity}`;
+        });
+    }
 });
 
-// Add to Cart button
-document.querySelector('.add-to-cart').addEventListener('click', () => {
-    alert('Added to cart!');
-});
-
-// Wishlist button
-document.querySelector('.wishlist').addEventListener('click', () => {
-    alert('Added to wishlist!');
-});
-
-// Thumbnail click to change main image (optional)
-document.querySelectorAll('.thumbnails img').forEach(thumb => {
-    thumb.addEventListener('click', () => {
-        const mainImage = document.querySelector('.main-image');
-        mainImage.src = thumb.src;
-    });
-});
-
-function addToCart(productId, stockLimit) {
-    const quantity = parseInt(document.getElementById('quantity').value);
+/**
+ * Add product to cart
+ * @param {string} productId - ID of the product to add
+ */
+function addToCart(productId) {
+    const quantityInput = document.getElementById('quantity');
+    if (!quantityInput) {
+        showNotification('Error: Could not find quantity input', 'error');
+        return;
+    }
+    
+    const quantity = parseInt(quantityInput.value);
+    const stockLimit = parseInt(quantityInput.getAttribute('max')) || 99999;
     
     // Validate quantity against stock limit
     if (quantity > stockLimit) {
@@ -139,7 +146,7 @@ function addToCart(productId, stockLimit) {
     
     if (addButton) {
         addButton.disabled = true;
-        addButton.classList.add('loading');
+        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
     }
 
     fetch('/add-to-cart/', {
@@ -167,23 +174,50 @@ function addToCart(productId, stockLimit) {
                 cartBadge.textContent = data.cart_count;
             }
             
-            showNotification('Added to cart successfully!', 'success');
+            // Show success message
+            const successMessage = document.getElementById('successMessage');
+            if (successMessage) {
+                successMessage.style.display = 'flex';
+                setTimeout(() => {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            } else {
+                showNotification('Added to cart successfully!', 'success');
+            }
         } else {
             throw new Error(data.error || 'Failed to add to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification(error.message, 'error');
+        
+        // Show error message
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        
+        if (errorMessage && errorText) {
+            errorText.textContent = error.message;
+            errorMessage.style.display = 'flex';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        } else {
+            showNotification(error.message, 'error');
+        }
     })
     .finally(() => {
         if (addButton) {
             addButton.disabled = false;
-            addButton.classList.remove('loading');
+            addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
         }
     });
 }
 
+/**
+ * Get CSRF token from cookies
+ * @param {string} name - Cookie name
+ * @returns {string} Cookie value
+ */
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -199,21 +233,55 @@ function getCookie(name) {
     return cookieValue;
 }
 
+/**
+ * Show notification message
+ * @param {string} message - Message to display
+ * @param {string} type - Type of notification (success or error)
+ */
 function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
-        <span>${message}</span>
-    `;
+    const notificationContainer = document.getElementById('notification-container');
     
-    document.body.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.classList.add('show');
-        setTimeout(() => {
-            notification.classList.remove('show');
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    }, 100);
+    if (notificationContainer) {
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        // Simple success message with icon
+        let icon = type === 'success' ? '✓' : '!';
+        let displayMessage = type === 'success' ? '✓ Added to cart' : message;
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-text">${displayMessage}</span>
+                <button class="close-notification">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            ${type === 'success' ? '<div class="notification-progress"></div>' : ''}
+        `;
+        
+        // Add close button functionality
+        const closeBtn = notification.querySelector('.close-notification');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            });
+        }
+        
+        notificationContainer.appendChild(notification);
+        
+        // Show notification with animation
+        requestAnimationFrame(() => {
+            notification.classList.add('show');
+            
+            // Auto-hide after 2 seconds (even shorter)
+            setTimeout(() => {
+                notification.classList.add('fade-out');
+                setTimeout(() => notification.remove(), 300);
+            }, 2000);
+        });
+    } else {
+        // Fallback if notification container doesn't exist
+        alert(message);
+    }
 }

@@ -1658,6 +1658,7 @@ footer .social-links a:hover {
     overflow: hidden;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     transition: color 0.2s ease;
 }
@@ -1901,6 +1902,7 @@ footer .social-links a:hover {
     font-weight: 800;
     background: linear-gradient(135deg, #2c3e50, #3498db);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
     letter-spacing: -0.5px;
 }
@@ -2205,6 +2207,7 @@ footer .social-links a:hover {
     font-weight: 700;
     background: linear-gradient(135deg, #2c3e50, #3498db);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -2391,213 +2394,70 @@ body.sidebar-open {
 }
 
 /* Cart Button Animation Styles */
-.button-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 10px;
-}
-
-.button {
-    --background: #3498db;
-    --text: #fff;
-    --cart: #fff;
-    --tick: var(--background);
+.cart-button {
     position: relative;
+    padding: 8px 16px;
+    min-width: 120px;
+    height: 40px;
+    background: #78ade5;
     border: none;
-    background: none;
-    padding: 8px 28px;
-    border-radius: 8px;
-    -webkit-appearance: none;
-    -webkit-tap-highlight-color: transparent;
+    border-radius: 4px;
     cursor: pointer;
+    overflow: hidden;
     display: flex;
-    color: var(--text);
-    background: var(--background);
-    transform: scale(var(--scale, 1));
-    transition: transform 0.3s;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
 }
 
-.button:hover {
-    --scale: 1.05;
+.cart-button:hover {
+    background: #5c91c9;
 }
 
-.button span {
-    display: block;
-    font-size: 14px;
-    line-height: 25px;
-    font-weight: 600;
-    opacity: var(--span-opacity, 1);
-    transform: translateX(var(--span-x, 0)) translateZ(0);
-    transition: transform 0.4s ease, opacity 0.3s ease;
-}
-
-.button .success {
-    position: absolute;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: var(--success-opacity, 0);
-    transition: opacity 0.3s ease;
-}
-
-.button .cart {
-    position: relative;
-    margin: 0 0 0 10px;
-    width: 18px;
-    height: 14px;
-    transform: scale(var(--cart-scale, 1));
+.cart-button i {
+    font-size: 16px;
+    color: white;
     transition: transform 0.3s ease;
 }
 
-.button .cart svg {
-    width: 18px;
-    height: 14px;
-    stroke: var(--cart);
-    stroke-width: 2px;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    fill: none;
-    display: block;
+.cart-button span {
+    font-size: 14px;
+    color: white;
+    font-weight: 500;
+    white-space: nowrap;
 }
 
-.button .cart svg polyline:last-child {
-    stroke: var(--tick);
-    stroke-dasharray: 10px;
-    stroke-dashoffset: var(--tick-offset, 10px);
-    transition: stroke-dashoffset 0.4s ease;
+.cart-button.clicked i {
+    animation: addToCart 0.8s ease-in-out;
 }
 
-.button.loading {
-    --scale: 0.95;
-    --span-opacity: 0;
-    --cart-scale: 0.9;
-}
-
-.button.loading .cart {
-    animation: cart 1.4s linear infinite;
-}
-
-.button.success {
-    --success-opacity: 1;
-    --span-opacity: 0;
-    --tick-offset: 0;
-    --span-x: 20px;
-    animation: success 0.3s ease forwards;
-}
-
-@keyframes cart {
-    from {
-        transform: rotate(0deg);
+@keyframes addToCart {
+    0% {
+        transform: scale(1);
     }
-    to {
-        transform: rotate(360deg);
+    50% {
+        transform: scale(0.8);
     }
-}
-
-@keyframes success {
-    from {
-        transform: scale(0.95);
+    80% {
+        transform: scale(1.2);
     }
-    to {
+    100% {
         transform: scale(1);
     }
 }
 
-/* Make sure these don't conflict with other styles */
-.button.success .cart {
-    animation: none;
-}
-
-.button:disabled {
-    opacity: 0.6;
+.cart-button:disabled {
+    background: #cccccc;
     cursor: not-allowed;
 }
 
-.dropdown-item:hover {
-    background-color: rgba(52, 152, 219, 0.1);
-    color: #3498db;
-}
-
-.dropdown-divider {
-    height: 1px;
-    background-color: #eee;
-    margin: 8px 0;
-}
-
-@keyframes dropdownFade {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
+/* Media query for small screens */
+@media screen and (max-width: 480px) {
+    .cart-button {
+        width: 100%;
+        padding: 10px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Add this after your existing navbar styles */
-.notification {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 15px 25px;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    transform: translateX(120%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
-.notification.success {
-    border-left: 4px solid #4CAF50;
-}
-
-.notification.error {
-    border-left: 4px solid #f44336;
-}
-
-.notification i {
-    font-size: 1.2rem;
-}
-
-.notification.success i {
-    color: #4CAF50;
-}
-
-.notification.error i {
-    color: #f44336;
-}
-
-.add-to-cart-btn.success {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.add-to-cart-btn.error {
-    background-color: #f44336;
-    color: white;
-}   
-
-.add-to-cart-btn:hover {
-    background: #5c91c9;
-    transform: translateY(-2px);
-}
-
-.product-card .image-container {
-    cursor: pointer;
-}
-
-.product-card .product-info {
-    cursor: pointer;
 }
 
 /* Add these styles to customize the cart button for homepage */
@@ -2757,14 +2617,66 @@ body.sidebar-open {
     font-size: 1em;
 }
 
+/* Add this after your existing navbar styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
 
+.notification.show {
+    transform: translateX(0);
+}
 
+.notification.success {
+    border-left: 4px solid #4CAF50;
+}
 
+.notification.error {
+    border-left: 4px solid #f44336;
+}
 
+.notification i {
+    font-size: 1.2rem;
+}
 
+.notification.success i {
+    color: #4CAF50;
+}
 
+.notification.error i {
+    color: #f44336;
+}
 
+.add-to-cart-btn.success {
+    background-color: #4CAF50;
+    color: white;
+}
 
+.add-to-cart-btn.error {
+    background-color: #f44336;
+    color: white;
+}   
 
+.add-to-cart-btn:hover {
+    background: #5c91c9;
+    transform: translateY(-2px);
+}
 
+.product-card .image-container {
+    cursor: pointer;
+}
 
+.product-card .product-info {
+    cursor: pointer;
+}

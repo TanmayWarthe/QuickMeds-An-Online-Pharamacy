@@ -125,7 +125,7 @@
     </div>
 
     <!-- Search Section -->
-    <div class="search-container container-fluid" style="background-image: url('{% static 'img/searchbg.jpg' %}'); background-repeat: no-repeat; background-size: cover;">
+    <div class="search-container container-fluid search-background">
         <h3 class="text-dark">Search Medicines / General Products</h3>
         <form action="{% url 'search_products' %}" method="GET" class="search-box-container">
             <input type="text" name="q" class="search-box" placeholder="Search for... Medicines" required>
@@ -258,6 +258,62 @@
 
 {% block extra_styles %}
 <style>
+    .search-background {
+        background-image: url("{% static 'img/searchbg.jpg' %}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        padding: 40px 0;
+        position: relative;
+    }
+    
+    .search-background::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 1;
+    }
+    
+    .search-container h3, 
+    .search-container form {
+        position: relative;
+        z-index: 2;
+    }
+    
+    .search-box-container {
+        max-width: 600px;
+        margin: 20px auto;
+        display: flex;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        border-radius: 50px;
+        overflow: hidden;
+    }
+    
+    .search-box {
+        flex: 1;
+        padding: 15px 25px;
+        border: none;
+        font-size: 16px;
+        outline: none;
+    }
+    
+    .search-btn {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+        padding: 0 30px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    
+    .search-btn:hover {
+        background-color: #45a049;
+    }
+    
     .product-card {
         transition: transform 0.3s ease;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -293,6 +349,7 @@
         margin-bottom: 0.5rem;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
@@ -308,13 +365,3 @@
     }
 </style>
 {% endblock %}
-
-
-
-
-
-
-
-
-
-

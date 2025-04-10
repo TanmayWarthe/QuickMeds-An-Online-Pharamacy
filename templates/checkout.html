@@ -7,188 +7,516 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
+    /* Main container styles */
+    .checkout-wrapper {
+        background-color: #f5f5f5;
+        padding: 30px 0;
+        min-height: calc(100vh - 200px);
+    }
+    
     .checkout-container {
-        max-width: 1000px;
-        margin: 2rem auto;
-        padding: 1.5rem;
-        background: white;
-        border-radius: 12px;
-        box-shadow: 0 2px 15px rgba(0,0,0,0.1);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
     }
-
-    .checkout-header {
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 1px solid #eee;
+    
+    .checkout-progress {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
     }
-
-    .checkout-header h1 {
-        font-size: 1.8rem;
-        color: #333;
-        margin: 0;
+    
+    .progress-step {
+        display: flex;
+        align-items: center;
+        margin: 0 15px;
+        color: #777;
     }
-
-    .checkout-form {
+    
+    .progress-step.active {
+        color: #3498db;
+        font-weight: 600;
+    }
+    
+    .step-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #ddd;
+        color: #fff;
+        margin-right: 10px;
+        font-weight: 600;
+    }
+    
+    .progress-step.active .step-number {
+        background-color: #3498db;
+    }
+    
+    .progress-step.completed .step-number {
+        background-color: #2ecc71;
+    }
+    
+    .progress-step.completed .step-number:after {
+        content: '✓';
+    }
+    
+    .checkout-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
     }
-
+    
     @media (max-width: 768px) {
-        .checkout-form {
+        .checkout-grid {
             grid-template-columns: 1fr;
         }
     }
-
-    .form-section {
-        margin-bottom: 2rem;
+    
+    /* Left column - Form styles */
+    .checkout-form-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        overflow: hidden;
     }
-
-    .form-section h2 {
-        font-size: 1.3rem;
-        margin-bottom: 1rem;
-        color: #333;
-        padding-bottom: 0.5rem;
+    
+    .form-section {
+        padding: 20px 25px;
         border-bottom: 1px solid #eee;
     }
-
-    .form-group {
-        margin-bottom: 1rem;
+    
+    .form-section:last-child {
+        border-bottom: none;
     }
-
+    
+    .section-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .section-number {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        background-color: #3498db;
+        color: white;
+        margin-right: 10px;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    
+    .section-title {
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+        margin: 0;
+    }
+    
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    @media (max-width: 576px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
     .form-group label {
         display: block;
-        margin-bottom: 0.5rem;
+        margin-bottom: 6px;
         font-weight: 500;
         color: #555;
+        font-size: 14px;
     }
-
+    
     .form-control {
         width: 100%;
-        padding: 0.8rem;
+        padding: 10px 12px;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 1rem;
+        border-radius: 4px;
+        font-size: 14px;
+        transition: all 0.2s ease;
     }
-
+    
     .form-control:focus {
-        border-color: #78ade5;
+        border-color: #3498db;
+        box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
         outline: none;
-        box-shadow: 0 0 0 2px rgba(120, 173, 229, 0.2);
     }
-
-    .order-summary {
-        background: #f9f9f9;
-        padding: 1.5rem;
+    
+    /* Right column - Order summary styles */
+    .order-summary-container {
+        background: white;
         border-radius: 8px;
-        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        position: sticky;
+        top: 20px;
     }
-
-    .order-item {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 0.8rem;
-        padding-bottom: 0.8rem;
+    
+    .order-summary-header {
+        padding: 15px 20px;
         border-bottom: 1px solid #eee;
     }
-
+    
+    .order-summary-header h3 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 600;
+        color: #333;
+    }
+    
+    .order-summary-content {
+        padding: 15px 20px;
+    }
+    
+    .order-items {
+        max-height: 250px;
+        overflow-y: auto;
+        margin-bottom: 15px;
+    }
+    
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
     .order-item:last-child {
         border-bottom: none;
     }
-
-    .item-name {
-        font-weight: 500;
-    }
-
-    .item-quantity {
-        color: #666;
-    }
-
-    .item-price {
-        font-weight: 500;
-        color: #78ade5;
-    }
-
-    .order-total {
-        display: flex;
-        justify-content: space-between;
-        font-size: 1.2rem;
-        font-weight: 600;
-        margin-top: 1rem;
-        padding-top: 1rem;
-        border-top: 2px solid #ddd;
-    }
-
-    .total-amount {
-        color: #78ade5;
-    }
-
-    .payment-methods {
-        margin-top: 1.5rem;
-    }
-
-    .payment-method {
+    
+    .item-image {
+        width: 50px;
+        height: 50px;
+        border-radius: 4px;
+        background-color: #f5f5f5;
+        margin-right: 12px;
         display: flex;
         align-items: center;
-        margin-bottom: 1rem;
+        justify-content: center;
+        overflow: hidden;
     }
-
-    .payment-method input {
-        margin-right: 0.5rem;
+    
+    .item-image img {
+        max-width: 100%;
+        max-height: 100%;
     }
-
+    
+    .item-details {
+        flex-grow: 1;
+    }
+    
+    .item-name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        margin: 0 0 4px;
+    }
+    
+    .item-meta {
+        display: flex;
+        font-size: 12px;
+        color: #777;
+    }
+    
+    .item-quantity {
+        margin-right: 10px;
+    }
+    
+    .item-price {
+        font-weight: 500;
+        color: #333;
+        margin-left: auto;
+        font-size: 14px;
+    }
+    
+    .price-summary {
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+    }
+    
+    .price-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #555;
+    }
+    
+    .price-row.total {
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid #eee;
+    }
+    
+    .price-row.savings {
+        color: #2ecc71;
+    }
+    
+    .payment-options {
+        margin-top: 20px;
+    }
+    
+    .payment-option {
+        display: flex;
+        align-items: center;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .payment-option:hover {
+        border-color: #3498db;
+    }
+    
+    .payment-option.selected {
+        border-color: #3498db;
+        background-color: rgba(52, 152, 219, 0.05);
+    }
+    
+    .payment-option input {
+        margin-right: 10px;
+    }
+    
+    .payment-option-label {
+        display: flex;
+        align-items: center;
+        flex-grow: 1;
+    }
+    
+    .payment-icon {
+        margin-right: 10px;
+        font-size: 18px;
+        color: #555;
+    }
+    
     .place-order-btn {
+        display: block;
         width: 100%;
-        padding: 1rem;
-        background: #78ade5;
+        padding: 12px;
+        background: #3498db;
         color: white;
         border: none;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        font-weight: 500;
+        border-radius: 4px;
+        font-size: 16px;
+        font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
-        margin-top: 1.5rem;
+        margin-top: 20px;
     }
-
+    
     .place-order-btn:hover {
-        background: #5c91c9;
+        background: #2980b9;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
-
+    
     .place-order-btn:disabled {
         background: #ccc;
         cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .secure-checkout {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 15px;
+        font-size: 13px;
+        color: #777;
+    }
+    
+    .secure-checkout i {
+        margin-right: 5px;
+        color: #2ecc71;
+    }
+    
+    /* Coupon code section */
+    .coupon-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #eee;
+    }
+    
+    .coupon-form {
+        display: flex;
+    }
+    
+    .coupon-input {
+        flex-grow: 1;
+        margin-right: 10px;
+    }
+    
+    .coupon-btn {
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 8px 15px;
+        font-size: 14px;
+        font-weight: 500;
+        color: #333;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .coupon-btn:hover {
+        background: #eee;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .checkout-progress {
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
+        
+        .progress-step {
+            margin-bottom: 10px;
+        }
+        
+        .checkout-container {
+            padding: 0 10px;
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Header with tagline and menu -->
-<div class="header">
-    <div class="tagline">
-        <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="centered-text-container">
-            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+<!-- Notification Area -->
+<div class="notification" id="notification" style="display: none;"></div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <div class="nav-start">
+            <div class="brand-section">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                </button>
+                <div class="logo-wrapper">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+                </div>
+                <a class="navbar-brand" href="{% url 'home' %}">QuickMeds</a>
+            </div>
+        </div>
+        
+        <div class="nav-actions">
+            <a href="{% url 'product' %}" class="quick-order-btn">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
+            </a>
+            {% if user.is_authenticated %}
+            <div class="nav-icons">
+                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="badge">{{ cart_count|default:0 }}</span>
+                </a>
+                <div class="dropdown">
+                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
+            </div>
+            {% endif %}
         </div>
     </div>
-</div>
+</nav>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        <div class="sidebar-brand">
+            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i>Our Product</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Products</span>
+        </a>
+        <a href="#purchase" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Purchase</span>
+        </a>
+        <a href="{% url 'about' %}" class="nav-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>About</span>
+        </a>
+        <a href="#contact" class="nav-item">
+            <i class="fas fa-phone"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-info">
+            <i class="fas fa-headset"></i>
+            <div class="support-text">
+                <small>Need Help?</small>
+                <p>1-234-567-890</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Tagline -->
+<div class="tagline">
+    <div class="centered-text-container">
+        <i class="fas fa-heartbeat tagline-icon"></i>
+        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+        <i class="fas fa-pills tagline-icon"></i>
+    </div>
 </div>
 
 <!-- Main Checkout Content -->
@@ -276,7 +604,174 @@
                 </div>
             </div>
         </div>
-    </form>
+        
+        <form id="checkout-form" method="post" action="{% url 'checkout' %}">
+            {% csrf_token %}
+            
+            <div class="checkout-grid">
+                <!-- Left Column - Form Fields -->
+                <div class="checkout-form-container">
+                    <!-- Shipping Address Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-number">1</div>
+                            <h2 class="section-title">Shipping Address</h2>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="first_name">First Name*</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name*</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address*</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number*</label>
+                            <input type="tel" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="address">Street Address*</label>
+                            <input type="text" class="form-control" id="address" name="address" required>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="city">City*</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="state">State/Province*</label>
+                                <input type="text" class="form-control" id="state" name="state" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="postal_code">Postal Code*</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="country">Country*</label>
+                                <select class="form-control" id="country" name="country" required>
+                                    <option value="India" selected>India</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Payment Method Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <div class="section-number">2</div>
+                            <h2 class="section-title">Payment Method</h2>
+                        </div>
+                        
+                        <div class="payment-options">
+                            <div class="payment-option selected">
+                                <input type="radio" id="cod" name="payment_method" value="cod" checked>
+                                <label class="payment-option-label" for="cod">
+                                    <i class="fas fa-money-bill-wave payment-icon"></i>
+                                    <span>Cash on Delivery</span>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option" style="opacity: 0.6;">
+                                <input type="radio" id="online" name="payment_method" value="online" disabled>
+                                <label class="payment-option-label" for="online">
+                                    <i class="fas fa-credit-card payment-icon"></i>
+                                    <span>Credit/Debit Card (Coming Soon)</span>
+                                </label>
+                            </div>
+                            
+                            <div class="payment-option" style="opacity: 0.6;">
+                                <input type="radio" id="upi" name="payment_method" value="upi" disabled>
+                                <label class="payment-option-label" for="upi">
+                                    <i class="fas fa-mobile-alt payment-icon"></i>
+                                    <span>UPI Payment (Coming Soon)</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column - Order Summary -->
+                <div class="order-summary-container">
+                    <div class="order-summary-header">
+                        <h3>Order Summary</h3>
+                    </div>
+                    
+                    <div class="order-summary-content">
+                        <div class="order-items">
+                            {% for item in cart_items %}
+                            <div class="order-item">
+                                <div class="item-image">
+                                    {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-prescription-bottle-alt" style="font-size: 24px; color: #3498db;"></i>
+                                    {% endif %}
+                                </div>
+                                <div class="item-details">
+                                    <h4 class="item-name">{{ item.product.name }}</h4>
+                                    <div class="item-meta">
+                                        <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                                    </div>
+                                </div>
+                                <div class="item-price">₹{{ item.get_total_price|intcomma }}</div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="coupon-section">
+                            <div class="form-group">
+                                <label for="coupon">Apply Coupon</label>
+                                <div class="coupon-form">
+                                    <input type="text" class="form-control coupon-input" id="coupon" name="coupon" placeholder="Enter coupon code">
+                                    <button type="button" class="coupon-btn">Apply</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="price-summary">
+                            <div class="price-row">
+                                <span>Subtotal</span>
+                                <span>₹{{ cart.get_total|intcomma }}</span>
+                            </div>
+                            <div class="price-row">
+                                <span>Shipping</span>
+                                <span>Free</span>
+                            </div>
+                            <div class="price-row savings">
+                                <span>Savings</span>
+                                <span>-₹0.00</span>
+                            </div>
+                            <div class="price-row total">
+                                <span>Total</span>
+                                <span>₹{{ cart.get_total|intcomma }}</span>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="place-order-btn">Place Order</button>
+                        
+                        <div class="secure-checkout">
+                            <i class="fas fa-lock"></i>
+                            <span>Secure Checkout</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Razorpay Script -->

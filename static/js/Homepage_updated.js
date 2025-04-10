@@ -135,42 +135,109 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Cart Functionality
-    function addToCart(productId) {
-        const button = event.target.closest('.cart-button');
-        if (button.disabled) return;
-        
-        button.disabled = true;
+    function addToCart(productId, event) {
+        // Add animation to cart button
+        function addCartAnimation(button) {
+            button.classList.add('clicked');
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 800);
+        }
 
-        fetch('/add-to-cart/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-            },
-            body: JSON.stringify({
-                product_id: productId,
-                quantity: 1
+        // Update the cart click handler
+        function cartClick(event, productId) {
+            event.preventDefault();
+            event.stopPropagation();
+            
+            const button = event.currentTarget;
+            if (button.disabled) return;
+            
+            button.disabled = true;
+            addCartAnimation(button);
+            
+            // Add to cart logic
+            fetch(`/add-to-cart/${productId}/`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                credentials: 'same-origin'  // This will send cookies including sessionid
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Update cart count
-                const cartBadge = document.querySelector('.cart-icon .badge');
-                if (cartBadge) {
-                    cartBadge.textContent = data.cart_count;
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        window.location.href = '/login/';  // Redirect to login if not authenticated
+                        return;
+                    }
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Update cart count in header
+                    const cartBadge = document.querySelector('.cart-icon .badge');
+                    if (cartBadge && data.cart_count !== undefined) {
+                        cartBadge.textContent = data.cart_count;
+                    }
+                    
+                    // Show success message
+                    showNotification('<i class="fas fa-check-circle"></i> Item added successfully', 'success');
+
+                    // Reset button after animation
+                    setTimeout(() => {
+                        const buttons = document.querySelectorAll('.cart-button');
+                        for (const button of buttons) {
+                            const productCard = button.closest('.product-card');
+                            if (productCard && productCard.dataset.productId == productId) {
+                                button.classList.remove('clicked');
+                                break;
+                            }
+                        }
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Failed to add item to cart');
                 }
                 button.disabled = false;
-            } else {
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const buttons = document.querySelectorAll('.cart-button');
+                for (const button of buttons) {
+                    const productCard = button.closest('.product-card');
+                    if (productCard && productCard.dataset.productId == productId) {
+                        button.classList.remove('clicked');
+                        break;
+                    }
+                }
+                showNotification(error.message || 'Failed to add item to cart', 'error');
                 button.disabled = false;
-                showNotification('Failed to add item to cart', 'error');
+            });
+        }
+
+        // If event is not provided, it means it was called from an onclick attribute
+        if (!event) {
+            // Find the button that was clicked based on productId
+            const buttons = document.querySelectorAll('.cart-button');
+            let clickedButton = null;
+            
+            for (const button of buttons) {
+                const productCard = button.closest('.product-card');
+                if (productCard && productCard.dataset.productId == productId) {
+                    clickedButton = button;
+                    break;
+                }
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            button.disabled = false;
-            showNotification('Error adding item to cart', 'error');
-        });
+            
+            if (clickedButton) {
+                if (clickedButton.disabled || clickedButton.classList.contains('clicked')) {
+                    return;
+                }
+                cartClick({ preventDefault: () => {}, stopPropagation: () => {}, currentTarget: clickedButton }, productId);
+            }
+        } else {
+            cartClick(event, productId);
+        }
     }
 
     // Search Functionality Enhancement
@@ -209,6 +276,54 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         return cookieValue;
+    }
+
+    // Notification function
+    function showNotification(message, type = 'success') {
+        // Remove any existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notification => notification.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification ${type}`;
+        
+        // Create more engaging messages for success
+        let displayMessage = message;
+        let icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+        
+        if (type === 'success' && message.includes('added to cart')) {
+            // Random success messages for cart additions
+            const successMessages = [
+                "Great choice! Added to your cart ",
+                "Item added! Your health is our priority ",
+                "Added to cart! Ready for checkout when you are ",
+                "Success! Your medicine cabinet is growing ",
+                "Added to cart! Quick healing starts here "
+            ];
+            displayMessage = successMessages[Math.floor(Math.random() * successMessages.length)];
+            icon = 'fa-cart-plus';
+        }
+        
+        notification.innerHTML = `
+            <div class="notification-content">
+                <i class="fas ${icon}"></i>
+                <div>
+                    <strong>${type === 'success' ? 'Success!' : 'Error!'}</strong>
+                    <p>${displayMessage}</p>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Trigger animation
+        setTimeout(() => notification.classList.add('show'), 100);
+        
+        // Remove notification after delay
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 500);
+        }, 4000);
     }
 
     // Initialize
@@ -266,9 +381,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
-
-
-
-
-

@@ -7,7 +7,10 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/cart.css' %}">
 <link rel="stylesheet" href="{% static 'css/product.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <!-- Hidden elements for URLs -->
 <div id="urls" 
      data-product-url="{% url 'product' %}" 
@@ -348,31 +351,111 @@
 <!-- Notification Area -->
 <div class="notification" id="notification" style="display: none;"></div>
 
-<!-- Header with tagline and menu -->
-<div class="header">
-    <div class="tagline">
-        <button class="menu-btn" onclick="toggleSidebar()">
-            <i class="fas fa-bars"></i>
-        </button>
-        <div class="centered-text-container">
-            <span class="text-center">Smarter Health Choices at Your Fingertips</span>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <div class="nav-start">
+            <div class="brand-section">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                </button>
+                <div class="logo-wrapper">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+                </div>
+                <a class="navbar-brand" href="{% url 'home' %}">QuickMeds</a>
+            </div>
+        </div>
+        
+        <div class="nav-actions">
+            <a href="{% url 'product' %}" class="quick-order-btn">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
+            </a>
+            {% if user.is_authenticated %}
+            <div class="nav-icons">
+                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="badge">{{ cart_count|default:0 }}</span>
+                </a>
+                <div class="dropdown">
+                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
+            </div>
+            {% endif %}
         </div>
     </div>
-</div>
+</nav>
 
 <!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-        <button class="close-btn" onclick="toggleSidebar()">&times;</button>
+        <div class="sidebar-brand">
+            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
     </div>
-    <ul class="sidebar-links">
-        <li><a href="{% url 'home' %}"><i class="fas fa-home"></i> Home</a></li>
-        <li><a href="{% url 'product' %}"><i class="fas fa-prescription-bottle-alt"></i>Our Product</a></li>
-        <li><a href="#purchase"><i class="fas fa-shopping-cart"></i> My Purchase</a></li>
-        <li><a href="{% url "about" %}"><i class="fas fa-comment-dots"></i> About</a></li>
-        <li><a href="#contact"><i class="fas fa-phone"></i> Contact Us</a></li>
-    </ul>
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Products</span>
+        </a>
+        <a href="#purchase" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Purchase</span>
+        </a>
+        <a href="{% url 'about' %}" class="nav-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>About</span>
+        </a>
+        <a href="#contact" class="nav-item">
+            <i class="fas fa-phone"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-info">
+            <i class="fas fa-headset"></i>
+            <div class="support-text">
+                <small>Need Help?</small>
+                <p>1-234-567-890</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Tagline -->
+<div class="tagline">
+    <div class="centered-text-container">
+        <i class="fas fa-heartbeat tagline-icon"></i>
+        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+        <i class="fas fa-pills tagline-icon"></i>
+    </div>
 </div>
 
 <!-- Main Cart Content -->
@@ -443,4 +526,195 @@
 
 {% block extra_js %}
 <script src="{% static 'js/cart.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get elements
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const closeSidebar = document.getElementById('closeSidebar');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        
+        // Function to toggle sidebar
+        function toggleSidebar() {
+            if (sidebar) {
+                sidebar.classList.toggle('active');
+            }
+            if (sidebarOverlay) {
+                sidebarOverlay.classList.toggle('active');
+            }
+            document.body.classList.toggle('sidebar-open');
+        }
+        
+        // Add event listeners
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', toggleSidebar);
+        }
+        
+        if (closeSidebar) {
+            closeSidebar.addEventListener('click', toggleSidebar);
+        }
+        
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+        }
+    });
+</script>
+<style>
+    /* Tagline styling */
+    .tagline {
+        background: linear-gradient(90deg, #2c3e50, #3498db);
+        padding: 10px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        color: #ffffff;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .centered-text-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-grow: 1;
+    }
+    
+    .tagline-icon {
+        font-size: 1.1rem;
+        color: #ffffff;
+        margin: 0 8px;
+    }
+    
+    .healthcare {
+        color: #78ade5;
+        font-weight: bold;
+    }
+    
+    /* Menu button styling - simplified */
+    .menu-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 1.5rem;
+        color: white;
+        padding: 5px;
+        margin-right: 15px;
+    }
+    
+    /* User icon styling - simplified */
+    .icon-btn.user-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: rgba(255, 255, 255, 0.2);
+        color: white;
+        text-decoration: none;
+        margin-left: 15px;
+    }
+    
+    /* Sidebar styling */
+    .sidebar {
+        position: fixed;
+        top: 0;
+        left: -280px;
+        width: 280px;
+        height: 100%;
+        background: white;
+        box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        z-index: 1001;
+        transition: left 0.3s ease;
+        overflow-y: auto;
+    }
+    
+    .sidebar.active {
+        left: 0;
+    }
+    
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1000;
+        display: none;
+    }
+    
+    .sidebar-overlay.active {
+        display: block;
+    }
+    
+    .sidebar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 15px;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .sidebar-brand {
+        display: flex;
+        align-items: center;
+    }
+    
+    .sidebar-logo {
+        width: 30px;
+        height: 30px;
+        margin-right: 10px;
+    }
+    
+    .close-sidebar {
+        background: transparent;
+        border: none;
+        font-size: 1.2rem;
+        cursor: pointer;
+        color: #333;
+    }
+    
+    .sidebar-nav {
+        padding: 15px;
+    }
+    
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        color: #333;
+        text-decoration: none;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        transition: all 0.3s ease;
+    }
+    
+    .nav-item:hover {
+        background: #f8f9fa;
+        color: #3498db;
+    }
+    
+    .nav-item i {
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .tagline {
+            padding: 8px 15px;
+        }
+        
+        .text-center {
+            font-size: 0.8rem;
+        }
+        
+        .tagline-icon {
+            font-size: 0.9rem;
+            margin: 0 6px;
+        }
+    }
+</style>
 {% endblock %}
