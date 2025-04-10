@@ -10,8 +10,15 @@
 {% endblock %} 
 
 {% block content %}
-<!-- Notification Container -->
-<div id="notification-container"></div>
+<!-- Notification Container - Matching Homepage -->
+<div class="notification" id="notification" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message"></span>
+</div>
+
+<!-- Remove old notification elements -->
+<div id="successMessage" style="display: none;"></div>
+<div id="errorMessage" style="display: none;"></div>
 
  <!-- Navbar -->
  <nav class="navbar navbar-expand-lg">

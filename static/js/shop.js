@@ -96,11 +96,11 @@ class QuantityController {
     }
 }
 
-// Initialize when DOM is loaded
+// In the DOMContentLoaded event listener
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize quantity controller if element exists
     if (document.getElementById('quantity')) {
-        const quantityController = new QuantityController();
+        new QuantityController();
         
         // Listen for quantity changes
         document.getElementById('quantity').addEventListener('quantity-changed', (e) => {
@@ -109,47 +109,110 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Initialize Buy Now button
+    // Update Buy Now button handler
     const buyNowBtn = document.querySelector('.buy-now-btn');
     if (buyNowBtn) {
         buyNowBtn.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product-id');
-            const quantity = document.getElementById('quantity').value;
-            
-            // Redirect to checkout with product and quantity
-            window.location.href = `/checkout/?product_id=${productId}&quantity=${quantity}`;
+            const productId = this.dataset.productId || this.getAttribute('data-product-id');
+            if (!productId) {
+                showNotification('Product ID not found', 'error');
+                return;
+            }
+            handleBuyNow(productId);
+        });
+    }
+
+    // Update Add to Cart button handler
+    const addToCartBtn = document.querySelector('.add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function(event) {
+            const productId = this.dataset.productId || this.getAttribute('data-product-id');
+            if (!productId) {
+                showNotification('Product ID not found', 'error');
+                return;
+            }
+            handleCartClick(event, productId);
         });
     }
 });
 
 /**
- * Add product to cart
- * @param {string} productId - ID of the product to add
+ * Handle Add to Cart button click
+ * @param {Event} event - Click event
+ * @param {string} productId - Product ID
  */
-function addToCart(productId) {
-    const quantityInput = document.getElementById('quantity');
-    if (!quantityInput) {
-        showNotification('Error: Could not find quantity input', 'error');
+function handleCartClick(event, productId) {
+    event.preventDefault();
+    const button = event.currentTarget;
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    
+    if (button.disabled || button.classList.contains('clicked')) {
         return;
-    }
-    
-    const quantity = parseInt(quantityInput.value);
-    const stockLimit = parseInt(quantityInput.getAttribute('max')) || 99999;
-    
-    // Validate quantity against stock limit
-    if (quantity > stockLimit) {
-        showNotification('Requested quantity exceeds available stock!', 'error');
-        return;
-    }
-    
-    const addButton = document.querySelector('.add-to-cart-btn');
-    
-    if (addButton) {
-        addButton.disabled = true;
-        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
     }
 
-    fetch('/add-to-cart/', {
+    button.classList.add('clicked');
+    
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+        },
+        body: JSON.stringify({
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Product not found');
+            } else if (response.status === 403) {
+                throw new Error('Please login to continue');
+            }
+            throw new Error('Failed to add item to cart');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update cart count in header
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge && data.cart_count !== undefined) {
+                cartBadge.textContent = data.cart_count;
+            }
+            
+            showNotification('Added to cart successfully!', 'success');
+        } else {
+            throw new Error(data.message || 'Failed to add item to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Failed to add item to cart', 'error');
+        button.classList.remove('clicked');
+    })
+    .finally(() => {
+        setTimeout(() => {
+            button.classList.remove('clicked');
+        }, 2000);
+    });
+}
+
+/**
+ * Handle Buy Now button click
+ * @param {string} productId - Product ID
+ */
+function handleBuyNow(productId) {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const button = document.querySelector('.buy-now-btn');
+    
+    if (button.disabled || button.classList.contains('clicked')) {
+        return;
+    }
+
+    button.classList.add('clicked');
+    
+    fetch('/create-checkout-session/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -157,59 +220,35 @@ function addToCart(productId) {
         },
         body: JSON.stringify({
             product_id: productId,
-            quantity: quantity
+            quantity: quantity,
+            buy_now: true
         })
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            return response.json().then(data => {
+                throw new Error(data.message || 'Failed to process buy now request');
+            });
         }
         return response.json();
     })
     .then(data => {
         if (data.success) {
-            // Update cart count
-            const cartBadge = document.querySelector('.cart-icon .badge');
-            if (cartBadge) {
-                cartBadge.textContent = data.cart_count;
-            }
-            
-            // Show success message
-            const successMessage = document.getElementById('successMessage');
-            if (successMessage) {
-                successMessage.style.display = 'flex';
-                setTimeout(() => {
-                    successMessage.style.display = 'none';
-                }, 3000);
-            } else {
-                showNotification('Added to cart successfully!', 'success');
-            }
+            // Redirect to checkout page using the provided URL
+            window.location.href = data.redirect_url;
         } else {
-            throw new Error(data.error || 'Failed to add to cart');
+            throw new Error(data.message || 'Failed to process buy now request');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        
-        // Show error message
-        const errorMessage = document.getElementById('errorMessage');
-        const errorText = document.getElementById('errorText');
-        
-        if (errorMessage && errorText) {
-            errorText.textContent = error.message;
-            errorMessage.style.display = 'flex';
-            setTimeout(() => {
-                errorMessage.style.display = 'none';
-            }, 3000);
-        } else {
-            showNotification(error.message, 'error');
-        }
+        showNotification(error.message, 'error');
+        button.classList.remove('clicked');
     })
     .finally(() => {
-        if (addButton) {
-            addButton.disabled = false;
-            addButton.innerHTML = '<i class="fas fa-shopping-cart"></i> Add to Cart';
-        }
+        setTimeout(() => {
+            button.classList.remove('clicked');
+        }, 2000);
     });
 }
 
@@ -239,49 +278,30 @@ function getCookie(name) {
  * @param {string} type - Type of notification (success or error)
  */
 function showNotification(message, type) {
-    const notificationContainer = document.getElementById('notification-container');
+    // Clear any existing notifications first
+    const existingSuccess = document.getElementById('successMessage');
+    const existingError = document.getElementById('errorMessage');
     
-    if (notificationContainer) {
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        
-        // Simple success message with icon
-        let icon = type === 'success' ? '✓' : '!';
-        let displayMessage = type === 'success' ? '✓ Added to cart' : message;
-        
-        notification.innerHTML = `
-            <div class="notification-content">
-                <span class="notification-text">${displayMessage}</span>
-                <button class="close-notification">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            ${type === 'success' ? '<div class="notification-progress"></div>' : ''}
-        `;
-        
-        // Add close button functionality
-        const closeBtn = notification.querySelector('.close-notification');
-        if (closeBtn) {
-            closeBtn.addEventListener('click', () => {
-                notification.classList.add('fade-out');
-                setTimeout(() => notification.remove(), 300);
-            });
-        }
-        
-        notificationContainer.appendChild(notification);
-        
-        // Show notification with animation
-        requestAnimationFrame(() => {
-            notification.classList.add('show');
-            
-            // Auto-hide after 2 seconds (even shorter)
+    if (existingSuccess) existingSuccess.style.display = 'none';
+    if (existingError) existingError.style.display = 'none';
+    
+    if (type === 'success') {
+        const successMessage = document.getElementById('successMessage');
+        if (successMessage) {
+            successMessage.style.display = 'flex';
             setTimeout(() => {
-                notification.classList.add('fade-out');
-                setTimeout(() => notification.remove(), 300);
-            }, 2000);
-        });
+                successMessage.style.display = 'none';
+            }, 3000);
+        }
     } else {
-        // Fallback if notification container doesn't exist
-        alert(message);
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
+        if (errorMessage && errorText) {
+            errorText.textContent = message;
+            errorMessage.style.display = 'flex';
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 3000);
+        }
     }
 }

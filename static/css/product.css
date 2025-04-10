@@ -398,7 +398,7 @@ body {
 
 .category-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
     border-color: #78ade5;
 }
 
@@ -583,6 +583,7 @@ body {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     z-index: 2;
+    color: #78ade5;
 }
 
 .control-btn:hover {
@@ -592,7 +593,6 @@ body {
 }
 
 .control-btn i {
-    color: #1a365d;
     font-size: 1rem;
 }
 
@@ -801,6 +801,23 @@ body {
     padding: 0 15px;
 }
 
+/* Override cart-button dimensions for product page */
+.product-actions .cart-button {
+    width: 160px;  /* Smaller width for product cards */
+    height: 45px;  /* Smaller height for product cards */
+    font-size: 0.9em;  /* Slightly smaller font */
+}
+
+.product-actions .cart-button .fa-cart-shopping,
+.product-actions .cart-button .fa-box {
+    font-size: 1.5em;  /* Slightly smaller icons */
+}
+
+/* Remove all old cart button styling */
+.cart-btn, .add-to-cart {
+    /* Remove these styles as they're now handled by cart-animation.css */
+}
+
 /* Cart Button Styles */
 .cart-button {
     display: inline-flex;
@@ -982,32 +999,41 @@ body {
 }
 
 /* Success Message */
-.success-message {
+.notification {
     position: fixed;
-    bottom: 20px; /* Change to top: 20px; for top right position */
+    top: 20px;
     right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
     background: #4CAF50;
     color: white;
-    padding: 1rem 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-    display: flex;
+    font-weight: 500;
+    display: none;
     align-items: center;
-    gap: 1rem;
-    transform: translateX(150%);
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
     opacity: 0;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
+    transform: translateX(120%);
+    transition: all 0.3s ease;
 }
 
-.success-message.show {
-    transform: translateX(0);
+.notification.show {
+    display: flex;
     opacity: 1;
+    transform: translateX(0);
 }
 
-.success-message i {
+.notification i {
     font-size: 1.2rem;
     color: white;
+}
+
+.notification span {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
 }
 
 /* Scroll Top Button */
@@ -1427,52 +1453,79 @@ footer .social-links a:hover {
 }
 
 /* Notification Styles */
-.notification {
+#notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.success-message,
+.error-message {
     position: fixed;
     top: 20px;
     right: 20px;
     padding: 15px 25px;
-    background: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    transform: translateX(120%);
-    transition: transform 0.3s ease;
-    z-index: 1000;
-}
-
-.notification.show {
-    transform: translateX(0);
-}
-
-.notification.success {
-    border-left: 4px solid #00fffc;
-}
-
-.notification.error {
-    border-left: 4px solid #ff4444;
-}
-
-.notification-content {
-    display: flex;
+    display: none;
     align-items: center;
-    gap: 10px;
-}
-
-.notification i {
-    font-size: 20px;
-}
-
-.notification.success i {
-    color: #00fffc;
-}
-
-.notification.error i {
-    color: #ff4444;
-}
-
-.notification span {
-    color: #333;
+    gap: 12px;
+    font-size: 14px;
     font-weight: 500;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    animation: slideIn 0.3s ease-out forwards;
+}
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+    border-left: 4px solid #388E3C;
+}
+
+.error-message {
+    background-color: #f44336;
+    color: white;
+    border-left: 4px solid #d32f2f;
+}
+
+.success-message i,
+.error-message i {
+    font-size: 18px;
+}
+
+.success-message::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: rgba(0, 0, 0, 0.2);
+    animation: countdown 3s linear forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes countdown {
+    from {
+        width: 100%;
+    }
+    to {
+        width: 0%;
+    }
 }
 
 /* Success Message */
@@ -1499,4 +1552,75 @@ footer .social-links a:hover {
 @keyframes fadeInOut {
     0% { opacity: 0; transform: translate(-50%, -60%); }
     100% { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Success and Error Messages */
+.success-message,
+.error-message {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    display: none;
+    align-items: center;
+    gap: 8px;
+    z-index: 9999;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateX(100%);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.success-message {
+    background-color: #4CAF50;
+    color: white;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);
+}
+
+.error-message {
+    background-color: #f44336;
+    color: white;
+    box-shadow: 0 2px 8px rgba(244, 67, 54, 0.3);
+}
+
+.success-message i,
+.error-message i {
+    font-size: 16px;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+
+.message-hide {
+    animation: slideOut 0.3s ease-in forwards;
+}
+
+.cart-icon.cart-animation {
+    animation: cartBounce 0.5s ease-in-out;
+}
+
+@keyframes cartBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
 }

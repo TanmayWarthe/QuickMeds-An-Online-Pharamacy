@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum
-from .models import UserProfile, Address, Product, CartItem, Cart, Category
+from .models import UserProfile, Address, Product, CartItem, Cart, Category, CheckoutSession
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
@@ -599,25 +599,54 @@ def showEmptyCartMessage():
 
 @login_required
 def checkout_view(request):
-    try:
-        cart = Cart.objects.get(user=request.user)
-        cart_items = cart.cartitem_set.select_related('product').all()
-        
-        if not cart_items:
-            messages.warning(request, 'Your cart is empty. Please add items to your cart before proceeding to checkout.')
+    session_id = request.GET.get('session_id')
+    
+    if session_id:
+        # Handle Buy Now checkout
+        try:
+            checkout_session = CheckoutSession.objects.get(
+                session_id=session_id,
+                is_completed=False
+            )
+            
+            if not checkout_session.is_valid():
+                messages.error(request, 'Checkout session has expired')
+                return redirect('cart')
+                
+            context = {
+                'checkout_session': checkout_session,
+                'product': checkout_session.product,
+                'quantity': checkout_session.quantity,
+                'total': checkout_session.product.price * checkout_session.quantity,
+                'is_buy_now': True,
+                'cart_count': get_cart_count(request)
+            }
+            return render(request, 'checkout.html', context)
+            
+        except CheckoutSession.DoesNotExist:
+            messages.error(request, 'Invalid checkout session')
             return redirect('cart')
-        
-    except Cart.DoesNotExist:
-        messages.warning(request, 'Your cart is empty. Please add items to your cart before proceeding to checkout.')
-        return redirect('cart')
-    
-    context = {
-        'cart_items': cart_items,
-        'cart': cart,
-        'cart_count': get_cart_count(request)
-    }
-    
-    return render(request, 'checkout.html', context)
+    else:
+        # Handle regular cart checkout
+        try:
+            cart = Cart.objects.get(user=request.user)
+            cart_items = cart.cartitem_set.select_related('product').all()
+            
+            if not cart_items:
+                messages.warning(request, 'Your cart is empty')
+                return redirect('cart')
+            
+            context = {
+                'cart_items': cart_items,
+                'cart': cart,
+                'is_buy_now': False,
+                'cart_count': get_cart_count(request)
+            }
+            return render(request, 'checkout.html', context)
+            
+        except Cart.DoesNotExist:
+            messages.warning(request, 'Your cart is empty')
+            return redirect('cart')
 
 @login_required
 @require_http_methods(["GET", "POST", "PUT", "DELETE"])
@@ -750,3 +779,79 @@ def manage_address(request, address_id=None):
         'success': False,
         'message': 'Invalid request'
     }, status=400)
+
+@login_required
+@require_POST
+@csrf_exempt
+def create_checkout_session(request):
+    try:
+        data = json.loads(request.body)
+        product_id = data.get('product_id')
+        quantity = data.get('quantity', 1)
+        buy_now = data.get('buy_now', False)
+
+        if not product_id:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Product ID is required'
+            }, status=400)
+
+        try:
+            product = Product.objects.get(id=product_id)
+        except Product.DoesNotExist:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Product not found'
+            }, status=404)
+
+        if not product.in_stock:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Product is out of stock'
+            }, status=400)
+
+        if quantity < 1:
+            return JsonResponse({
+                'success': False, 
+                'message': 'Quantity must be at least 1'
+            }, status=400)
+
+        # Check if product has stock field and validate quantity
+        if hasattr(product, 'stock'):
+            if quantity > product.stock:
+                return JsonResponse({
+                    'success': False, 
+                    'message': f'Only {product.stock} items available in stock'
+                }, status=400)
+        else:
+            # If stock field doesn't exist, just check if product is in stock
+            if not product.in_stock:
+                return JsonResponse({
+                    'success': False, 
+                    'message': 'Product is out of stock'
+                }, status=400)
+
+        # Create a new checkout session
+        checkout_session = CheckoutSession.objects.create(
+            user=request.user,
+            product=product,
+            quantity=quantity
+        )
+
+        return JsonResponse({
+            'success': True,
+            'session_id': checkout_session.session_id,
+            'message': 'Checkout session created successfully',
+            'redirect_url': f'/checkout/?session_id={checkout_session.session_id}'
+        })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False, 
+            'message': 'Invalid request data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False, 
+            'message': f'An error occurred: {str(e)}'
+        }, status=500)

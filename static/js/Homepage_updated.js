@@ -166,7 +166,10 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => {
                 if (!response.ok) {
                     if (response.status === 403) {
-                        window.location.href = '/login/';  // Redirect to login if not authenticated
+                        showNotification('<i class="fas fa-exclamation-circle"></i> Please login or sign up to add items to cart', 'warning');
+                        setTimeout(() => {
+                            window.location.href = '/login/';
+                        }, 2000);
                         return;
                     }
                     throw new Error('Network response was not ok');

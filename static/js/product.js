@@ -304,24 +304,24 @@ function cartClick(event, productId) {
     event.stopPropagation();
     
     const button = event.currentTarget;
+    
     if (button.disabled || button.classList.contains('clicked')) {
         return;
     }
 
     button.classList.add('clicked');
     
-    // Make the AJAX call to add to cart with proper URL
     fetch(`/add-to-cart/${productId}/`, {
         method: 'GET',
         headers: {
             'Accept': 'application/json'
         },
-        credentials: 'same-origin'  // This will send cookies including sessionid
+        credentials: 'same-origin'
     })
     .then(response => {
         if (!response.ok) {
             if (response.status === 403) {
-                window.location.href = '/login/';  // Redirect to login if not authenticated
+                window.location.href = '/login/';
                 return;
             }
             throw new Error('Network response was not ok');
@@ -337,9 +337,9 @@ function cartClick(event, productId) {
             }
             
             // Show success message
-            showNotification('Item added to cart successfully', 'success');
-
-            // Reset button after animation
+            showNotification('Added to cart successfully!', 'success');
+            
+            // Reset button after animation completes
             setTimeout(() => {
                 button.classList.remove('clicked');
             }, 2000);
@@ -354,57 +354,87 @@ function cartClick(event, productId) {
     });
 }
 
-function showNotification(message, type = 'success') {
-    const notificationContainer = document.getElementById('notification-container');
-    
-    if (!notificationContainer) {
-        const container = document.createElement('div');
-        container.id = 'notification-container';
-        document.body.appendChild(container);
-    }
-    
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
-    // Modern success message with icon and animation
-    const successIcon = type === 'success' ? 
-        '<i class="fas fa-check-circle success-icon"></i>' : 
-        '<i class="fas fa-exclamation-circle"></i>';
-    
-    let displayMessage = type === 'success' ? 'Added to Cart' : message;
-    
-    notification.innerHTML = `
-        <div class="notification-content">
-            ${successIcon}
-            <span class="notification-text">${displayMessage}</span>
-            <button class="close-notification">
-                <i class="fas fa-times"></i>
-            </button>
-        </div>
-        ${type === 'success' ? '<div class="notification-progress"></div>' : ''}
-    `;
-    
-    // Add close button functionality
-    const closeBtn = notification.querySelector('.close-notification');
-    if (closeBtn) {
-        closeBtn.addEventListener('click', () => {
-            notification.classList.add('fade-out');
-            setTimeout(() => notification.remove(), 300);
+function addToCart(productId, quantity = 1) {
+    return new Promise((resolve, reject) => {
+        fetch(`/add-to-cart/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                quantity: quantity
+            })
+        })
+        .then(response => {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+                return response.json().then(data => ({ status: response.status, data }));
+            } else {
+                throw new Error('Server returned invalid response format');
+            }
+        })
+        .then(({ status, data }) => {
+            if (status === 200 && data.success) {
+                // Update cart count
+                const cartBadge = document.querySelector('.cart-icon .badge');
+                if (cartBadge && data.cart_count !== undefined) {
+                    cartBadge.textContent = data.cart_count;
+                }
+                
+                // Show success message
+                showNotification('Added to cart successfully!', 'success');
+                
+                // Trigger cart animation
+                const cartIcon = document.querySelector('.cart-icon');
+                if (cartIcon) {
+                    cartIcon.classList.add('cart-animation');
+                    setTimeout(() => {
+                        cartIcon.classList.remove('cart-animation');
+                    }, 1000);
+                }
+                
+                resolve(data);
+            } else {
+                // Handle error cases
+                let errorMessage = 'Failed to add to cart';
+                if (status === 404) {
+                    errorMessage = 'Product not found';
+                } else if (status === 400) {
+                    errorMessage = data.error || 'Invalid request';
+                } else if (!data.success) {
+                    errorMessage = data.error || 'Failed to add to cart';
+                }
+                throw new Error(errorMessage);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(error.message || 'An unexpected error occurred', 'error');
+            reject(error);
         });
-    }
+    });
+}
+
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
     
-    document.getElementById('notification-container').appendChild(notification);
-    
-    // Show notification with animation
-    requestAnimationFrame(() => {
+    if (notification && messageSpan) {
+        notification.style.display = 'flex';
+        notification.className = 'notification ' + type;
+        messageSpan.textContent = message;
+        
         notification.classList.add('show');
         
-        // Auto-hide after 2 seconds
         setTimeout(() => {
-            notification.classList.add('fade-out');
-            setTimeout(() => notification.remove(), 300);
-        }, 2000);
-    });
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 300);
+        }, 3000);
+    }
 }
 
 function navigateToProduct(productId, event) {
@@ -475,4 +505,75 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+function addToCart(productId, quantity = 1) {
+    const addButton = document.querySelector(`button[data-product-id="${productId}"]`);
+    
+    if (addButton) {
+        addButton.disabled = true;
+        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    }
+
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            quantity: quantity
+        })
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json().then(data => ({ status: response.status, data }));
+        } else {
+            throw new Error('Server returned invalid response format');
+        }
+    })
+    .then(({ status, data }) => {
+        if (status === 200 && data.success) {
+            // Update cart count
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge && data.cart_count !== undefined) {
+                cartBadge.textContent = data.cart_count;
+            }
+            
+            // Show success message
+            showNotification('Added to cart successfully!', 'success');
+            
+            // Trigger cart animation if available
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('cart-animation');
+                setTimeout(() => {
+                    cartIcon.classList.remove('cart-animation');
+                }, 1000);
+            }
+        } else {
+            // Handle error cases
+            let errorMessage = 'Failed to add to cart';
+            if (status === 404) {
+                errorMessage = 'Product not found';
+            } else if (status === 400) {
+                errorMessage = data.error || 'Invalid request';
+            } else if (!data.success) {
+                errorMessage = data.error || 'Failed to add to cart';
+            }
+            throw new Error(errorMessage);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'An unexpected error occurred', 'error');
+    })
+    .finally(() => {
+        if (addButton) {
+            addButton.disabled = false;
+            addButton.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+        }
+    });
 }

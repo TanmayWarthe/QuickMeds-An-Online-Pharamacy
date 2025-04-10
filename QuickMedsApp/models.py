@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.db.models.signals import post_save
+import uuid
+from datetime import timedelta
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -92,6 +94,7 @@ class Product(models.Model):
     
     # Stock and Status
     in_stock = models.BooleanField(default=True)
+    stock = models.PositiveIntegerField(default=0)
     expiry_date = models.DateField(null=True, blank=True)
     
     # Images
@@ -166,3 +169,25 @@ class CartItem(models.Model):
 
     def get_total(self):
         return self.quantity * self.product.price
+
+class CheckoutSession(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_completed = models.BooleanField(default=False)
+    session_id = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return f"Checkout Session for {self.product.name}"
+
+    def save(self, *args, **kwargs):
+        if not self.session_id:
+            self.session_id = str(uuid.uuid4())
+        if not self.expires_at:
+            self.expires_at = timezone.now() + timedelta(hours=24)
+        super().save(*args, **kwargs)
+
+    def is_valid(self):
+        return not self.is_completed and timezone.now() < self.expires_at

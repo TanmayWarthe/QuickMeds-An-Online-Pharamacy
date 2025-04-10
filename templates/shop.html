@@ -7,6 +7,7 @@
 {% block extra_css %}
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/shop.css' %}">
+<link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -44,9 +45,9 @@
 
                     <!-- Price Section -->
                     <div class="price-section">
-                        <div class="price-container">
+                        <div class="price-container {% if product.discount_percentage > 0 %}has-discount{% endif %}">
                             <span class="current-price">₹{{ product.price|intcomma }}</span>
-                            {% if product.original_price %}
+                            {% if product.original_price and product.original_price > product.price %}
                             <span class="original-price">₹{{ product.original_price|intcomma }}</span>
                             <span class="discount">{{ product.discount_percentage }}% OFF</span>
                             {% endif %}
@@ -58,7 +59,7 @@
                         <div class="quantity-controls">
                             <label for="quantity">Quantity:</label>
                             <div class="quantity-wrapper">
-                                <button type="button" class="quantity-btn minus" aria-label="Decrease quantity">
+                                <button type="button" class="quantity-btn minus" onclick="handleQuantityClick(event, '{{ product.id }}', 'decrease')">
                                     <i class="fas fa-minus"></i>
                                 </button>
                                 <input type="number" 
@@ -67,8 +68,11 @@
                                        value="1" 
                                        min="1" 
                                        max="{{ product.stock }}"
+                                       data-product-id="{{ product.id }}"
+                                       onchange="handleQuantityChange(event, this)"
+                                       onclick="handleInputClick(event)"
                                        aria-label="Product quantity">
-                                <button type="button" class="quantity-btn plus" aria-label="Increase quantity">
+                                <button type="button" class="quantity-btn plus" onclick="handleQuantityClick(event, '{{ product.id }}', 'increase')">
                                     <i class="fas fa-plus"></i>
                                 </button>
                             </div>
@@ -77,17 +81,21 @@
                         <div class="quantity-error" id="quantityError"></div>
 
                         <div class="action-buttons {% if not product.in_stock %}out-of-stock{% endif %}">
-                            <button type="button" 
-                                    onclick="addToCart('{{ product.id }}')" 
-                                    class="add-to-cart-btn" 
-                                    {% if not product.in_stock %}disabled="disabled"{% endif %}>
-                                <i class="fas fa-shopping-cart"></i>
-                                {% if product.in_stock %}Add to Cart{% else %}Out of Stock{% endif %}
+                            <button class="cart-button" 
+                                    onclick="handleCartClick(event, '{{ product.id }}')"
+                                    {% if not product.in_stock %}disabled{% endif %}>
+                                <i class="fas fa-cart-shopping"></i>
+                                <span class="add-to-cart">Add to Cart</span>
+                                <span class="added">
+                                    <i class="fas fa-check"></i> Done
+                                </span>
                             </button>
                             <button type="button" 
                                     class="buy-now-btn" 
                                     data-product-id="{{ product.id }}"
-                                    {% if not product.in_stock %}disabled="disabled"{% endif %}>
+                                    onclick="handleBuyNow('{{ product.id }}')"
+                                    {% if not product.in_stock %}disabled{% endif %}
+                                    title="Buy this item directly without adding to cart">
                                 <i class="fas fa-bolt"></i>
                                 Buy Now
                             </button>
