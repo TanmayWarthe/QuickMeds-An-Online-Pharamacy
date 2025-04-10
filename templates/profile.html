@@ -726,23 +726,27 @@
                             <span class="order-id">Order #{{ order.id }}</span>
                             <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
                         </div>
-                        <div class="order-status {{ order.status|lower }}">{{ order.status }}</div>
+                        <div class="order-status {{ order.order_status|lower }}">{{ order.get_order_status_display }}</div>
                     </div>
                     <div class="order-items">
                         {% for item in order.items.all %}
                         <div class="order-item">
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                            {% endif %}
                             <div class="item-details">
                                 <h4>{{ item.product.name }}</h4>
                                 <p>Quantity: {{ item.quantity }}</p>
-                                <p>₹{{ item.price }}</p>
+                                <p>₹{{ item.price|intcomma }}</p>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     <div class="order-footer">
-                        <div class="order-total">Total: ₹{{ order.total }}</div>
-                        <a href="{% url 'order_detail' order.id %}" class="btn-view-order">View Details</a>
+                        <div class="order-total">Total: ₹{{ order.total_amount|intcomma }}</div>
+                        <a href="{% url 'order_confirmation' order.id %}" class="btn-view-order">View Details</a>
                     </div>
                 </div>
                 {% endfor %}

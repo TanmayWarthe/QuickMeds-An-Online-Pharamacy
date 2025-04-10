@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Order Confirmation - QuickMeds{% endblock %}
+
+{% block content %}
+<div class="order-confirmation-container">
+    <div class="confirmation-card">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2>Order Confirmed!</h2>
+        <p>Thank you for your order. Your order number is: <strong>#{{ order.id }}</strong></p>
+        
+        <div class="order-details">
+            <h3>Order Details</h3>
+            <div class="detail-row">
+                <span>Order Date:</span>
+                <span>{{ order.created_at|date:"F j, Y" }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Payment Method:</span>
+                <span>{{ order.get_payment_method_display }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Payment Status:</span>
+                <span>{{ order.get_payment_status_display }}</span>
+            </div>
+            <div class="detail-row">
+                <span>Delivery Address:</span>
+                <span>{{ order.address }}</span>
+            </div>
+        </div>
+        
+        <div class="order-items">
+            <h3>Order Items</h3>
+            {% for item in order.items.all %}
+            <div class="order-item">
+                <div class="item-image">
+                    {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                    {% else %}
+                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                    {% endif %}
+                </div>
+                <div class="item-details">
+                    <h4>{{ item.product.name }}</h4>
+                    <p>Quantity: {{ item.quantity }}</p>
+                    <p>Price: ₹{{ item.price|intcomma }}</p>
+                    <p>Total: ₹{{ item.get_total|intcomma }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="order-summary">
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span>₹{{ order.get_subtotal|intcomma }}</span>
+            </div>
+            <div class="summary-row">
+                <span>Delivery Fee:</span>
+                <span>₹50</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total Amount:</span>
+                <span>₹{{ order.total_amount|intcomma }}</span>
+            </div>
+        </div>
+        
+        <div class="action-buttons">
+            <a href="{% url 'home' %}" class="btn btn-primary">Continue Shopping</a>
+            <a href="{% url 'profile' %}" class="btn btn-secondary">View Profile</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.order-confirmation-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.confirmation-card {
+    background: white;
+    border-radius: 10px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.success-icon {
+    color: #28a745;
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.success-icon i {
+    font-size: 4rem;
+}
+
+.order-details, .order-items, .order-summary {
+    margin: 2rem 0;
+    text-align: left;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.order-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.item-image {
+    width: 80px;
+    height: 80px;
+    margin-right: 1rem;
+}
+
+.item-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 5px;
+}
+
+.item-details {
+    flex: 1;
+}
+
+.item-details h4 {
+    margin: 0 0 0.5rem 0;
+    color: #333;
+}
+
+.item-details p {
+    margin: 0.2rem 0;
+    color: #666;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 0.5rem 0;
+    padding: 0.5rem 0;
+}
+
+.summary-row.total {
+    font-weight: bold;
+    font-size: 1.2rem;
+    border-top: 2px solid #eee;
+    margin-top: 1rem;
+    padding-top: 1rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+}
+
+.btn {
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background: #007bff;
+    color: white;
+}
+
+.btn-secondary {
+    background: #6c757d;
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    opacity: 0.9;
+    color: white;
+    text-decoration: none;
+}
+</style>
+{% endblock %} 

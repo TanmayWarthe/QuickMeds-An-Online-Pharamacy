@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum
-from .models import UserProfile, Address, Product, CartItem, Cart, Category
+from .models import UserProfile, Address, Product, CartItem, Cart, Category, Order
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 import json
@@ -13,6 +13,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib.auth.hashers import check_password
 from django.core.files.storage import default_storage
+from utils.otp import generate_otp, send_otp_email, store_otp, verify_otp
+from django.conf import settings
+from .payment import create_payment_order, payment_callback, place_order
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -72,14 +75,7 @@ def base(request):
     return render(request, 'base.html')
 
 def home(request):
-    # Get 12 random products that are in stock
-    random_products = Product.objects.filter(in_stock=True).order_by('?')[:12]
-    
-    context = {
-        'random_products': random_products,
-        'cart_count': get_cart_count(request)
-    }
-    return render(request, 'home.html', context)
+    return render(request, 'home.html')
 
 def about_view(request):
     context = {
@@ -121,9 +117,10 @@ def product_detail_view(request, product_id):
 
 def login_view(request):
     if request.method == 'POST':
-        action = request.POST.get('action')
-        email = request.POST.get('email', '').strip()
-        password = request.POST.get('password', '')
+        data = json.loads(request.body) if request.content_type == 'application/json' else request.POST
+        action = data.get('action')
+        email = data.get('email', '').strip()
+        password = data.get('password', '')
 
         if action == 'register':
             try:
@@ -132,41 +129,103 @@ def login_view(request):
                 
                 # Check if email exists
                 if User.objects.filter(email=email).exists():
-                    messages.error(request, 'Email already registered')
-                    return redirect('login')
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Email already registered'
+                    })
                 
                 # Get and validate name
-                name = request.POST.get('name', '').strip()
+                name = data.get('name', '').strip()
                 if not name:
-                    messages.error(request, 'Name is required')
-                    return redirect('login')
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Name is required'
+                    })
                 
                 # Validate password
                 if len(password) < 8:
-                    messages.error(request, 'Password must be at least 8 characters long')
-                    return redirect('login')
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Password must be at least 8 characters long'
+                    })
                 
-                # Create user
-                user = User.objects.create_user(
-                    username=email,
-                    email=email,
-                    password=password,
-                    first_name=name
-                )
+                # Store registration data in session for later use after OTP verification
+                request.session['registration_data'] = {
+                    'name': name,
+                    'email': email,
+                    'password': password
+                }
                 
-                # Create user profile
-                UserProfile.objects.create(user=user)
-                
-                # Log user in
-                login(request, user)
-                messages.success(request, f'Welcome {name}! Your account has been created successfully.')
-                return redirect('home')
-                
+                # Generate and send OTP
+                otp = generate_otp()
+                if store_otp(email, otp) and send_otp_email(email, otp):
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'OTP sent successfully'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Failed to send OTP'
+                    })
+                    
             except ValidationError:
-                messages.error(request, 'Please enter a valid email address')
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please enter a valid email address'
+                })
             except Exception as e:
-                messages.error(request, 'Registration failed. Please try again.')
-            
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Registration failed: {str(e)}'
+                })
+                
+        elif action == 'verify_otp':
+            try:
+                otp = data.get('otp')
+                email = data.get('email')
+                
+                if verify_otp(email, otp):
+                    # Get registration data from session
+                    registration_data = request.session.get('registration_data')
+                    
+                    if not registration_data:
+                        return JsonResponse({
+                            'success': False,
+                            'message': 'Registration data not found'
+                        })
+                    
+                    # Create user
+                    user = User.objects.create_user(
+                        username=registration_data['email'],
+                        email=registration_data['email'],
+                        password=registration_data['password'],
+                        first_name=registration_data['name']
+                    )
+                    
+                    # Log user in
+                    login(request, user)
+                    
+                    # Clear session data
+                    del request.session['registration_data']
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Registration successful',
+                        'redirect_url': '/'  # Redirect to home page
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Invalid OTP'
+                    })
+                    
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Verification failed: {str(e)}'
+                })
+                
         elif action == 'login':
             try:
                 user = User.objects.get(email=email)
@@ -174,24 +233,67 @@ def login_view(request):
                 
                 if user is not None:
                     login(request, user)
-                    messages.success(request, f'Welcome back {user.first_name}!')
-                    return redirect('home')
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Welcome back {user.first_name}!',
+                        'redirect_url': '/'
+                    })
                 else:
-                    messages.error(request, 'Invalid password')
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Invalid password'
+                    })
                     
             except User.DoesNotExist:
-                messages.error(request, 'No account found with this email')
+                return JsonResponse({
+                    'success': False,
+                    'message': 'No account found with this email'
+                })
             except Exception as e:
-                messages.error(request, 'Login failed. Please try again.')
-        
-        return redirect('login')
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Login failed: {str(e)}'
+                })
     
     return render(request, 'login.html')
 
 def logout_view(request):
+    # Get response object first
+    response = redirect('home')
+    
+    # Clear all session data
+    request.session.flush()
+    
+    # Perform Django logout
     logout(request)
+    
+    # Clear any messages
+    storage = messages.get_messages(request)
+    for _ in storage:
+        pass  # Iterate through and clear all messages
+    
+    # Add logout success message
     messages.success(request, 'Logged out successfully!')
-    return redirect('home')
+    
+    # Clear all possible auth-related cookies
+    response.delete_cookie('sessionid')
+    response.delete_cookie('csrftoken')
+    response.delete_cookie('messages')
+    response.delete_cookie('django_language')
+    response.delete_cookie('timezone')
+    
+    # Set cache control headers to prevent caching
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate, private'
+    response['Pragma'] = 'no-cache'
+    response['Expires'] = '0'
+    response['X-Frame-Options'] = 'DENY'
+    response['X-Content-Type-Options'] = 'nosniff'
+    
+    # Clear any remaining session data
+    for key in request.session.keys():
+        del request.session[key]
+    
+    return response
 
 @login_required
 def profile_view(request):
@@ -597,24 +699,18 @@ def showEmptyCartMessage():
 
 @login_required
 def checkout_view(request):
-    try:
-        cart = Cart.objects.get(user=request.user)
-        cart_items = cart.cartitem_set.select_related('product').all()
+    if not request.user.is_authenticated:
+        return redirect('login')
         
-        if not cart_items:
-            messages.warning(request, 'Your cart is empty. Please add items to your cart before proceeding to checkout.')
-            return redirect('cart')
-        
-    except Cart.DoesNotExist:
-        messages.warning(request, 'Your cart is empty. Please add items to your cart before proceeding to checkout.')
+    cart = Cart.objects.get_or_create(user=request.user)[0]
+    if not cart.cartitem_set.exists():
+        messages.warning(request, 'Your cart is empty')
         return redirect('cart')
-    
+        
     context = {
-        'cart_items': cart_items,
         'cart': cart,
-        'cart_count': get_cart_count(request)
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID,
     }
-    
     return render(request, 'checkout.html', context)
 
 @login_required
@@ -748,3 +844,92 @@ def manage_address(request, address_id=None):
         'success': False,
         'message': 'Invalid request'
     }, status=400)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def send_otp(request):
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        
+        if not email:
+            return JsonResponse({
+                'success': False,
+                'message': 'Email is required'
+            }, status=400)
+        
+        # Generate OTP
+        otp = generate_otp()
+        
+        # Store OTP
+        if not store_otp(email, otp):
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to store OTP'
+            }, status=500)
+        
+        # Send OTP via email
+        if send_otp_email(email, otp):
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP sent successfully'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Failed to send OTP'
+            }, status=500)
+            
+    except Exception as e:
+        print(f"Error in send_otp view: {str(e)}")  # Debug print
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+@csrf_exempt
+@require_http_methods(["POST"])
+def verify_otp_view(request):
+    try:
+        data = json.loads(request.body)
+        email = data.get('email')
+        otp = data.get('otp')
+        
+        if not email or not otp:
+            return JsonResponse({
+                'success': False,
+                'message': 'Email and OTP are required'
+            }, status=400)
+        
+        # Verify OTP
+        if verify_otp(email, otp):
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP verified successfully'
+            })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid or expired OTP'
+            }, status=400)
+            
+    except Exception as e:
+        print(f"Error in verify_otp view: {str(e)}")  # Debug print
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
+
+def order_confirmation_view(request, order_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+        
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        context = {
+            'order': order
+        }
+        return render(request, 'order_confirmation.html', context)
+    except Order.DoesNotExist:
+        messages.error(request, 'Order not found.')
+        return redirect('home')

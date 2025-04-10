@@ -197,7 +197,7 @@
         <h1>Checkout</h1>
     </div>
 
-    <form id="checkout-form" method="post" action="{% url 'checkout' %}">
+    <form id="checkoutForm">
         {% csrf_token %}
         <div class="checkout-form">
             <div class="customer-info">
@@ -205,31 +205,31 @@
                     <h2>Shipping Information</h2>
                     <div class="form-group">
                         <label for="full_name">Full Name</label>
-                        <input type="text" id="full_name" name="full_name" class="form-control" required>
+                        <input type="text" id="full_name" name="full_name" class="form-control" value="{{ user.get_full_name }}" required>
                     </div>
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" name="email" class="form-control" required>
+                        <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
                     </div>
                     <div class="form-group">
                         <label for="phone">Phone</label>
-                        <input type="tel" id="phone" name="phone" class="form-control" required>
+                        <input type="tel" id="phone" name="phone" class="form-control" value="{{ user.userprofile.phone }}" required>
                     </div>
                     <div class="form-group">
                         <label for="address">Address</label>
-                        <input type="text" id="address" name="address" class="form-control" required>
+                        <textarea id="address" name="address" class="form-control" required>{{ user.userprofile.address }}</textarea>
                     </div>
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text" id="city" name="city" class="form-control" required>
+                        <input type="text" id="city" name="city" class="form-control" value="{{ user.userprofile.city }}" required>
                     </div>
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text" id="state" name="state" class="form-control" required>
+                        <input type="text" id="state" name="state" class="form-control" value="{{ user.userprofile.state }}" required>
                     </div>
                     <div class="form-group">
                         <label for="pincode">Pincode</label>
-                        <input type="text" id="pincode" name="pincode" class="form-control" required>
+                        <input type="text" id="pincode" name="pincode" class="form-control" value="{{ user.userprofile.pincode }}" required>
                     </div>
                 </div>
             </div>
@@ -238,58 +238,191 @@
                 <div class="form-section">
                     <h2>Order Summary</h2>
                     <div class="order-summary">
-                        {% for item in cart_items %}
+                        {% for item in cart.cartitem_set.all %}
                         <div class="order-item">
                             <div>
                                 <span class="item-name">{{ item.product.name }}</span>
                                 <span class="item-quantity">x{{ item.quantity }}</span>
                             </div>
-                            <span class="item-price">₹{{ item.get_total_price|intcomma }}</span>
+                            <span class="item-price">₹{{ item.get_total|intcomma }}</span>
                         </div>
                         {% endfor %}
                         <div class="order-total">
-                            <span>Total:</span>
+                            <span>Subtotal:</span>
                             <span class="total-amount">₹{{ cart.get_total|intcomma }}</span>
+                        </div>
+                        <div class="order-total">
+                            <span>Delivery Fee:</span>
+                            <span class="total-amount">₹50</span>
+                        </div>
+                        <div class="order-total">
+                            <span>Total:</span>
+                            <span class="total-amount">₹{{ cart.get_total|add:50|intcomma }}</span>
                         </div>
                     </div>
 
                     <div class="payment-methods">
                         <h2>Payment Method</h2>
-                        <div class="payment-method">
-                            <input type="radio" id="cod" name="payment_method" value="cod" checked>
-                            <label for="cod">Cash on Delivery</label>
-                        </div>
-                        <div class="payment-method">
-                            <input type="radio" id="online" name="payment_method" value="online" disabled>
-                            <label for="online">Online Payment (Coming Soon)</label>
+                        <div class="form-group">
+                            <select name="payment_method" id="payment_method" required>
+                                <option value="">Select Payment Method</option>
+                                <option value="cod">Cash on Delivery</option>
+                                <option value="online">Online Payment</option>
+                            </select>
                         </div>
                     </div>
 
-                    <button type="submit" class="place-order-btn">Place Order</button>
+                    <button type="submit" class="place-order-btn">Proceed to Payment</button>
                 </div>
             </div>
         </div>
     </form>
 </div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/product.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const checkoutForm = document.getElementById('checkout-form');
+document.getElementById('checkoutForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
     
-    checkoutForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Here you would normally validate the form and submit it
-        // For now, we'll just show an alert
-        alert('Thank you for your order! This is a demo, so no actual order will be placed.');
-        
-        // Redirect to home page
-        window.location.href = '{% url "home" %}';
-    });
+    const paymentMethod = document.getElementById('payment_method').value;
+    const formData = {
+        full_name: document.getElementById('full_name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+        city: document.getElementById('city').value,
+        state: document.getElementById('state').value,
+        pincode: document.getElementById('pincode').value,
+    };
+    
+    // Validate form data
+    for (let key in formData) {
+        if (!formData[key]) {
+            alert('Please fill in all required fields');
+            return;
+        }
+    }
+    
+    // Format address string
+    const addressStr = `${formData.full_name}\n${formData.phone}\n${formData.address}\n${formData.city}, ${formData.state}\n${formData.pincode}`;
+    
+    if (paymentMethod === 'online') {
+        try {
+            // Create Razorpay order
+            const response = await fetch('/create-payment-order/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: JSON.stringify({ address: addressStr })
+            });
+            
+            const data = await response.json();
+            
+            if (data.success) {
+                // Initialize Razorpay
+                const options = {
+                    key: '{{ razorpay_key_id }}',
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'QuickMeds',
+                    description: 'Medicine Purchase',
+                    order_id: data.order_id,
+                    handler: function(response) {
+                        // Handle payment success
+                        handlePaymentSuccess(response, addressStr);
+                    },
+                    prefill: {
+                        name: formData.full_name,
+                        email: formData.email,
+                        contact: formData.phone
+                    },
+                    theme: {
+                        color: '#3399cc'
+                    }
+                };
+                
+                const rzp = new Razorpay(options);
+                rzp.open();
+                
+                rzp.on('payment.failed', function(response) {
+                    alert('Payment failed. Please try again.');
+                });
+            } else {
+                alert('Failed to create payment order. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
+        }
+    } else {
+        // Handle COD payment
+        handleCODPayment(addressStr);
+    }
 });
-</script>
 
+async function handlePaymentSuccess(response, address) {
+    try {
+        const paymentResponse = await fetch('/payment-callback/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                address: address
+            })
+        });
+        
+        const data = await paymentResponse.json();
+        
+        if (data.success) {
+            alert('Payment successful! Your order has been placed.');
+            window.location.href = '/order-confirmation/' + data.order_id;
+        } else {
+            alert('Payment verification failed. Please contact support.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please contact support.');
+    }
+}
+
+async function handleCODPayment(address) {
+    try {
+        const response = await fetch('/place-order/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            },
+            body: JSON.stringify({
+                payment_method: 'cod',
+                address: address
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            alert('Order placed successfully!');
+            window.location.href = '/order-confirmation/' + data.order_id;
+        } else {
+            alert('Failed to place order. Please try again.');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('An error occurred. Please try again.');
+    }
+}
+</script>
 {% endblock %} 
