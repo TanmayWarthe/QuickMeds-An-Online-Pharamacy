@@ -304,7 +304,6 @@ function cartClick(event, productId) {
     event.stopPropagation();
     
     const button = event.currentTarget;
-    
     if (button.disabled || button.classList.contains('clicked')) {
         return;
     }
