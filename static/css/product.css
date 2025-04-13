@@ -792,6 +792,7 @@ body {
     margin-top: 10px;
 }
 
+/* Cart Button Base Styles */
 .cart-button {
     position: relative;
     padding: 10px;
@@ -808,20 +809,16 @@ body {
     font-weight: 700;
 }
 
+.cart-button:hover {
+    background-color: #00fffc;
+}
+
+/* Remove all hover effects and simplify active state */
 .cart-button:active {
     transform: scale(.9);
 }
 
-.cart-button:disabled {
-    background-color: #cccccc;
-    cursor: not-allowed;
-    transform: none;
-}
-
-.cart-button:disabled:hover {
-    background-color: #cccccc;
-}
-
+/* Icon Positioning */
 .cart-button .fa-cart-shopping {
     position: absolute;
     z-index: 2;
@@ -841,6 +838,7 @@ body {
     color: gold;
 }
 
+/* Text Styles */
 .cart-button span {
     position: absolute;
     z-index: 3;
@@ -859,6 +857,7 @@ body {
     opacity: 0;
 }
 
+/* Animation Classes */
 .cart-button.clicked .fa-cart-shopping {
     animation: truck 2s ease-in-out forwards;
 }
@@ -875,6 +874,7 @@ body {
     animation: txt2 2s ease-in-out forwards;
 }
 
+/* Keyframe Animations */
 @keyframes truck {
     0% { left: -10%; }
     40%, 55% { left: 50%; }

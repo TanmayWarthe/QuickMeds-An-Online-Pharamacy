@@ -297,8 +297,6 @@ function initializeProductSliders() {
 }
 
 // Cart Management
-let cartItems = JSON.parse(localStorage.getItem('cartItems')) || [];
-
 function cartClick(event, productId) {
     event.preventDefault();
     event.stopPropagation();
@@ -307,7 +305,7 @@ function cartClick(event, productId) {
     if (button.disabled || button.classList.contains('clicked')) {
         return;
     }
-
+    
     button.classList.add('clicked');
     
     fetch(`/add-to-cart/${productId}/`, {
@@ -322,7 +320,10 @@ function cartClick(event, productId) {
     .then(response => {
         if (!response.ok) {
             if (response.status === 403) {
-                window.location.href = '/login/';
+                showNotification('Please login to add items to cart', 'error');
+                setTimeout(() => {
+                    window.location.href = '/login/';
+                }, 2000);
                 return;
             }
             throw new Error('Network response was not ok');
@@ -337,23 +338,44 @@ function cartClick(event, productId) {
                 cartBadge.textContent = data.cart_count;
             }
             
-            // Show success message
+            // Show success notification
             showNotification('Added to cart successfully!', 'success');
             
-            // Reset button after animation completes
-            setTimeout(() => {
-                button.classList.remove('clicked');
-            }, 2000);
+            // Animate cart icon
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('bounce');
+                setTimeout(() => {
+                    cartIcon.classList.remove('bounce');
+                }, 1000);
+            }
         } else {
             throw new Error(data.message || 'Failed to add item to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        button.classList.remove('clicked');
         showNotification(error.message || 'Failed to add item to cart', 'error');
+    })
+    .finally(() => {
+        // Reset button animation after delay
+        setTimeout(() => {
+            button.classList.remove('clicked');
+        }, 2000);
     });
 }
+
+// Attach click handlers to cart buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.cart-button').forEach(button => {
+        button.addEventListener('click', function(event) {
+            const productId = this.getAttribute('data-product-id');
+            if (productId) {
+                cartClick(event, productId);
+            }
+        });
+    });
+});
 
 function addToCart(productId, quantity = 1) {
     return new Promise((resolve, reject) => {

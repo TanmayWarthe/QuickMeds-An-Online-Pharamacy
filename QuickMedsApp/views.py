@@ -610,60 +610,48 @@ def delete_account(request):
 @require_http_methods(["GET", "POST"])
 def add_to_cart(request, product_id):
     try:
-        # Handle both GET and POST requests
-        if request.method == 'POST':
-            try:
-                data = json.loads(request.body)
-                quantity = data.get('quantity', 1)
-            except json.JSONDecodeError:
-                quantity = 1
-        else:
-            quantity = 1
+        data = json.loads(request.body) if request.body else {}
+        quantity = int(data.get('quantity', 1))
         
-        # Check if product exists and is in stock
-        product = Product.objects.get(id=product_id)
+        if quantity < 1:
+            return JsonResponse({
+                'success': False,
+                'message': 'Quantity must be at least 1'
+            }, status=400)
+
+        product = get_object_or_404(Product, id=product_id)
         if not product.in_stock:
             return JsonResponse({
                 'success': False,
                 'message': 'Product is out of stock'
             }, status=400)
 
-        # Get or create cart
         cart, _ = Cart.objects.get_or_create(user=request.user)
-        
-        # Get or create cart item
         cart_item, created = CartItem.objects.get_or_create(
             cart=cart,
             product=product,
             defaults={'quantity': quantity}
         )
-        
-        # If item already exists, update quantity
+
         if not created:
             cart_item.quantity += quantity
             cart_item.save()
-        
-        # Get total cart items count
+
         cart_count = CartItem.objects.filter(cart=cart).aggregate(
             total=Sum('quantity')
         )['total'] or 0
-        
+
         return JsonResponse({
             'success': True,
-            'message': 'Product added to cart successfully',
+            'message': 'Added to cart successfully!',
             'cart_count': cart_count
         })
-        
-    except Product.DoesNotExist:
-        return JsonResponse({
-            'success': False,
-            'message': 'Product not found'
-        }, status=404)
+
     except Exception as e:
         return JsonResponse({
             'success': False,
-            'message': f'An error occurred while adding to cart: {str(e)}'
-        }, status=500)
+            'message': str(e)
+        }, status=400)
 
 @login_required
 def cart_view(request):
@@ -1279,3 +1267,50 @@ def product(request):
         'categories': categories,
     }
     return render(request, 'product.html', context)
+
+def purchase_view(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            phone = request.POST.get('phone')
+            delivery = request.POST.get('delivery')
+            notes = request.POST.get('notes')
+            
+            # Here you would typically save to database
+            # For now, just return success response
+            return JsonResponse({
+                'success': True,
+                'message': 'Order submitted successfully!'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+            
+    return render(request, 'purchase.html')
+
+def contact_view(request):
+    if request.method == 'POST':
+        try:
+            name = request.POST.get('name')
+            email = request.POST.get('email')
+            phone = request.POST.get('phone')
+            subject = request.POST.get('subject')
+            message = request.POST.get('message')
+            
+            # Here you would typically:
+            # 1. Save to database
+            # 2. Send email notification
+            # For now, just return success response
+            return JsonResponse({
+                'success': True,
+                'message': 'Message sent successfully! We will get back to you soon.'
+            })
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'message': str(e)
+            }, status=400)
+            
+    return render(request, 'contact.html')

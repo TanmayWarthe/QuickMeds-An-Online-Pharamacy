@@ -1,5 +1,14 @@
 These three Git commands are used to **track, save, and upload your changes to GitHub**. Here’s what each one does:  
 
+BEFORE STARTING NEW WORK :
+1. git checkout main
+
+2. git pull origin main
+
+3. git checkout -b features/your-branch-name
+
+
+
 ### **1. `git add .`**  
 ✅ **Stages all modified and new files** for commit.  
 - It tells Git to track all changes in the current project directory.  
@@ -14,6 +23,28 @@ These three Git commands are used to **track, save, and upload your changes to G
 - `LUFFY` is the branch where you are pushing the changes.  
 
 ---
+
+AFTER ALL 
+
+1. git push origin feature/your-branch-name
+
+2. git pull origin main
+
+git hub pr jaaye aur git pull request  submit kare
+
+
+then
+
+
+git checkout main
+
+
+git pull origin main
+
+git branch -d feature/your-branch-name  #it delete a branch
+
+
+
 
 ID : QUICKMEDS
 PASSWORD : QUICKMEDS001

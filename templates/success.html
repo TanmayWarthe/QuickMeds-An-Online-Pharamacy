@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Success</title>
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</head>
+<body>
+    <header>
+        <h1>Success</h1>
+    </header>
+    <div class="container">
+        <aside>
+            <nav class="sidebar-nav">
+                <a href="{% url 'home' %}" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="{% url 'product' %}" class="nav-item">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    <span>Products</span>
+                </a>
+                <a href="{% url 'purchase' %}" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Purchase</span>
+                </a>
+                <a href="{% url 'contact' %}" class="nav-item">
+                    <i class="fas fa-phone"></i>
+                    <span>Contact</span>
+                </a>
+                <a href="{% url 'about' %}" class="nav-item">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>About</span>
+                </a>
+            </nav>
+        </aside>
+        <main>
+            <p>Your operation was successful!</p>
+        </main>
+    </div>
+</body>
+</html>

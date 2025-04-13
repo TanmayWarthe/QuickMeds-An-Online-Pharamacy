@@ -163,54 +163,51 @@
 
 /* Quantity Controls */
 .quantity-controls {
-    margin-bottom: 2rem;
-    padding: 1rem 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .quantity-wrapper {
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    background: #f8f9fa;
-    padding: 4px;
+    height: 45px;
     border-radius: 6px;
-    border: 1px solid #e9ecef;
+    overflow: hidden;
+    border: 2px solid #e0e0e0;
 }
 
 .quantity-btn {
-    width: 32px;
-    height: 32px;
+    width: 45px;
+    height: 100%;
     border: none;
-    background: #2196F3;
-    color: white;
-    border-radius: 4px;
+    background: #f5f5f5;
+    color: #333;
+    font-size: 1.2em;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s ease;
+    transition: all 0.2s;
 }
 
-.quantity-btn:hover:not(.disabled) {
-    background: #1976D2;
-    transform: scale(1.05);
-}
-
-.quantity-btn.disabled {
+.quantity-btn:hover:not(:disabled) {
     background: #e0e0e0;
-    cursor: not-allowed;
-    color: #999;
 }
 
 .quantity-input {
-    width: 50px;
-    height: 32px;
+    width: 60px;
+    height: 100%;
+    border: none;
     text-align: center;
-    border: 1px solid #e9ecef;
-    margin: 0 8px;
-    border-radius: 4px;
-    font-size: 14px;
-    font-weight: 500;
-    color: #2c3e50;
+    font-size: 1em;
+    font-weight: 600;
+    color: #333;
+    -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-inner-spin-button,
+.quantity-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .stock-info {
@@ -229,36 +226,99 @@
 /* Action Buttons */
 .action-buttons {
     display: flex;
-    gap: 12px;
-    margin-top: 0.5rem;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: flex-start;
 }
 
 .cart-button,
 .buy-now-btn {
-    height: 35px;
-    width: 100%;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 500;
+    position: relative;
+    width: 200px;
+    height: 48px;
+    border: 0;
+    border-radius: 8px;
+    outline: none;
     cursor: pointer;
+    font-weight: 600;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.cart-button {
+    background: linear-gradient(135deg, #3a8ffe 0%, #9658fe 100%);
+    color: white;
+    overflow: hidden;
+}
+
+.buy-now-btn {
+    background: linear-gradient(135deg, #ff0844 0%, #ffb199 100%);
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    transition: none;
-    box-shadow: none;
-    color: white;
-    padding: 0 15px;
-    white-space: nowrap;
-    background-color: #2196F3;
+    gap: 8px;
 }
 
 .cart-button:hover:not(:disabled),
 .buy-now-btn:hover:not(:disabled) {
-    background-color: #2196F3;
-    transform: none;
-    box-shadow: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.cart-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #2e80fe 0%, #8a4efe 100%);
+}
+
+.buy-now-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, #ff0034 0%, #ff9e8a 100%);
+}
+
+.cart-button:disabled,
+.buy-now-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background: #ccc;
+    color: #666;
+}
+
+/* Cart button specific styles */
+.cart-button .fa-cart-shopping {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: -10%;
+    font-size: 1.4em;
+    transform: translate(-50%, -50%);
+}
+
+.cart-button .fa-box {
+    position: absolute;
+    z-index: 3;
+    top: -20%;
+    left: 52%;
+    font-size: 1em;
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+}
+
+.cart-button span {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+}
+
+.cart-button span.add-to-cart {
+    opacity: 1;
+}
+
+.cart-button span.added {
+    opacity: 0;
 }
 
 /* Out of stock state */
