@@ -135,7 +135,7 @@
         </div>
         
         <nav class="sidebar-nav">
-            <a href="{% url 'home' %}" class="nav-item">
+            <a href="{% url 'home' %}" class="nav-item active">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
@@ -143,17 +143,17 @@
                 <i class="fas fa-prescription-bottle-alt"></i>
                 <span>Products</span>
             </a>
-            <a href="#purchase" class="nav-item">
+            <a href="{% url 'purchase' %}" class="nav-item">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Purchase</span>
+            </a>
+            <a href="{% url 'contact' %}" class="nav-item">
+                <i class="fas fa-phone"></i>
+                <span>Contact</span>
             </a>
             <a href="{% url 'about' %}" class="nav-item">
                 <i class="fas fa-comment-dots"></i>
                 <span>About</span>
-            </a>
-            <a href="#contact" class="nav-item">
-                <i class="fas fa-phone"></i>
-                <span>Contact</span>
             </a>
         </nav>
         
@@ -253,6 +253,7 @@
                                         <span class="add-to-cart">Add to cart</span>
                                         <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
                                         <i class="fa-solid fa-cart-shopping"></i>
+                                        <i class="fas fa-box"></i>
                                     </button>
                                 </div>
                             </div>

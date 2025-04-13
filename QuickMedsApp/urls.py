@@ -40,4 +40,6 @@ urlpatterns = [
     path('address/<int:address_id>/update/', views.update_address, name='update_address'),
     path('address/<int:address_id>/delete/', views.delete_address, name='delete_address'),
     path('address/<int:address_id>/set-default/', views.set_default_address, name='set_default_address'),
+    path('purchase/', views.purchase_view, name='purchase'),
+    path('contact/', views.contact_view, name='contact'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

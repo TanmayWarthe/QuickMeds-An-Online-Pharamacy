@@ -143,20 +143,22 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 function handleCartClick(event, productId) {
     event.preventDefault();
-    const button = event.currentTarget;
-    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    event.stopPropagation();
     
+    const button = event.currentTarget;
     if (button.disabled || button.classList.contains('clicked')) {
         return;
     }
-
+    
     button.classList.add('clicked');
+    
+    const quantity = document.querySelector('.quantity-input').value;
     
     fetch(`/add-to-cart/${productId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
+            'X-CSRFToken': getCookie('csrftoken')
         },
         body: JSON.stringify({
             quantity: quantity
@@ -164,10 +166,9 @@ function handleCartClick(event, productId) {
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 404) {
-                throw new Error('Product not found');
-            } else if (response.status === 403) {
-                throw new Error('Please login to continue');
+            if (response.status === 403) {
+                window.location.href = '/login/';
+                return;
             }
             throw new Error('Failed to add item to cart');
         }
@@ -175,26 +176,36 @@ function handleCartClick(event, productId) {
     })
     .then(data => {
         if (data.success) {
-            // Update cart count in header
+            // Update cart count
             const cartBadge = document.querySelector('.cart-icon .badge');
             if (cartBadge && data.cart_count !== undefined) {
                 cartBadge.textContent = data.cart_count;
             }
             
+            // Show success message
             showNotification('Added to cart successfully!', 'success');
+            
+            // Trigger cart animation
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('bounce');
+                setTimeout(() => {
+                    cartIcon.classList.remove('bounce');
+                }, 1000);
+            }
+
+            // Reset button after animation completes
+            setTimeout(() => {
+                button.classList.remove('clicked');
+            }, 2000);
         } else {
             throw new Error(data.message || 'Failed to add item to cart');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showNotification(error.message || 'Failed to add item to cart', 'error');
+        showNotification(error.message, 'error');
         button.classList.remove('clicked');
-    })
-    .finally(() => {
-        setTimeout(() => {
-            button.classList.remove('clicked');
-        }, 2000);
     });
 }
 

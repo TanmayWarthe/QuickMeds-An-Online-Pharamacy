@@ -14,10 +14,68 @@ function handleInputClick(event) {
 }
 
 function handleCartClick(event, productId) {
+    event.preventDefault();
     event.stopPropagation();
+    
     const button = event.currentTarget;
-    button.classList.add('added-to-cart');
-    addToCart(productId);
+    if (button.disabled || button.classList.contains('clicked')) {
+        return;
+    }
+    
+    button.classList.add('clicked');
+    
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            quantity: 1
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            if (response.status === 403) {
+                window.location.href = '/login/';
+                return;
+            }
+            throw new Error('Failed to add item to cart');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            // Update cart count in header
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge && data.cart_count !== undefined) {
+                cartBadge.textContent = data.cart_count;
+            }
+            
+            // Show success message
+            showNotification('Added to cart successfully!', 'success');
+            
+            // Trigger cart animation
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('bounce');
+                setTimeout(() => {
+                    cartIcon.classList.remove('bounce');
+                }, 1000);
+            }
+        } else {
+            throw new Error(data.message || 'Failed to add item to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Failed to add item to cart', 'error');
+    })
+    .finally(() => {
+        setTimeout(() => {
+            button.classList.remove('clicked');
+        }, 2000);
+    });
 }
 
 // Message display functions
@@ -76,40 +134,33 @@ function validateQuantity(input) {
 
 function addToCart(productId) {
     if (!productId) {
-        showErrorMessage('Invalid product');
+        showNotification('Invalid product', 'error');
         return;
     }
 
-    const quantityInput = document.querySelector(`input[data-product-id="${productId}"]`);
-    if (!quantityInput) {
-        showErrorMessage('Could not find quantity input');
-        return;
-    }
-
-    const quantity = parseInt(quantityInput.value) || 1;
     const button = document.querySelector(`button[onclick*="${productId}"].cart-button`);
-    
     if (button) {
+        if (button.disabled || button.classList.contains('clicked')) {
+            return;
+        }
         button.disabled = true;
-        button.classList.add('adding-to-cart');
+        button.classList.add('clicked');
     }
-    
-    // Make API call to add to cart
+
     fetch(`/add-to-cart/${productId}/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json'
         },
-        body: JSON.stringify({
-            quantity: quantity
-        })
+        credentials: 'same-origin'
     })
     .then(response => {
         if (!response.ok) {
-            if (response.status === 401) {
+            if (response.status === 403) {
                 window.location.href = '/login/';
-                throw new Error('Please log in to add items to cart');
+                throw new Error('Please login to add items to cart');
             }
             return response.json().then(data => {
                 throw new Error(data.message || 'Failed to add to cart');
@@ -119,11 +170,21 @@ function addToCart(productId) {
     })
     .then(data => {
         if (data.success) {
-            showSuccessMessage(data.message || 'Added to cart successfully!');
-            // Update cart count in UI if needed
-            const cartCount = document.querySelector('.cart-count');
-            if (cartCount && data.cart_count !== undefined) {
-                cartCount.textContent = data.cart_count;
+            // Update cart count in header
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge && data.cart_count !== undefined) {
+                cartBadge.textContent = data.cart_count;
+            }
+
+            showNotification('Added to cart successfully!', 'success');
+
+            // Trigger cart animation if available
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('bounce');
+                setTimeout(() => {
+                    cartIcon.classList.remove('bounce');
+                }, 1000);
             }
         } else {
             throw new Error(data.message || 'Failed to add to cart');
@@ -131,21 +192,37 @@ function addToCart(productId) {
     })
     .catch(error => {
         console.error('Error:', error);
-        showErrorMessage(error.message || 'Failed to add to cart. Please try again.');
+        showNotification(error.message, 'error');
     })
     .finally(() => {
         if (button) {
-            button.disabled = false;
-            button.classList.remove('adding-to-cart');
-            // Remove animation class after delay
             setTimeout(() => {
-                button.classList.remove('added-to-cart');
+                button.disabled = false;
+                button.classList.remove('clicked');
             }, 2000);
         }
     });
 }
 
-// Helper function to get CSRF token
+function showNotification(message, type = 'success') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    const container = document.getElementById('notification-container');
+    if (container) {
+        container.appendChild(notification);
+        setTimeout(() => notification.classList.add('show'), 10);
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+}
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {

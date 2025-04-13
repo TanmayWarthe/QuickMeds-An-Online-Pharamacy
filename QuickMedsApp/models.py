@@ -246,3 +246,25 @@ class OrderItem(models.Model):
     
     def get_total(self):
         return self.quantity * self.price
+
+class Contact(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=15, blank=True)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"{self.name} - {self.subject}"
+
+class Purchase(models.Model):
+    name = models.CharField(max_length=100)
+    phone = models.CharField(max_length=15)
+    delivery_address = models.TextField()
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, default='Pending')
+    
+    def __str__(self):
+        return f"{self.name} - {self.created_at.strftime('%Y-%m-%d')}"

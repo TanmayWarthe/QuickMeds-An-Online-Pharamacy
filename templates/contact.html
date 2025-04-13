@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Contact Us - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/contact.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg">
+    <div class="container-fluid px-4">
+        <div class="nav-start">
+            <div class="brand-section">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                    <span class="toggle-icon"></span>
+                </button>
+                <div class="logo-wrapper">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+                </div>
+                <a class="navbar-brand" href="{% url 'home' %}">QuickMeds</a>
+            </div>
+        </div>
+        
+        <div class="nav-actions">
+            <a href="{% url 'product' %}" class="quick-order-btn">
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
+            </a>
+            {% if user.is_authenticated %}
+            <div class="nav-icons">
+                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
+                    <i class="fa fa-shopping-cart"></i>
+                    <span class="badge">{{ cart_count|default:0 }}</span>
+                </a>
+                <div class="dropdown">
+                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                        <i class="fa fa-user"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+            {% else %}
+            <div class="auth-buttons">
+                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
+                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</nav>
+
+<!--  Tagline -->
+<div class="tagline">
+    <div class="centered-text-container">
+        <i class="fas fa-heartbeat tagline-icon"></i>
+        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+        <i class="fas fa-pills tagline-icon"></i>
+    </div>
+</div>
+
+<!-- Sidebar Navigation -->
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-prescription-bottle-alt"></i>
+            <span>Products</span>
+        </a>
+        <a href="{% url 'purchase' %}" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Purchase</span>
+        </a>
+        <a href="{% url 'contact' %}" class="nav-item active">
+            <i class="fas fa-phone"></i>
+            <span>Contact</span>
+        </a>
+        <a href="{% url 'about' %}" class="nav-item">
+            <i class="fas fa-comment-dots"></i>
+            <span>About</span>
+        </a>
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-info">
+            <i class="fas fa-headset"></i>
+            <div class="support-text">
+                <small>Need Help?</small>
+                <p>1-234-567-890</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Contact Header -->
+<div class="contact-header">
+    <div class="header-content">
+        <h1><i class="fas fa-headset"></i> Contact Us</h1>
+        <p>We're here to help! Reach out to us for any queries or support</p>
+    </div>
+</div>
+
+<!-- Main Contact Content -->
+<div class="contact-container">
+    <div class="contact-grid">
+        <!-- Contact Information -->
+        <div class="contact-info">
+            <div class="info-card">
+                <i class="fas fa-map-marker-alt"></i>
+                <h3>Visit Us</h3>
+                <p>QuickMeds Healthcare Pvt. Ltd.</p>
+                <p>123 Medical Plaza, Nagpur</p>
+                <p>Maharashtra, India - 440001</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-phone-alt"></i>
+                <h3>Call Us</h3>
+                <p>Toll Free: 1800-123-4567</p>
+                <p>Support: +91 123-456-7890</p>
+                <p>Hours: 24x7 Available</p>
+            </div>
+            <div class="info-card">
+                <i class="fas fa-envelope"></i>
+                <h3>Email Us</h3>
+                <p>Support: support@quickmeds.com</p>
+                <p>Business: info@quickmeds.com</p>
+                <p>Careers: careers@quickmeds.com</p>
+            </div>
+        </div>
+
+        <!-- Contact Form -->
+        <div class="contact-form">
+            <h2>Send us a Message</h2>
+            <form id="contactForm">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="name">Full Name*</label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Email*</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" id="phone" name="phone">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="subject">Subject*</label>
+                    <input type="text" id="subject" name="subject" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message*</label>
+                    <textarea id="message" name="message" rows="5" required></textarea>
+                </div>
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Map Section -->
+    <div class="map-section">
+        <h2>Find Us on Map</h2>
+        <div class="map-container">
+            <!-- Add your Google Maps iframe here -->
+            <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.1234567890123!2d79.1234567!3d21.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA3JzM0LjQiTiA3OcKwMDcnMzQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123" 
+                width="100%" 
+                height="450" 
+                style="border:0;" 
+                allowfullscreen="" 
+                loading="lazy">
+            </iframe>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/sidebar.js' %}"></script>
+<script>
+document.getElementById('contactForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch('/contact/', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        const notification = document.getElementById('notification');
+        notification.textContent = data.message || 'Message sent successfully!';
+        notification.style.display = 'block';
+        notification.className = 'notification ' + (data.success ? 'success' : 'error');
+        
+        if (data.success) {
+            this.reset();
+        }
+        
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    })
+    .catch(error => {
+        const notification = document.getElementById('notification');
+        notification.textContent = 'An error occurred. Please try again.';
+        notification.style.display = 'block';
+        notification.className = 'notification error';
+        setTimeout(() => {
+            notification.style.display = 'none';
+        }, 3000);
+    });
+});
+</script>
+{% endblock %}
