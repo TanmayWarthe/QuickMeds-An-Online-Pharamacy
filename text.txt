@@ -22,6 +22,12 @@ BEFORE STARTING NEW WORK :
 - `origin` refers to your remote repository on GitHub.  
 - `LUFFY` is the branch where you are pushing the changes.  
 
+### **Force Push (Use with caution!):**
+⚠️ **`git push -f origin main`** or **`git push --force origin main`**
+- Forces the push even if it results in a non-fast-forward merge
+- WARNING: This will overwrite remote changes and history
+- Only use when you're absolutely sure and understand the consequences
+
 ---
 
 AFTER ALL 
