@@ -18,6 +18,8 @@ from utils.otp import generate_otp, send_otp_email, store_otp, verify_otp
 from django.conf import settings
 from .payment import create_payment_order, payment_callback, place_order
 import razorpay
+from .razorpay_utils import create_order, verify_payment
+from decouple import config
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -757,10 +759,13 @@ def checkout_view(request):
         
     # Get user's addresses
     addresses = request.user.addresses.all().order_by('-is_default', '-created_at')
+    
+    # Get Razorpay key from environment
+    razorpay_key_id = config('RAZORPAY_KEY_ID')
         
     context = {
         'cart': cart,
-        'razorpay_key_id': settings.RAZORPAY_KEY_ID,
+        'razorpay_key_id': razorpay_key_id,
         'addresses': addresses,
     }
     return render(request, 'checkout.html', context)
@@ -1062,90 +1067,144 @@ def order_confirmation_view(request, order_id):
         messages.error(request, 'Order not found.')
         return redirect('home')
 
+@login_required
+@require_POST
 def create_razorpay_order(request):
-    if request.method == 'POST':
-        try:
-            cart = Cart.objects.get(user=request.user)
-            total_amount = cart.get_total() + 50  # Adding delivery fee
-            
-            # Create Razorpay Order
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-            payment = client.order.create({
-                'amount': total_amount * 100,  # Amount in paise
-                'currency': 'INR',
-                'payment_capture': '1'
-            })
-            
+    try:
+        cart = Cart.objects.get(user=request.user)
+        amount = int((cart.get_total() + 50) * 100)  # Convert to paise and add delivery fee
+        
+        order_data = create_order(amount)
+        
+        if order_data['success']:
             return JsonResponse({
                 'success': True,
-                'amount': payment['amount'],
-                'currency': payment['currency'],
-                'order_id': payment['id']
+                'order_id': order_data['order_id'],
+                'amount': order_data['amount'],
+                'currency': order_data['currency']
             })
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+        else:
+            return JsonResponse({
+                'success': False,
+                'error': order_data.get('error', 'Failed to create order')
+            })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
+@login_required
+@require_POST
 def process_payment(request):
-    if request.method == 'POST':
-        try:
-            payment_id = request.POST.get('razorpay_payment_id')
-            order_id = request.POST.get('razorpay_order_id')
-            signature = request.POST.get('razorpay_signature')
-            
-            # Verify signature
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-            params_dict = {
-                'razorpay_payment_id': payment_id,
-                'razorpay_order_id': order_id,
-                'razorpay_signature': signature
-            }
-            
+    try:
+        payment_id = request.POST.get('razorpay_payment_id')
+        order_id = request.POST.get('razorpay_order_id')
+        signature = request.POST.get('razorpay_signature')
+        
+        # Get address data
+        address_id = request.POST.get('address_id')
+        if address_id:
             try:
-                client.utility.verify_payment_signature(params_dict)
-                # Create order and clear cart
-                order = create_order(request, payment_id, 'razorpay')
-                return JsonResponse({'success': True, 'order_id': order.id})
-            except:
-                return JsonResponse({'success': False, 'error': 'Invalid signature'})
-                
-        except Exception as e:
-            return JsonResponse({'success': False, 'error': str(e)})
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+                address = Address.objects.get(id=address_id, user=request.user)
+                # Add address data to request.POST
+                request.POST = request.POST.copy()
+                request.POST['first_name'] = address.full_name.split()[0]
+                request.POST['last_name'] = ' '.join(address.full_name.split()[1:]) if len(address.full_name.split()) > 1 else ''
+                request.POST['phone'] = address.phone_number
+                request.POST['address'] = address.street_address
+                request.POST['city'] = address.city
+                request.POST['state'] = address.state
+                request.POST['pincode'] = address.postal_code
+                request.POST['country'] = address.country
+            except Address.DoesNotExist:
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Selected address not found'
+                })
+        
+        if verify_payment(payment_id, order_id, signature):
+            # Create the order
+            order = create_user_order(request, payment_id, 'razorpay')
+            if order:
+                return JsonResponse({
+                    'success': True,
+                    'order_id': order.id
+                })
+        
+        return JsonResponse({
+            'success': False,
+            'error': 'Payment verification failed'
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        })
 
-def create_order(request, transaction_id=None, payment_method='cod'):
-    cart = Cart.objects.get(user=request.user)
-    
-    # Create order
-    order = Order.objects.create(
-        user=request.user,
-        first_name=request.POST.get('first_name'),
-        last_name=request.POST.get('last_name'),
-        email=request.POST.get('email'),
-        phone=request.POST.get('phone'),
-        address=request.POST.get('address'),
-        city=request.POST.get('city'),
-        state=request.POST.get('state'),
-        pincode=request.POST.get('pincode'),
-        country=request.POST.get('country'),
-        total_amount=cart.get_total() + 50,  # Adding delivery fee
-        payment_method=payment_method,
-        transaction_id=transaction_id
-    )
-    
-    # Create order items
-    for item in cart.cartitem_set.all():
-        OrderItem.objects.create(
-            order=order,
-            product=item.product,
-            quantity=item.quantity,
-            price=item.product.price
+def create_user_order(request, transaction_id=None, payment_method='cod'):
+    try:
+        cart = Cart.objects.get(user=request.user)
+        
+        # Get address data
+        address_id = request.POST.get('address_id')
+        if address_id:
+            try:
+                address = Address.objects.get(id=address_id, user=request.user)
+                first_name = address.full_name.split()[0]
+                last_name = ' '.join(address.full_name.split()[1:]) if len(address.full_name.split()) > 1 else ''
+                phone = address.phone_number
+                street_address = address.street_address
+                city = address.city
+                state = address.state
+                pincode = address.postal_code
+                country = address.country
+            except Address.DoesNotExist:
+                raise ValueError('Selected address not found')
+        else:
+            # Use form data
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+            phone = request.POST.get('phone')
+            street_address = request.POST.get('address')
+            city = request.POST.get('city')
+            state = request.POST.get('state')
+            pincode = request.POST.get('pincode')
+            country = request.POST.get('country')
+        
+        # Create order
+        order = Order.objects.create(
+            user=request.user,
+            first_name=first_name,
+            last_name=last_name,
+            email=request.user.email,
+            phone=phone,
+            address=street_address,
+            city=city,
+            state=state,
+            pincode=pincode,
+            country=country,
+            total_amount=cart.get_total() + 50,  # Adding delivery fee
+            payment_method=payment_method,
+            transaction_id=transaction_id
         )
-    
-    # Clear cart
-    cart.delete()
-    
-    return order
+        
+        # Create order items
+        for item in cart.cartitem_set.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
+            )
+        
+        # Clear cart
+        cart.delete()
+        
+        return order
+    except Exception as e:
+        print(f"Error creating order: {str(e)}")
+        return None
 
 def process_cod_order(request):
     if request.method == 'POST':

@@ -22,7 +22,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = config('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
@@ -193,5 +193,5 @@ LOGGING = {
 }
 
 # Razorpay Configuration
-RAZORPAY_KEY_ID = 'rzp_test_DeORVu8n2XzJo5'  # Replace with your actual test key
-RAZORPAY_KEY_SECRET = '27mq5JpsBnnB84R43N6GgBLU'  # Replace with your actual secret key
+RAZORPAY_KEY_ID = 'rzp_test_tPcdMpc0pKpdgJ'  # Replace with your actual test key
+RAZORPAY_KEY_SECRET = 'yRZXwAiQtCyBKLve67k6llus'  # Replace with your actual secret key 
