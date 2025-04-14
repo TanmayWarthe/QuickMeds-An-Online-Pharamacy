@@ -1,6 +1,10 @@
 # Environment variables
 .env
 
+# Database
+db.sqlite3
+*.sqlite3
+
 # Python
 __pycache__/
 *.py[cod]
@@ -28,7 +32,6 @@ var/
 # local_settings.py
 db.sqlite3-journal
 
-
 # Virtual Environment
 .venv/
 venv/
@@ -43,4 +46,4 @@ ENV/
 
 # OS
 .DS_Store
-Thumbs.db 
+Thumbs.db
