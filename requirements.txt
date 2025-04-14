@@ -1,3 +1,4 @@
 Django>=5.1.5
 Pillow>=10.0.0
-python-decouple>=3.8 
+python-decouple>=3.8
+razorpay==1.4.2 
