@@ -5,140 +5,146 @@
 {% block title %}Order #{{ order.id }} - Details{% endblock %}
 
 {% block content %}
-<div class="order-detail-container">
-    <nav class="sidebar-nav">
-        <a href="{% url 'home' %}" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'product' %}" class="nav-item">
-            <i class="fas fa-prescription-bottle-alt"></i>
-            <span>Products</span>
-        </a>
-        <a href="{% url 'purchase' %}" class="nav-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Purchase</span>
-        </a>
-        <a href="{% url 'contact' %}" class="nav-item">
-            <i class="fas fa-phone"></i>
-            <span>Contact</span>
-        </a>
-        <a href="{% url 'about' %}" class="nav-item">
-            <i class="fas fa-comment-dots"></i>
-            <span>About</span>
-        </a>
-    </nav>
-    <div class="order-detail-header">
-        <h1>Order Details</h1>
-        <div class="order-meta">
-            <div class="order-number">
-                <span class="label">Order #:</span>
-                <span class="value">{{ order.id }}</span>
-            </div>
-            <div class="order-date">
-                <span class="label">Ordered on:</span>
-                <span class="value">{{ order.created_at|date:"d M Y, h:i A" }}</span>
+<div class="order-page-wrapper">
+    <div class="order-detail-container">
+        <div class="order-header-section">
+            <div class="order-header-content">
+                <div class="order-title">
+                    <h1>Order #{{ order.id }}</h1>
+                    <div class="order-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        {{ order.created_at|date:"d M Y, h:i A" }}
+                    </div>
+                </div>
+                <div class="status-badges">
+                    <div class="status-badge order-status {{ order.order_status|lower }}">
+                        <i class="fas fa-circle"></i>
+                        {{ order.get_order_status_display }}
+                    </div>
+                    <div class="status-badge payment-status {{ order.payment_status|lower }}">
+                        <i class="fas fa-{% if order.payment_status == 'COMPLETED' %}check-circle{% else %}clock{% endif %}"></i>
+                        {{ order.payment_status }}
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="status-container">
-            <div class="order-status {{ order.order_status|lower }}">
-                <i class="fas fa-circle"></i>
-                {{ order.get_order_status_display }}
+
+        <div class="order-content-grid">
+            <div class="order-main-content">
+                <div class="content-card order-items">
+                    <div class="card-header">
+                        <h2><i class="fas fa-box-open"></i> Order Items</h2>
+                    </div>
+                    {% for item in order.items.all %}
+                    <div class="order-item">
+                        <div class="item-image">
+                            {% if item.product.image %}
+                                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                            {% else %}
+                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                            {% endif %}
+                        </div>
+                        <div class="item-details">
+                            <h3 class="item-name">{{ item.product.name }}</h3>
+                            <div class="item-meta">
+                                <span class="meta-item quantity">
+                                    <i class="fas fa-cubes"></i> Qty: {{ item.quantity }}
+                                </span>
+                                <span class="meta-item price">
+                                    <i class="fas fa-tag"></i> ₹{{ item.price|intcomma }}
+                                </span>
+                                <span class="meta-item total">
+                                    <i class="fas fa-calculator"></i> Total: ₹{{ item.get_total|intcomma }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
-            <div class="payment-status {{ order.payment_status|lower }}">
-                {{ order.payment_status }}
+
+            <div class="order-sidebar">
+                <div class="content-card delivery-info">
+                    <div class="card-header">
+                        <h2><i class="fas fa-shipping-fast"></i> Delivery Information</h2>
+                    </div>
+                    <div class="delivery-address">
+                        <div class="address-badge">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Delivery Address
+                        </div>
+                        <div class="address-content">
+                            <p class="name">{{ order.first_name }} {{ order.last_name }}</p>
+                            <p class="address">{{ order.address }}</p>
+                            <p class="locality">{{ order.city }}, {{ order.state }} {{ order.pincode }}</p>
+                            <p class="phone"><i class="fas fa-phone"></i> {{ order.phone }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card payment-info">
+                    <div class="card-header">
+                        <h2><i class="fas fa-credit-card"></i> Payment Details</h2>
+                    </div>
+                    <div class="payment-content">
+                        <div class="payment-method">
+                            <span class="label">Payment Method:</span>
+                            <span class="value">{{ order.payment_method }}</span>
+                        </div>
+                        {% if order.transaction_id %}
+                        <div class="transaction-id">
+                            <span class="label">Transaction ID:</span>
+                            <span class="value">{{ order.transaction_id }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="content-card price-summary">
+                    <div class="card-header">
+                        <h2><i class="fas fa-receipt"></i> Price Summary</h2>
+                    </div>
+                    <div class="summary-content">
+                        <div class="summary-row">
+                            <span>Items Total</span>
+                            <span>₹{{ order.get_subtotal|intcomma }}</span>
+                        </div>
+                        <div class="summary-row">
+                            <span>Delivery Fee</span>
+                            <span>₹50</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Total Amount</span>
+                            <span>₹{{ order.total_amount|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
+                <div class="order-actions">
+                    <button class="btn-cancel" onclick="cancelOrder({{ order.id }})">
+                        <i class="fas fa-times"></i> Cancel Order
+                    </button>
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
-
-    <div class="order-content">
-        <div class="order-items-section">
-            <h2>Order Items</h2>
-            {% for item in order.items.all %}
-            <div class="order-item">
-                <div class="item-image">
-                    {% if item.product.image %}
-                        <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-                    {% else %}
-                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
-                    {% endif %}
-                </div>
-                <div class="item-details">
-                    <h3 class="item-name">{{ item.product.name }}</h3>
-                    <div class="item-meta">
-                        <span class="item-quantity">Quantity: {{ item.quantity }}</span>
-                        <span class="item-price">Price: ₹{{ item.price|intcomma }}</span>
-                        <span class="item-total">Total: ₹{{ item.get_total|intcomma }}</span>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <div class="order-info-section">
-            <div class="delivery-address">
-                <h2>Delivery Address</h2>
-                <div class="address-card">
-                    <p class="name">{{ order.first_name }} {{ order.last_name }}</p>
-                    <p class="address">{{ order.address }}</p>
-                    <p class="locality">{{ order.city }}, {{ order.state }} {{ order.pincode }}</p>
-                    <p class="phone">Phone: {{ order.phone }}</p>
-                </div>
-            </div>
-
-            <div class="payment-info">
-                <h2>Payment Information</h2>
-                <div class="payment-details">
-                    <div class="payment-row">
-                        <span class="label">Payment Method:</span>
-                        <span class="value">{{ order.payment_method }}</span>
-                    </div>
-                    {% if order.transaction_id %}
-                    <div class="payment-row">
-                        <span class="label">Transaction ID:</span>
-                        <span class="value">{{ order.transaction_id }}</span>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
-
-            <div class="price-summary">
-                <h2>Price Details</h2>
-                <div class="summary-list">
-                    <div class="summary-item">
-                        <span class="label">Items Total</span>
-                        <span class="value">₹{{ order.get_subtotal|intcomma }}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span class="label">Delivery Fee</span>
-                        <span class="value">₹50</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span class="label">Total Amount</span>
-                        <span class="value">₹{{ order.total_amount|intcomma }}</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
-    <div class="order-actions">
-        <button class="btn-cancel-order" onclick="cancelOrder({{ order.id }})">
-            <i class="fas fa-times"></i> Cancel Order
-        </button>
-    </div>
-    {% endif %}
 </div>
 
 <style>
-.order-detail-container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
+.order-page-wrapper {
+    background: #f8f9fa;
+    min-height: calc(100vh - 60px);
+    padding: 2rem 1rem;
 }
 
-.order-detail-header {
+.order-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.order-header-section {
     background: white;
     border-radius: 15px;
     padding: 2rem;
@@ -146,58 +152,106 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
 }
 
-.order-detail-header h1 {
+.order-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.order-title h1 {
+    margin: 0;
     color: #2c3e50;
-    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
 }
 
-.order-meta {
+.order-date {
+    color: #6c757d;
+    margin-top: 0.5rem;
     display: flex;
-    gap: 2rem;
-    margin-bottom: 1rem;
-}
-
-.order-number, .order-date {
-    display: flex;
+    align-items: center;
     gap: 0.5rem;
 }
 
-.label {
-    color: #6c757d;
-}
-
-.value {
-    font-weight: 500;
-    color: #2c3e50;
-}
-
-.status-container {
+.status-badges {
     display: flex;
     gap: 1rem;
-    margin-top: 1rem;
 }
 
-.order-status, .payment-status {
+.status-badge {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    padding: 0.4rem 0.8rem;
+    padding: 0.5rem 1rem;
     border-radius: 20px;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-.order-content {
+.order-status.pending {
+    background: #fff8e1;
+    color: #f57c00;
+}
+
+.order-status.processing {
+    background: #e3f2fd;
+    color: #1976d2;
+}
+
+.order-status.shipped {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.order-status.delivered {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.order-status.cancelled {
+    background: #ffebee;
+    color: #d32f2f;
+}
+
+.payment-status.completed {
+    background: #e8f5e9;
+    color: #388e3c;
+}
+
+.payment-status.pending {
+    background: #fff8e1;
+    color: #f57c00;
+}
+
+.order-content-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: 1fr 400px;
     gap: 2rem;
 }
 
-.order-items-section, .order-info-section {
+.content-card {
     background: white;
     border-radius: 15px;
-    padding: 2rem;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #eee;
+}
+
+.card-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.card-header h2 i {
+    color: #3498db;
 }
 
 .order-item {
@@ -214,7 +268,7 @@
 .item-image {
     width: 100px;
     height: 100px;
-    border-radius: 10px;
+    border-radius: 12px;
     overflow: hidden;
 }
 
@@ -229,124 +283,162 @@
 }
 
 .item-name {
+    margin: 0 0 1rem;
     font-size: 1.1rem;
-    margin-bottom: 0.5rem;
     color: #2c3e50;
 }
 
 .item-meta {
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: #6c757d;
+    font-size: 0.95rem;
 }
 
-.delivery-address, .payment-info, .price-summary {
-    margin-bottom: 2rem;
+.meta-item i {
+    color: #3498db;
+    font-size: 0.9rem;
 }
 
-h2 {
-    font-size: 1.2rem;
-    color: #2c3e50;
+.delivery-address {
+    padding: 1.5rem;
+}
+
+.address-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #e3f2fd;
+    color: #1976d2;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
     margin-bottom: 1rem;
 }
 
-.address-card {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
+.address-content p {
+    margin: 0.5rem 0;
+    color: #2c3e50;
 }
 
-.address-card p {
-    margin: 0.25rem 0;
+.address-content .name {
+    font-weight: 600;
+}
+
+.address-content .phone {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     color: #6c757d;
 }
 
-.address-card .name {
+.payment-content, .summary-content {
+    padding: 1.5rem;
+}
+
+.payment-method, .transaction-id {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.8rem;
+}
+
+.label {
+    color: #6c757d;
+}
+
+.value {
     font-weight: 500;
     color: #2c3e50;
 }
 
-.payment-details {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-}
-
-.payment-row {
+.summary-row {
     display: flex;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    padding: 0.8rem 0;
+    color: #2c3e50;
 }
 
-.summary-list {
-    background: #f8f9fa;
-    padding: 1rem;
-    border-radius: 10px;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 0.5rem 0;
-}
-
-.summary-item.total {
-    border-top: 1px dashed #dee2e6;
+.summary-row.total {
+    border-top: 1px dashed #eee;
     margin-top: 0.5rem;
     padding-top: 1rem;
     font-weight: 600;
-    color: #2c3e50;
+    font-size: 1.1rem;
 }
 
 .order-actions {
-    margin-top: 2rem;
-    text-align: right;
+    text-align: center;
 }
 
-.btn-cancel-order {
+.btn-cancel {
+    width: 100%;
+    padding: 1rem;
     background: #dc3545;
     color: white;
     border: none;
-    padding: 0.8rem 1.5rem;
-    border-radius: 10px;
-    cursor: pointer;
+    border-radius: 12px;
     font-weight: 500;
-    display: inline-flex;
+    cursor: pointer;
+    display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
     transition: all 0.3s ease;
 }
 
-.btn-cancel-order:hover {
+.btn-cancel:hover {
     background: #c82333;
     transform: translateY(-2px);
 }
 
 @media (max-width: 992px) {
-    .order-content {
+    .order-content-grid {
         grid-template-columns: 1fr;
+    }
+
+    .order-header-content {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .status-badges {
+        justify-content: center;
     }
 }
 
 @media (max-width: 768px) {
-    .order-meta {
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-    
-    .status-container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
     .order-item {
         flex-direction: column;
+        text-align: center;
     }
-    
+
     .item-image {
-        width: 80px;
-        height: 80px;
+        width: 150px;
+        height: 150px;
+        margin: 0 auto;
+    }
+
+    .item-meta {
+        justify-content: center;
+    }
+
+    .status-badges {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .status-badge {
+        width: 100%;
+        justify-content: center;
     }
 }
 </style>
@@ -366,11 +458,12 @@ function cancelOrder(orderId) {
             if (data.status === 'success') {
                 window.location.reload();
             } else {
-                alert(data.message);
+                alert(data.message || 'Failed to cancel order');
             }
         })
         .catch(error => {
-            alert('Failed to cancel order. Please try again.');
+            console.error('Error:', error);
+            alert('An error occurred. Please try again.');
         });
     }
 }

@@ -1071,7 +1071,20 @@ def order_confirmation_view(request, order_id):
 @require_POST
 def create_razorpay_order(request):
     try:
-        cart = Cart.objects.get(user=request.user)
+        # Try to get user's cart or show clear error if it doesn't exist
+        try:
+            cart = Cart.objects.get(user=request.user)
+            if not cart.cartitem_set.exists():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Your cart is empty. Please add items to cart before checkout.'
+                }, status=400)
+        except Cart.DoesNotExist:
+            return JsonResponse({
+                'success': False,
+                'error': 'No active cart found. Please add items to cart before checkout.'
+            }, status=400)
+
         amount = int((cart.get_total() + 50) * 100)  # Convert to paise and add delivery fee
         
         order_data = create_order(amount)
@@ -1092,7 +1105,7 @@ def create_razorpay_order(request):
         return JsonResponse({
             'success': False,
             'error': str(e)
-        })
+        }, status=500)
 
 @login_required
 @require_POST
