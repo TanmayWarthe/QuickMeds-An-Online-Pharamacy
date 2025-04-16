@@ -1,10 +1,9 @@
 import razorpay
 from django.conf import settings
-from decouple import config
 
 # Initialize Razorpay client
 client = razorpay.Client(
-    auth=(config('RAZORPAY_KEY_ID'), config('RAZORPAY_KEY_SECRET'))
+    auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET)
 )
 
 def create_order(amount, currency='INR'):

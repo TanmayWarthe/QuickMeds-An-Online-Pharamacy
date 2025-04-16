@@ -1033,12 +1033,9 @@
                     </div>
                 </div>
                 
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="resetForm()">Cancel</button>
-                    <button type="submit" class="btn-save">
-                        <i class="fas fa-save"></i>
-                        Save Changes
-                    </button>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-secondary" id="cancel">Cancel</button>
+                    <button type="submit" class="btn btn-save" id="saveChanges">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -1230,31 +1227,71 @@
 
         <!-- Settings Tab -->
         <div class="profile-tab" id="settings">
-            <h2><i class="fas fa-cog"></i> Account Settings</h2>
-            
-            <div class="settings-section">
-                <h3>Change Password</h3>
-                <form id="password-form" class="settings-form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="current_password">Current Password</label>
-                        <input type="password" id="current_password" name="current_password" class="form-control" required>
+            <div class="settings-section" id="account-settings">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Account Settings</h2>
+                </div>
+                
+                <div class="settings-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Change Password</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="password-form" class="needs-validation" novalidate>
+                                <div class="mb-3">
+                                    <label for="current-password" class="form-label">Current Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="current-password" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="new-password" class="form-label">New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="new-password" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                    <small class="form-text text-muted">Password must be at least 8 characters long</small>
+                                </div>
+                                
+                                <div class="mb-3">
+                                    <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="confirm-password" required>
+                                        <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-key"></i> Update Password
+                                </button>
+                            </form>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="new_password">New Password</label>
-                        <input type="password" id="new_password" name="new_password" class="form-control" required>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger text-white">
+                            <h3>Danger Zone</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-danger">Once you delete your account, there is no going back. Please be certain.</p>
+                            <button class="btn btn-danger" onclick="confirmDeleteAccount()">
+                                <i class="fas fa-trash-alt"></i> Delete Account
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="confirm_password">Confirm New Password</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn-save">Update Password</button>
-                </form>
-            </div>
-            
-            <div class="settings-section danger-zone">
-                <h3>Danger Zone</h3>
-                <button class="btn-danger" id="delete-account-btn">Delete Account</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1380,6 +1417,43 @@
             }
         }
         return cookieValue;
+    }
+
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const button = field.nextElementSibling.querySelector('i');
+        
+        if (field.type === 'password') {
+            field.type = 'text';
+            button.classList.remove('fa-eye');
+            button.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            button.classList.remove('fa-eye-slash');
+            button.classList.add('fa-eye');
+        }
+    }
+
+    function confirmDeleteAccount() {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            fetch('/delete-account/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/';
+                } else {
+                    showNotification(data.message || 'Failed to delete account', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('An error occurred while deleting account', 'error');
+            });
+        }
     }
 </script>
 {% endblock %}

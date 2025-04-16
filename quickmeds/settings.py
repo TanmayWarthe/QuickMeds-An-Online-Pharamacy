@@ -147,11 +147,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465
-EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'rhushabhgumte01@gmail.com'
-EMAIL_HOST_PASSWORD = 'usdu abpw algn pjtl'
-DEFAULT_FROM_EMAIL = 'QuickMeds <rhushabhgumte01@gmail.com>'
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your Gmail address
+EMAIL_HOST_PASSWORD = 'zvzu gymu uuqa hugp'  # Your Gmail app password (generate a new one from Google Account settings)
+DEFAULT_FROM_EMAIL = 'QuickMeds <tanmaywarthe09@gmail.com>'
 EMAIL_TIMEOUT = 60
 
 # Additional email settings

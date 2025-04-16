@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import login, authenticate, logout
+from django.contrib.auth import login, authenticate, logout, update_session_auth_hash
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.validators import validate_email
@@ -566,29 +566,62 @@ def get_address(request, address_id):
 def change_password(request):
     try:
         data = json.loads(request.body)
-        user = request.user
-        
         current_password = data.get('current_password')
         new_password = data.get('new_password')
-        
-        if not check_password(current_password, user.password):
+
+        # Validate input
+        if not current_password:
             return JsonResponse({
                 'success': False,
-                'message': 'Current password is incorrect'
+                'message': 'Current password is required',
+                'field': 'current-password'
             }, status=400)
-        
+
+        if not new_password:
+            return JsonResponse({
+                'success': False,
+                'message': 'New password is required',
+                'field': 'new-password'
+            }, status=400)
+
+        if len(new_password) < 8:
+            return JsonResponse({
+                'success': False,
+                'message': 'Password must be at least 8 characters long',
+                'field': 'new-password'
+            }, status=400)
+
+        # Check if current password is correct
+        user = request.user
+        if not user.check_password(current_password):
+            return JsonResponse({
+                'success': False,
+                'message': 'Current password is incorrect',
+                'field': 'current-password'
+            }, status=400)
+
+        # Set new password
         user.set_password(new_password)
         user.save()
-        
+
+        # Update session to prevent logout
+        update_session_auth_hash(request, user)
+
         return JsonResponse({
             'success': True,
             'message': 'Password updated successfully'
         })
+
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid request format'
+        }, status=400)
     except Exception as e:
         return JsonResponse({
             'success': False,
             'message': str(e)
-        }, status=400)
+        }, status=500)
 
 @login_required
 @require_POST
@@ -749,26 +782,24 @@ def showEmptyCartMessage():
 
 @login_required
 def checkout_view(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
+    try:
+        cart = Cart.objects.get(user=request.user)
+        if not cart.cartitem_set.exists():
+            return redirect('cart')
         
-    cart = Cart.objects.get_or_create(user=request.user)[0]
-    if not cart.cartitem_set.exists():
-        messages.warning(request, 'Your cart is empty')
+        addresses = Address.objects.filter(user=request.user)
+        
+        # Get Razorpay key from settings
+        razorpay_key_id = settings.RAZORPAY_KEY_ID
+        
+        context = {
+            'cart': cart,
+            'addresses': addresses,
+            'RAZORPAY_KEY_ID': razorpay_key_id,
+        }
+        return render(request, 'checkout.html', context)
+    except Cart.DoesNotExist:
         return redirect('cart')
-        
-    # Get user's addresses
-    addresses = request.user.addresses.all().order_by('-is_default', '-created_at')
-    
-    # Get Razorpay key from environment
-    razorpay_key_id = config('RAZORPAY_KEY_ID')
-        
-    context = {
-        'cart': cart,
-        'razorpay_key_id': razorpay_key_id,
-        'addresses': addresses,
-    }
-    return render(request, 'checkout.html', context)
 
 @login_required
 @require_http_methods(["GET", "POST", "PUT", "DELETE"])
@@ -1293,28 +1324,37 @@ def order_detail(request, order_id):
         return redirect('orders')
 
 @login_required
+@require_POST
 def cancel_order(request, order_id):
-    if request.method == 'POST':
-        try:
-            order = get_object_or_404(Order, id=order_id, user=request.user)
-            if order.order_status in ['PENDING', 'PROCESSING']:
-                order.order_status = 'CANCELLED'
-                order.save()
-                messages.success(request, 'Order cancelled successfully.')
-                return JsonResponse({'status': 'success'})
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        
+        # Check if order can be cancelled
+        if order.order_status in ['delivered', 'cancelled']:
             return JsonResponse({
-                'status': 'error',
-                'message': 'This order cannot be cancelled.'
-            }, status=400)
-        except Order.DoesNotExist:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Order not found.'
-            }, status=404)
-    return JsonResponse({
-        'status': 'error',
-        'message': 'Invalid request method.'
-    }, status=405)
+                'success': False,
+                'message': 'This order cannot be cancelled'
+            })
+        
+        # Update order status
+        order.order_status = 'cancelled'
+        order.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Order cancelled successfully'
+        })
+        
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Order not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'Failed to cancel order'
+        }, status=500)
 
 from django.shortcuts import render
 from .models import Product, Category
@@ -1386,3 +1426,43 @@ def contact_view(request):
             }, status=400)
             
     return render(request, 'contact.html')
+
+@require_http_methods(["GET"])
+def check_auth(request):
+    """Check if user is authenticated and return user info"""
+    if request.user.is_authenticated:
+        return JsonResponse({
+            'success': True,
+            'is_authenticated': True,
+            'user': {
+                'id': request.user.id,
+                'username': request.user.username,
+                'email': request.user.email,
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name
+            }
+        })
+    else:
+        return JsonResponse({
+            'success': True,
+            'is_authenticated': False
+        })
+
+@require_http_methods(["GET"])
+def get_cart_count(request):
+    """Get the current cart count for the user"""
+    try:
+        if request.user.is_authenticated:
+            cart_count = CartItem.objects.filter(cart__user=request.user).count()
+        else:
+            cart_count = 0
+            
+        return JsonResponse({
+            'success': True,
+            'cart_count': cart_count
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)

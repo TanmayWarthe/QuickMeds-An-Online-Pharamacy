@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic.base import RedirectView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -10,6 +11,7 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('about/', views.about_view, name='about'),
     path('products/', views.product, name='product'),
+    path('shop/', RedirectView.as_view(pattern_name='product', permanent=True), name='shop'),
     path('product/<int:product_id>/', views.product_detail_view, name='product_detail'),
     path('cart/', views.cart_view, name='cart'),
     path('search/', views.search_products, name='search_products'),
@@ -29,6 +31,8 @@ urlpatterns = [
     path('verify-otp/', views.verify_otp_view, name='verify_otp'),
     path('update-profile/', views.update_profile, name='update_profile'),
     path('update-profile-image/', views.update_profile_image, name='update_profile_image'),
+    path('check-auth/', views.check_auth, name='check_auth'),
+    path('get-cart-count/', views.get_cart_count, name='get_cart_count'),
     path('add-address/', views.add_address, name='add_address'),
     path('update-address/<int:address_id>/', views.update_address, name='update_address'),
     path('delete-address/<int:address_id>/', views.delete_address, name='delete_address'),

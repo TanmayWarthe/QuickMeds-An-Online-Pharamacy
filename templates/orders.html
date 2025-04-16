@@ -4,85 +4,7 @@
 
 {% block title %}My Orders - QuickMeds{% endblock %}
 
-{% block content %}
-<div class="orders-container">
-    <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
-    
-    {% if orders %}
-    <div class="orders-list">
-        {% for order in orders %}
-        <div class="order-card">
-            <div class="order-header">
-                <div class="order-info">
-                    <div class="order-id-date">
-                        <span class="order-id">Order #{{ order.id }}</span>
-                        <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
-                    </div>
-                    <span class="order-status {{ order.order_status|lower }}">
-                        <i class="fas fa-circle"></i>
-                        {{ order.get_order_status_display }}
-                    </span>
-                </div>
-                <div class="order-payment">
-                    <span class="payment-method">{{ order.payment_method }}</span>
-                    <span class="payment-status {{ order.payment_status|lower }}">
-                        {{ order.payment_status }}
-                    </span>
-                </div>
-            </div>
-            
-            <div class="order-items">
-                {% for item in order.items.all %}
-                <div class="order-item">
-                    <div class="item-image">
-                        {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
-                        {% else %}
-                            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
-                        {% endif %}
-                    </div>
-                    <div class="item-details">
-                        <h4 class="item-name">{{ item.product.name }}</h4>
-                        <div class="item-info">
-                            <span class="item-quantity">Qty: {{ item.quantity }}</span>
-                            <span class="item-price">₹{{ item.price|intcomma }}</span>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <div class="order-footer">
-                <div class="order-summary">
-                    <div class="summary-item">
-                        <span>Subtotal:</span>
-                        <span>₹{{ order.get_subtotal|intcomma }}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Delivery Fee:</span>
-                        <span>₹50</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span>Total Amount:</span>
-                        <span>₹{{ order.total_amount|intcomma }}</span>
-                    </div>
-                </div>
-                <a href="{% url 'order_confirmation' order.id %}" class="btn-view-details">
-                    View Details
-                </a>
-            </div>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
-    <div class="orders-empty">
-        <i class="fas fa-shopping-bag"></i>
-        <p>You haven't placed any orders yet</p>
-        <a href="{% url 'product' %}" class="btn-shop-now">Start Shopping</a>
-    </div>
-    {% endif %}
-</div>
-
+{% block extra_css %}
 <style>
 .orders-container {
     max-width: 1200px;
@@ -330,6 +252,32 @@
     color: white;
 }
 
+.order-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.btn-cancel-order {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
+}
+
+.btn-cancel-order:hover {
+    background-color: #c82333;
+}
+
 @media (max-width: 768px) {
     .order-header {
         flex-direction: column;
@@ -357,4 +305,95 @@
     }
 }
 </style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/order-cancel.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+<div class="orders-container">
+    <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+    
+    {% if orders %}
+    <div class="orders-list">
+        {% for order in orders %}
+        <div class="order-card">
+            <div class="order-header">
+                <div class="order-info">
+                    <div class="order-id-date">
+                        <span class="order-id">Order #{{ order.id }}</span>
+                        <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+                    </div>
+                    <span class="order-status {{ order.order_status|lower }}">
+                        <i class="fas fa-circle"></i>
+                        {{ order.get_order_status_display }}
+                    </span>
+                </div>
+                <div class="order-payment">
+                    <span class="payment-method">{{ order.payment_method }}</span>
+                    <span class="payment-status {{ order.payment_status|lower }}">
+                        {{ order.payment_status }}
+                    </span>
+                </div>
+            </div>
+            
+            <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    <div class="item-image">
+                        {% if item.product.image %}
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                        {% else %}
+                            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                        {% endif %}
+                    </div>
+                    <div class="item-details">
+                        <h4 class="item-name">{{ item.product.name }}</h4>
+                        <div class="item-info">
+                            <span class="item-quantity">Qty: {{ item.quantity }}</span>
+                            <span class="item-price">₹{{ item.price|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <div class="order-footer">
+                <div class="order-summary">
+                    <div class="summary-item">
+                        <span>Subtotal:</span>
+                        <span>₹{{ order.get_subtotal|intcomma }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>Delivery Fee:</span>
+                        <span>₹50</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>Total Amount:</span>
+                        <span>₹{{ order.total_amount|intcomma }}</span>
+                    </div>
+                </div>
+                <div class="order-actions">
+                    <a href="{% url 'order_confirmation' order.id %}" class="btn-view-details">
+                        View Details
+                    </a>
+                    {% if order.order_status != 'delivered' and order.order_status != 'cancelled' %}
+                    <button class="btn-cancel-order" data-order-id="{{ order.id }}">
+                        <i class="fas fa-times"></i> Cancel Order
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="orders-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>You haven't placed any orders yet</p>
+        <a href="{% url 'product' %}" class="btn-shop-now">Start Shopping</a>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

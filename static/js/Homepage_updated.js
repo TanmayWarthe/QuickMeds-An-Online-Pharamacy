@@ -79,20 +79,22 @@ document.addEventListener('DOMContentLoaded', function() {
         slider.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
     }
 
-    // Auto Slide Functionality
+    // Auto Slide Functionality (only for homepage)
     function startAutoSlide() {
-        stopAutoSlide();
-        autoSlideInterval = setInterval(() => {
-            if (!isHovered && slider) {
-                const maxSlideIndex = (slider.children.length || 0) - slidesToShow;
-                if (slideIndex >= maxSlideIndex) {
-                    slideIndex = 0;
-                } else {
-                    slideIndex++;
+        if (!window.location.pathname.includes('/product/')) {  // Only run on homepage
+            stopAutoSlide();
+            autoSlideInterval = setInterval(() => {
+                if (!isHovered && slider) {
+                    const maxSlideIndex = (slider.children.length || 0) - slidesToShow;
+                    if (slideIndex >= maxSlideIndex) {
+                        slideIndex = 0;
+                    } else {
+                        slideIndex++;
+                    }
+                    updateSliderPosition();
                 }
-                updateSliderPosition();
-            }
-        }, 5000);
+            }, 5000);
+        }
     }
 
     function stopAutoSlide() {

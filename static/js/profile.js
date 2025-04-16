@@ -399,32 +399,86 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Password Change
+// Password Change Form Handling
 const passwordForm = document.getElementById('password-form');
 if (passwordForm) {
     passwordForm.addEventListener('submit', async function(e) {
         e.preventDefault();
-        if (validatePasswordForm()) {
-            const formData = new FormData(this);
-            
-            try {
-                const response = await fetch('/change-password/', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': getCookie('csrftoken')
-                    }
-                });
-                
-                if (response.ok) {
-                    showNotification('Password changed successfully!', 'success');
-                    this.reset();
+        
+        const currentPassword = document.getElementById('current-password').value;
+        const newPassword = document.getElementById('new-password').value;
+        const confirmPassword = document.getElementById('confirm-password').value;
+
+        // Reset any previous error states
+        document.querySelectorAll('.password-field').forEach(field => {
+            field.classList.remove('is-invalid');
+        });
+
+        // Validate passwords
+        if (!currentPassword) {
+            showFieldError('current-password', 'Current password is required');
+            return;
+        }
+
+        if (!newPassword) {
+            showFieldError('new-password', 'New password is required');
+            return;
+        }
+
+        if (newPassword.length < 8) {
+            showFieldError('new-password', 'Password must be at least 8 characters long');
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showFieldError('confirm-password', 'Passwords do not match');
+            return;
+        }
+
+        try {
+            const response = await fetch('/change-password/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    current_password: currentPassword,
+                    new_password: newPassword
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                showNotification('Password updated successfully!', 'success');
+                passwordForm.reset();
+            } else {
+                showNotification(data.message || 'Failed to update password', 'error');
+                if (data.field) {
+                    showFieldError(data.field, data.message);
                 }
-            } catch (error) {
-                showNotification('Failed to change password', 'error');
             }
+        } catch (error) {
+            showNotification('An error occurred while updating password', 'error');
         }
     });
+}
+
+function showFieldError(fieldId, message) {
+    const field = document.getElementById(fieldId);
+    if (field) {
+        field.classList.add('is-invalid');
+        const errorDiv = field.nextElementSibling;
+        if (errorDiv && errorDiv.classList.contains('invalid-feedback')) {
+            errorDiv.textContent = message;
+        } else {
+            const div = document.createElement('div');
+            div.className = 'invalid-feedback';
+            div.textContent = message;
+            field.parentNode.insertBefore(div, field.nextSibling);
+        }
+    }
 }
 
 // Cancel Order Function
@@ -470,48 +524,6 @@ function validateProfileForm() {
     }
     
     return isValid;
-}
-
-function validatePasswordForm() {
-    const newPassword = document.getElementById('new_password');
-    const confirmPassword = document.getElementById('confirm_password');
-    let isValid = true;
-    
-    if (newPassword.value !== confirmPassword.value) {
-        showFieldError(confirmPassword, 'Passwords do not match');
-        isValid = false;
-    }
-    
-    if (newPassword.value.length < 8) {
-        showFieldError(newPassword, 'Password must be at least 8 characters long');
-        isValid = false;
-    }
-    
-    return isValid;
-}
-
-function showNotification(message, type = 'success') {
-    const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-        <span>${message}</span>
-    `;
-    
-    document.body.appendChild(notification);
-    
-    // Trigger animation
-    requestAnimationFrame(() => {
-        notification.classList.add('show');
-    });
-    
-    // Remove notification after 3 seconds
-    setTimeout(() => {
-        notification.classList.add('hide');
-        setTimeout(() => {
-            notification.remove();
-        }, 300);
-    }, 3000);
 }
 
 function getCookie(name) {

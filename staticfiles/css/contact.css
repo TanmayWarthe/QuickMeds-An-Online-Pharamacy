@@ -1,0 +1,300 @@
+.contact-header {
+    background: linear-gradient(135deg, #78ade5 0%, #4a90e2 100%);
+    padding: 4rem 2rem;
+    text-align: center;
+    color: white;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    border-radius: 20px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(74, 144, 226, 0.3);
+}
+
+.contact-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 60%);
+    animation: rotate 20s linear infinite;
+}
+
+.contact-header h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    animation: fadeInDown 0.8s ease-out;
+}
+
+.contact-header p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    animation: fadeInUp 0.8s ease-out;
+}
+
+.contact-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem 4rem;
+}
+
+.contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+}
+
+.info-card {
+    background: white;
+    padding: 2.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    text-align: center;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+                box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.info-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.info-card i {
+    font-size: 3rem;
+    color: #78ade5;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover i {
+    transform: scale(1.1) rotate(5deg);
+    color: #4a90e2;
+}
+
+.info-card h3 {
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.info-card p {
+    color: #6c757d;
+    margin: 0.5rem 0;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.contact-form {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    animation: slideIn 0.6s ease-out;
+    transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+                box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.contact-form:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+}
+
+.contact-form h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.8rem;
+    color: #2c3e50;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    border-color: #78ade5;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(120, 173, 229, 0.1);
+    background: white;
+}
+
+.submit-btn {
+    background: linear-gradient(45deg, #78ade5, #4a90e2);
+    color: white;
+    border: none;
+    padding: 1.2rem 2.5rem;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    width: 100%;
+    justify-content: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(45deg, #4a90e2, #78ade5);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(74, 144, 226, 0.4);
+}
+
+.submit-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, rgba(255,255,255,0.1), transparent);
+    transform: rotate(45deg);
+    animation: shimmer 3s infinite;
+}
+
+.map-section {
+    background: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    margin-top: 4rem;
+}
+
+.map-section h2 {
+    color: #2c3e50;
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.map-container {
+    border-radius: 12px;
+    overflow: hidden;
+    height: 450px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Animations */
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(40px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contact-header {
+        padding: 3rem 1.5rem;
+    }
+
+    .contact-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .contact-grid {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+    }
+
+    .contact-form,
+    .map-section {
+        padding: 2rem;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .contact-container {
+        padding: 2rem;
+    }
+}

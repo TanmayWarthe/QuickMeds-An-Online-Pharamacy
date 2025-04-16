@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load custom_filters %}
 
 {% block title %}Order Confirmation{% endblock %}
 
@@ -60,7 +61,7 @@
                         </div>
                         <div class="delivery-estimate">
                             <i class="fas fa-clock"></i>
-                            <span>Estimated Delivery: {{ order.created_at|date:"d M Y"|add_days:7 }}</span>
+                            <span>Estimated Delivery: {{ order.created_at|add_days:7 }}</span>
                         </div>
                     </div>
                 </div>
@@ -104,7 +105,7 @@
                     <i class="fas fa-truck"></i>
                     Track Order
                 </a>
-                <a href="{% url 'shop' %}" class="btn-continue">
+                <a href="{% url 'product' %}" class="btn-continue">
                     <i class="fas fa-shopping-bag"></i>
                     Continue Shopping
                 </a>
@@ -425,5 +426,159 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* Floating Navigation Styles */
+.floating-nav {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+}
+
+.floating-nav-trigger {
+    width: 55px;
+    height: 55px;
+    background: #28a745;
+    border-radius: 50%;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    animation: floatIn 0.5s ease-out 1s backwards;
+}
+
+.floating-nav-trigger:hover {
+    transform: scale(1.1) rotate(45deg);
+    background: #218838;
+}
+
+.floating-nav-menu {
+    position: absolute;
+    bottom: 75px;
+    right: 0;
+    background: white;
+    border-radius: 20px;
+    padding: 1rem;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 220px;
+    transform-origin: bottom right;
+    animation: menuIn 0.3s ease-out forwards;
+}
+
+.floating-nav-menu.active {
+    display: flex;
+}
+
+.floating-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    color: #2c3e50;
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.floating-nav-item:hover {
+    background: #f8f9fa;
+    color: #28a745;
+    transform: translateX(5px);
+}
+
+.floating-nav-item i {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #e9ecef;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.floating-nav-item:hover i {
+    background: #28a745;
+    color: white;
+}
+
+.floating-nav-item span {
+    font-weight: 500;
+}
+
+@keyframes floatIn {
+    from {
+        transform: translateY(20px) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes menuIn {
+    from {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
 </style>
+
+<div class="floating-nav">
+    <div class="floating-nav-trigger" onclick="toggleFloatingNav()">
+        <i class="fas fa-compass"></i>
+    </div>
+    <div class="floating-nav-menu" id="floatingNavMenu">
+        <a href="{% url 'home' %}" class="floating-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Back to Home</span>
+        </a>
+        <a href="{% url 'shop' %}" class="floating-nav-item">
+            <i class="fas fa-store"></i>
+            <span>Continue Shopping</span>
+        </a>
+        <a href="{% url 'orders' %}" class="floating-nav-item">
+            <i class="fas fa-box"></i>
+            <span>View All Orders</span>
+        </a>
+        <a href="{% url 'cart' %}" class="floating-nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Your Cart</span>
+        </a>
+        <a href="{% url 'profile' %}" class="floating-nav-item">
+            <i class="fas fa-user"></i>
+            <span>Your Profile</span>
+        </a>
+    </div>
+</div>
+
+<script>
+function toggleFloatingNav() {
+    const menu = document.getElementById('floatingNavMenu');
+    menu.classList.toggle('active');
+}
+
+// Close floating nav when clicking outside
+document.addEventListener('click', function(event) {
+    const floatingNav = document.querySelector('.floating-nav');
+    const menu = document.getElementById('floatingNavMenu');
+    
+    if (!floatingNav.contains(event.target) && menu.classList.contains('active')) {
+        menu.classList.remove('active');
+    }
+});
+</script>
 {% endblock %}

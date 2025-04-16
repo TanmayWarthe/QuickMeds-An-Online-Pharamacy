@@ -18,12 +18,11 @@ function moveSlider(sliderId, direction) {
     if (!slider) return;
 
     const cardWidth = slider.querySelector('.product-card').offsetWidth;
-    const gap = 16;
-    const visibleWidth = slider.offsetWidth;
-    const scrollAmount = Math.floor(visibleWidth / (cardWidth + gap)) * (cardWidth + gap);
+    const gap = 16; // Gap between cards
     
+    // Move by one card width + gap
     slider.scrollTo({
-        left: slider.scrollLeft + (scrollAmount * direction),
+        left: slider.scrollLeft + ((cardWidth + gap) * direction),
         behavior: 'smooth'
     });
 
@@ -79,34 +78,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Initialize all sliders
-    document.querySelectorAll('.product-slider').forEach(slider => {
-        const sliderId = slider.id;
-        updateSliderButtons(sliderId);
-
-        // Update button states on scroll
-        slider.addEventListener('scroll', () => {
-            updateSliderButtons(sliderId);
-        });
-
-        // Add touch support
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        slider.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        slider.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const difference = touchStartX - touchEndX;
-            
-            if (Math.abs(difference) > 50) { // Minimum swipe distance
-                moveSlider(slider.id, difference > 0 ? 1 : -1);
-            }
-        }, { passive: true });
-    });
-
     // Handle product card clicks
     document.querySelectorAll('.product-card').forEach(card => {
         card.addEventListener('click', function(e) {
@@ -135,7 +106,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize product sliders
-    initializeProductSliders();
     updateCartCount();
 
     // Initialize spotlight effect
@@ -260,14 +230,12 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Product Slider Functionality
+// Initialize product sliders
 function initializeProductSliders() {
     const sliders = document.querySelectorAll('.product-slider');
     
     sliders.forEach(slider => {
         const sliderId = slider.id;
-        const prevBtn = slider.parentElement.querySelector('.control-btn.prev');
-        const nextBtn = slider.parentElement.querySelector('.control-btn.next');
         
         // Initialize slider buttons
         updateSliderButtons(sliderId);
@@ -295,6 +263,22 @@ function initializeProductSliders() {
         }, { passive: true });
     });
 }
+
+// Initialize everything when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    initializeProductSliders();
+    
+    // Update slider buttons on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+            document.querySelectorAll('.product-slider').forEach(slider => {
+                updateSliderButtons(slider.id);
+            });
+        }, 250);
+    });
+});
 
 // Cart Management
 function cartClick(event, productId) {
@@ -353,9 +337,9 @@ function cartClick(event, productId) {
             throw new Error(data.message || 'Failed to add item to cart');
         }
     })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification(error.message || 'Failed to add item to cart', 'error');
+    .catch(() => {
+        // Remove console.error and handle errors silently
+        showNotification('Failed to add to cart', 'error');
     })
     .finally(() => {
         // Reset button animation after delay
@@ -378,65 +362,73 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function addToCart(productId, quantity = 1) {
-    return new Promise((resolve, reject) => {
-        fetch(`/add-to-cart/${productId}/`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken'),
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify({
-                quantity: quantity
-            })
+    const addButton = document.querySelector(`button[data-product-id="${productId}"]`);
+    
+    if (addButton) {
+        addButton.disabled = true;
+        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    }
+
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+            quantity: quantity
         })
-        .then(response => {
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-                return response.json().then(data => ({ status: response.status, data }));
-            } else {
-                throw new Error('Server returned invalid response format');
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+            return response.json().then(data => ({ status: response.status, data }));
+        } else {
+            throw new Error('Server returned invalid response format');
+        }
+    })
+    .then(({ status, data }) => {
+        if (status === 200 && data.success) {
+            // Update cart count
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            if (cartBadge && data.cart_count !== undefined) {
+                cartBadge.textContent = data.cart_count;
             }
-        })
-        .then(({ status, data }) => {
-            if (status === 200 && data.success) {
-                // Update cart count
-                const cartBadge = document.querySelector('.cart-icon .badge');
-                if (cartBadge && data.cart_count !== undefined) {
-                    cartBadge.textContent = data.cart_count;
-                }
-                
-                // Show success message
-                showNotification('Added to cart successfully!', 'success');
-                
-                // Trigger cart animation
-                const cartIcon = document.querySelector('.cart-icon');
-                if (cartIcon) {
-                    cartIcon.classList.add('cart-animation');
-                    setTimeout(() => {
-                        cartIcon.classList.remove('cart-animation');
-                    }, 1000);
-                }
-                
-                resolve(data);
-            } else {
-                // Handle error cases
-                let errorMessage = 'Failed to add to cart';
-                if (status === 404) {
-                    errorMessage = 'Product not found';
-                } else if (status === 400) {
-                    errorMessage = data.error || 'Invalid request';
-                } else if (!data.success) {
-                    errorMessage = data.error || 'Failed to add to cart';
-                }
-                throw new Error(errorMessage);
+            
+            // Show success message
+            showNotification('Added to cart successfully!', 'success');
+            
+            // Trigger cart animation if available
+            const cartIcon = document.querySelector('.cart-icon');
+            if (cartIcon) {
+                cartIcon.classList.add('cart-animation');
+                setTimeout(() => {
+                    cartIcon.classList.remove('cart-animation');
+                }, 1000);
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification(error.message || 'An unexpected error occurred', 'error');
-            reject(error);
-        });
+        } else {
+            // Handle error cases
+            let errorMessage = 'Failed to add to cart';
+            if (status === 404) {
+                errorMessage = 'Product not found';
+            } else if (status === 400) {
+                errorMessage = data.error || 'Invalid request';
+            } else if (!data.success) {
+                errorMessage = data.error || 'Failed to add to cart';
+            }
+            throw new Error(errorMessage);
+        }
+    })
+    .catch(() => {
+        // Remove console.error and handle errors silently
+        showNotification('Failed to add to cart', 'error');
+    })
+    .finally(() => {
+        if (addButton) {
+            addButton.disabled = false;
+            addButton.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
+        }
     });
 }
 
@@ -500,32 +492,41 @@ function updateServerCart(productId) {
 }
 
 function updateCartCount() {
-    fetch('/get-cart-count/') // Ensure this endpoint returns the current cart count
-        .then(response => response.json())
-        .then(data => {
+    fetch('/get-cart-count/', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
             const cartCount = document.querySelector('.cart-count');
-            if (cartCount) {
-                cartCount.textContent = data.cart_count; // Set the initial count
+            const cartBadge = document.querySelector('.cart-icon .badge');
+            const countElement = cartCount || cartBadge;
+            
+            if (countElement) {
+                countElement.textContent = data.cart_count || '0';
             }
-        })
-        .catch(error => console.error('Error fetching cart count:', error));
-}
-
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProductSliders();
-    
-    // Update slider buttons on window resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            document.querySelectorAll('.product-slider').forEach(slider => {
-                updateSliderButtons(slider.id);
-            });
-        }, 250);
+        }
+    })
+    .catch(() => {
+        // Silently handle errors for cart count
+        const cartCount = document.querySelector('.cart-count');
+        const cartBadge = document.querySelector('.cart-icon .badge');
+        const countElement = cartCount || cartBadge;
+        
+        if (countElement) {
+            countElement.textContent = '0';
+        }
     });
-});
+}
 
 function getCookie(name) {
     let cookieValue = null;
@@ -540,75 +541,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-function addToCart(productId, quantity = 1) {
-    const addButton = document.querySelector(`button[data-product-id="${productId}"]`);
-    
-    if (addButton) {
-        addButton.disabled = true;
-        addButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
-    }
-
-    fetch(`/add-to-cart/${productId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken'),
-            'Accept': 'application/json'
-        },
-        body: JSON.stringify({
-            quantity: quantity
-        })
-    })
-    .then(response => {
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-            return response.json().then(data => ({ status: response.status, data }));
-        } else {
-            throw new Error('Server returned invalid response format');
-        }
-    })
-    .then(({ status, data }) => {
-        if (status === 200 && data.success) {
-            // Update cart count
-            const cartBadge = document.querySelector('.cart-icon .badge');
-            if (cartBadge && data.cart_count !== undefined) {
-                cartBadge.textContent = data.cart_count;
-            }
-            
-            // Show success message
-            showNotification('Added to cart successfully!', 'success');
-            
-            // Trigger cart animation if available
-            const cartIcon = document.querySelector('.cart-icon');
-            if (cartIcon) {
-                cartIcon.classList.add('cart-animation');
-                setTimeout(() => {
-                    cartIcon.classList.remove('cart-animation');
-                }, 1000);
-            }
-        } else {
-            // Handle error cases
-            let errorMessage = 'Failed to add to cart';
-            if (status === 404) {
-                errorMessage = 'Product not found';
-            } else if (status === 400) {
-                errorMessage = data.error || 'Invalid request';
-            } else if (!data.success) {
-                errorMessage = data.error || 'Failed to add to cart';
-            }
-            throw new Error(errorMessage);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification(error.message || 'An unexpected error occurred', 'error');
-    })
-    .finally(() => {
-        if (addButton) {
-            addButton.disabled = false;
-            addButton.innerHTML = '<i class="fas fa-cart-plus"></i> Add to Cart';
-        }
-    });
 }

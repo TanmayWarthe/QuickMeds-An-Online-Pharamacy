@@ -348,8 +348,11 @@
 {% endblock %}
 
 {% block content %}
-<!-- Notification Area -->
-<div class="notification" id="notification" style="display: none;"></div>
+<!-- Notification element -->
+<div class="notification" id="notification" style="display: none;">
+    <i class="fas fa-check-circle"></i>
+    <span id="notification-message"></span>
+</div>
 
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg">
@@ -462,65 +465,109 @@
 <div class="cart-container">
     <div class="cart-header">
         <h1><i class="fas fa-shopping-cart"></i> Shopping Cart</h1>
-    </div>
-
-    <div class="cart-items">
-        {% if cart_items %}
-            {% for item in cart_items %}
-            <div class="cart-item" data-item-id="{{ item.id }}">
-                <img src="{% if item.product.image %}{{ item.product.image.url }}{% else %}{% static 'img/default-product.png' %}{% endif %}" alt="{{ item.product.name }}" class="item-image">
-                <div class="item-details">
-                    <h3>{{ item.product.name }}</h3>
-                    <p class="item-price">₹{{ item.product.price|intcomma }}</p>
-                </div>
-                <div class="quantity-controls">
-                    <button class="quantity-btn minus" data-item-id="{{ item.id }}" data-change="-1" type="button">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <input type="number" value="{{ item.quantity }}" min="1" max="99" class="quantity-input" 
-                           data-item-id="{{ item.id }}" data-price="{{ item.product.price }}" readonly>
-                    <button class="quantity-btn plus" data-item-id="{{ item.id }}" data-change="1" type="button">
-                        <i class="fas fa-plus"></i>
-                    </button>
-                </div>
-                <div class="subtotal">₹<span class="item-total" data-item-id="{{ item.id }}">
-                    {{ item.get_total|intcomma }}</span>
-                </div>
-                <button class="remove-btn" data-item-id="{{ item.id }}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-            {% endfor %}
-        {% else %}
-            <div class="empty-cart">
-                <i class="fas fa-shopping-basket"></i>
-                <p>Your cart is empty</p>
-                <a href="{% url 'product' %}" class="shop-now-btn">
-                    <i class="fas fa-shopping-cart"></i> Shop Now
-                </a>
-            </div>
-        {% endif %}
+        <div class="items-count">{{ cart_items|length }} item(s)</div>
     </div>
 
     {% if cart_items %}
-    <div class="cart-summary">
-        <div class="cart-total">
-            <span>Total Amount:</span>
-            <span class="total-amount">₹<span id="cart-total">{{ cart.get_total|intcomma }}</span></span>
+    <div class="cart-content">
+        <div class="cart-items">
+            {% for item in cart_items %}
+            <div class="cart-item" data-item-id="{{ item.id }}">
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                <div class="item-details">
+                    <span class="item-category">{{ item.product.category.name }}</span>
+                    <h3>{{ item.product.name }}</h3>
+                    <div class="price-info">
+                        <span class="item-price">₹{{ item.product.price|intcomma }}</span>
+                        {% if item.product.original_price and item.product.original_price > item.product.price %}
+                        <span class="original-price">₹{{ item.product.original_price|intcomma }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="quantity-controls">
+                    <button type="button" class="quantity-btn minus" data-action="decrease">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <input type="number" 
+                           class="quantity-input" 
+                           value="{{ item.quantity }}" 
+                           min="1" 
+                           max="{{ item.product.stock }}"
+                           data-product-id="{{ item.product.id }}"
+                           aria-label="Product quantity">
+                    <button type="button" class="quantity-btn plus" data-action="increase">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <div class="item-total" data-item-id="{{ item.id }}">
+                    ₹{{ item.get_total|intcomma }}
+                </div>
+                
+                <button type="button" class="remove-btn" title="Remove item">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+            {% endfor %}
         </div>
-        <div class="items-count">
-            Items in cart: <span class="items-count-value" id="items-count">{{ cart.cartitem_set.count }}</span>
+
+        <div class="cart-summary">
+            <div class="summary-header">
+                <i class="fas fa-receipt"></i>
+                <h2>Order Summary</h2>
+            </div>
+            <div class="summary-content">
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span class="cart-subtotal">₹{{ cart.get_total|intcomma }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span>Free</span>
+                </div>
+                <div class="summary-row total">
+                    <span>Total</span>
+                    <span class="cart-total">₹{{ cart.get_total|intcomma }}</span>
+                </div>
+            </div>
+            <div class="cart-actions">
+                <a href="{% url 'product' %}" class="continue-shopping">
+                    <i class="fas fa-arrow-left"></i> Continue Shopping
+                </a>
+                <button type="button" class="proceed-checkout" onclick="proceedToCheckout()">
+                    Proceed to Checkout <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
         </div>
-        <div class="cart-actions">
-            <button class="continue-shopping" onclick="window.location.href='{% url 'product' %}'">
-                <i class="fas fa-arrow-left"></i> Continue Shopping
-            </button>
-            <button class="proceed-checkout" onclick="proceedToCheckout()">
-                <i class="fas fa-lock"></i> Proceed To Checkout
-            </button>
+    </div>
+    {% else %}
+    <div class="empty-cart">
+        <i class="fas fa-shopping-basket"></i>
+        <p>Your cart is empty</p>
+        <div class="empty-cart-actions">
+            <a href="{% url 'product' %}" class="shop-now-btn">
+                <i class="fas fa-shopping-bag"></i>
+                Start Shopping
+            </a>
+        </div>
+        <div class="empty-cart-help">
+            <p>Need help finding something?</p>
+            <a href="{% url 'contact' %}">Contact our support team</a>
         </div>
     </div>
     {% endif %}
+</div>
+
+<!-- Notification Messages -->
+<div class="success-message" id="successMessage">
+    <i class="fas fa-check-circle"></i>
+    <span>Cart updated successfully!</span>
+</div>
+
+<div class="error-message" id="errorMessage">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="errorText"></span>
 </div>
 {% endblock %}
 

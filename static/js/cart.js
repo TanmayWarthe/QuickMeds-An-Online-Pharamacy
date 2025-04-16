@@ -3,312 +3,264 @@ function toggleSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Get all quantity buttons and inputs
-    const quantityBtns = document.querySelectorAll('.quantity-btn');
-    const removeBtns = document.querySelectorAll('.remove-btn');
-    
-    // Add event listeners to quantity buttons
-    quantityBtns.forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            const itemId = this.dataset.itemId;
-            const input = this.parentElement.querySelector('.quantity-input');
-            let value = parseInt(input.value);
-            
-            // Check if it's plus or minus button
-            if (this.classList.contains('minus')) {
-                if (value > 1) {
-                    input.value = value - 1;
-                    updateQuantityOnServer(itemId, value - 1);
-                }
-            } else {
-                if (value < 99) {
-                    input.value = value + 1;
-                    updateQuantityOnServer(itemId, value + 1);
-                }
-            }
-            
-            // Update button states
-            updateButtonStates(itemId, parseInt(input.value));
-        });
-    });
-    
-    // Add event listeners to remove buttons
-    removeBtns.forEach(btn => {
-        btn.addEventListener('click', function() {
-            const itemId = this.dataset.itemId;
-            removeItem(itemId);
-        });
-    });
-});
+    // Update quantity
+    function updateQuantity(productId, newQuantity) {
+        if (!productId) {
+            console.error('Product ID is missing');
+            return;
+        }
 
-// Function to update button states
-function updateButtonStates(itemId, value) {
-    const decreaseBtn = document.querySelector(`.quantity-btn.minus[data-item-id="${itemId}"]`);
-    const increaseBtn = document.querySelector(`.quantity-btn.plus[data-item-id="${itemId}"]`);
-    
-    if (decreaseBtn) {
-        decreaseBtn.disabled = value <= 1;
-    }
-    if (increaseBtn) {
-        increaseBtn.disabled = value >= 99;
-    }
-}
+        const cartItem = document.querySelector(`[data-item-id="${productId}"]`);
+        if (!cartItem) {
+            console.error('Cart item not found');
+            return;
+        }
 
-// Function to update quantity on server
-function updateQuantityOnServer(itemId, quantity) {
-    const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-    const itemContainer = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-    const quantityControls = input.closest('.quantity-controls');
-
-    if (itemContainer) {
-        itemContainer.classList.add('updating');
-        quantityControls.classList.add('loading');
-    }
+        // Show loading state
+        cartItem.classList.add('updating');
 
     fetch('/update-cart-item/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'X-CSRFToken': getCookie('csrftoken'),
-            'X-Requested-With': 'XMLHttpRequest'
+                'Accept': 'application/json'
         },
         body: JSON.stringify({
-            item_id: itemId,
-            quantity: quantity
-        })
+                item_id: productId,
+                quantity: newQuantity
+            })
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`Server error: ${response.status}`);
+                throw new Error('Network response was not ok');
         }
         return response.json();
     })
     .then(data => {
         if (data.success) {
-            // Update cart display
-            updateCartDisplay(data);
+                // Update cart total with animation
+                const cartTotalElements = document.querySelectorAll('.cart-total');
+                cartTotalElements.forEach(el => {
+                    el.classList.add('price-update');
+                    el.textContent = `₹${data.cart_total}`;
+                    setTimeout(() => el.classList.remove('price-update'), 300);
+                });
+
+                // Update cart subtotal with animation
+                const cartSubtotalElements = document.querySelectorAll('.cart-subtotal');
+                cartSubtotalElements.forEach(el => {
+                    el.classList.add('price-update');
+                    el.textContent = `₹${data.cart_total}`;
+                    setTimeout(() => el.classList.remove('price-update'), 300);
+                });
             
             // Update item total with animation
-            const totalEl = document.querySelector(`.item-total[data-item-id="${itemId}"]`);
-            if (totalEl && data.item_total) {
-                totalEl.classList.add('price-update');
-                totalEl.textContent = data.item_total;
-                setTimeout(() => totalEl.classList.remove('price-update'), 300);
+                const itemTotalElement = cartItem.querySelector('.item-total');
+                if (itemTotalElement) {
+                    itemTotalElement.classList.add('price-update');
+                    itemTotalElement.textContent = `₹${data.item_total}`;
+                    setTimeout(() => itemTotalElement.classList.remove('price-update'), 300);
+                }
+
+                // Update cart count in header
+                const cartBadge = document.querySelector('.cart-icon .badge');
+                if (cartBadge) {
+                    cartBadge.textContent = data.items_count;
+                }
+
+                // Update items count
+                const itemsCountElement = document.querySelector('.items-count');
+                if (itemsCountElement) {
+                    itemsCountElement.textContent = `${data.items_count} item${data.items_count !== 1 ? 's' : ''}`;
+                }
+
+                showNotification('Cart updated successfully', 'success');
+            } else {
+                // Revert quantity input to previous value if update failed
+                const input = cartItem.querySelector('.quantity-input');
+                if (input) {
+                    input.value = input.getAttribute('data-previous-value') || 1;
+                }
+                showNotification(data.message || 'Failed to update cart', 'error');
             }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Failed to update cart', 'error');
             
-            // Update quantity input
+            // Revert quantity input to previous value on error
+            const input = cartItem.querySelector('.quantity-input');
             if (input) {
-                input.value = quantity;
-                updateButtonStates(itemId, quantity);
+                input.value = input.getAttribute('data-previous-value') || 1;
             }
-        } else {
-            showError(data.message || 'Failed to update quantity.');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showError('An error occurred while updating the cart.');
     })
     .finally(() => {
-        if (itemContainer) {
-            itemContainer.classList.remove('updating');
-            quantityControls.classList.remove('loading');
+            // Remove loading state
+            cartItem.classList.remove('updating');
+        });
+    }
+
+    // Remove item from cart
+    function removeFromCart(productId) {
+        if (!productId) {
+            console.error('Product ID is missing');
+            return;
         }
-    });
-}
 
-// Function to update cart display
-function updateCartDisplay(data) {
-    // Update cart total with animation
-    const cartTotal = document.getElementById('cart-total');
-    if (cartTotal) {
-        cartTotal.classList.add('price-update');
-        cartTotal.textContent = data.cart_total;
-        setTimeout(() => cartTotal.classList.remove('price-update'), 300);
-    }
-    
-    // Update items count
-    const itemsCount = document.getElementById('items-count');
-    if (itemsCount) {
-        itemsCount.textContent = data.items_count;
-    }
-    
-    // Update cart count in header with animation
-    const cartCount = document.querySelector('.cart-count');
-    if (cartCount) {
-        cartCount.classList.add('cart-updated');
-        cartCount.textContent = data.items_count;
-        cartCount.style.display = data.items_count > 0 ? 'block' : 'none';
-        setTimeout(() => cartCount.classList.remove('cart-updated'), 300);
-    }
-}
+        const cartItem = document.querySelector(`[data-item-id="${productId}"]`);
+        if (!cartItem) {
+            console.error('Cart item not found');
+            return;
+        }
 
-// Function to show error message
-function showError(message) {
-    // Remove any existing error messages
-    const existingErrors = document.querySelectorAll('.error-message');
-    existingErrors.forEach(error => error.remove());
-
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    
-    // Create icon element
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-exclamation-circle';
-    errorDiv.appendChild(icon);
-    
-    // Create message text
-    const messageText = document.createElement('span');
-    messageText.textContent = message;
-    errorDiv.appendChild(messageText);
-    
-    document.body.appendChild(errorDiv);
-    
-    // Add show class for animation
-    setTimeout(() => {
-        errorDiv.classList.add('show');
-    }, 10);
-    
-    // Remove after delay
-    setTimeout(() => {
-        errorDiv.classList.remove('show');
-        setTimeout(() => {
-            errorDiv.remove();
-        }, 300);
-    }, 3000);
-}
-
-// Function to show success message
-function showSuccess(message) {
-    // Remove any existing messages
-    const existingMessages = document.querySelectorAll('.success-message, .error-message');
-    existingMessages.forEach(msg => msg.remove());
-
-    const successDiv = document.createElement('div');
-    successDiv.className = 'success-message';
-    
-    // Create icon element
-    const icon = document.createElement('i');
-    icon.className = 'fas fa-check-circle';
-    successDiv.appendChild(icon);
-    
-    // Create message text
-    const messageText = document.createElement('span');
-    messageText.textContent = message;
-    successDiv.appendChild(messageText);
-    
-    document.body.appendChild(successDiv);
-    
-    // Add show class for animation
-    setTimeout(() => {
-        successDiv.classList.add('show');
-    }, 10);
-    
-    // Remove after delay
-    setTimeout(() => {
-        successDiv.classList.remove('show');
-        setTimeout(() => {
-            successDiv.remove();
-        }, 300);
-    }, 2000);
-}
-
-// Function to revert quantity change
-function revertQuantityChange(itemId, originalQuantity) {
-    const input = document.querySelector(`.quantity-input[data-item-id="${itemId}"]`);
-    if (input) {
-        input.value = originalQuantity;
-        updateButtonStates(itemId, originalQuantity);
-    }
-}
-
-// Function to remove item
-function removeItem(itemId) {
-    if (!confirm('Are you sure you want to remove this item?')) return;
+        // Show loading state
+        cartItem.classList.add('removing');
     
     fetch('/remove-cart-item/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Accept': 'application/json'
         },
         body: JSON.stringify({
-            item_id: itemId
+                item_id: productId
+            })
         })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
     })
-    .then(response => response.json())
     .then(data => {
         if (data.success) {
-            // Remove the item from DOM
-            const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
-            itemElement.remove();
-            
-            // Update cart total
-            document.getElementById('cart-total').textContent = data.cart_total;
-            document.getElementById('items-count').textContent = data.items_count;
+                // Animate item removal
+                cartItem.style.height = cartItem.offsetHeight + 'px';
+                cartItem.classList.add('removing');
+                
+                setTimeout(() => {
+                    cartItem.remove();
+                    
+                    // Update cart total with animation
+                    const cartTotalElements = document.querySelectorAll('.cart-total');
+                    cartTotalElements.forEach(el => {
+                        el.classList.add('price-update');
+                        el.textContent = `₹${data.cart_total}`;
+                        setTimeout(() => el.classList.remove('price-update'), 300);
+                    });
+
+                    // Update cart subtotal with animation
+                    const cartSubtotalElements = document.querySelectorAll('.cart-subtotal');
+                    cartSubtotalElements.forEach(el => {
+                        el.classList.add('price-update');
+                        el.textContent = `₹${data.cart_total}`;
+                        setTimeout(() => el.classList.remove('price-update'), 300);
+                    });
             
             // Update cart count in header
-            updateCartCount(data.items_count);
+                    const cartBadge = document.querySelector('.cart-icon .badge');
+                    if (cartBadge) {
+                        cartBadge.textContent = data.items_count;
+                    }
+
+                    // Update items count
+                    const itemsCountElement = document.querySelector('.items-count');
+                    if (itemsCountElement) {
+                        itemsCountElement.textContent = `${data.items_count} item${data.items_count !== 1 ? 's' : ''}`;
+                    }
             
             // Show empty cart message if no items left
             if (data.items_count === 0) {
-                showEmptyCart();
-            }
+                        location.reload();
+                    }
+
+                    showNotification('Item removed from cart', 'success');
+                }, 300);
+            } else {
+                showNotification(data.message || 'Failed to remove item', 'error');
+                cartItem.classList.remove('removing');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-    });
-}
-
-// Function to show empty cart message
-function showEmptyCart() {
-    const cartItems = document.querySelector('.cart-items');
-    const cartSummary = document.querySelector('.cart-summary');
-    
-    // Fade out cart summary if it exists
-    if (cartSummary) {
-        cartSummary.style.opacity = '0';
-        cartSummary.style.transform = 'translateY(20px)';
-        setTimeout(() => {
-            cartSummary.remove();
-        }, 300);
+            showNotification('Failed to remove item', 'error');
+            cartItem.classList.remove('removing');
+        });
     }
-    
-    // Create and insert empty cart message with animation
-    cartItems.innerHTML = `
-        <div class="empty-cart" style="opacity: 0; transform: translateY(20px);">
-            <i class="fas fa-shopping-basket"></i>
-            <p>Your cart is empty</p>
-            <div class="empty-cart-actions">
-                <a href="/product/" class="shop-now-btn">
-                    <i class="fas fa-shopping-cart"></i> Shop Now
-                </a>
-                <p class="empty-cart-help">Need help? <a href="/contact">Contact us</a></p>
-            </div>
-        </div>
-    `;
-    
-    // Trigger animation
-    setTimeout(() => {
-        const emptyCart = cartItems.querySelector('.empty-cart');
-        if (emptyCart) {
-            emptyCart.style.opacity = '1';
-            emptyCart.style.transform = 'translateY(0)';
-        }
-    }, 10);
-    
-    // Update header cart count
-    updateCartCount(0);
-}
 
-// Function to proceed to checkout
-function proceedToCheckout() {
-    window.location.href = '/checkout/';
-}
+    // Event listeners for quantity buttons
+    document.querySelectorAll('.quantity-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const cartItem = this.closest('.cart-item');
+            const productId = cartItem.getAttribute('data-item-id');
+            const input = cartItem.querySelector('.quantity-input');
+            const currentValue = parseInt(input.value);
+            
+            // Store previous value
+            input.setAttribute('data-previous-value', currentValue);
+            
+            let newQuantity = currentValue;
+            if (this.classList.contains('minus')) {
+                newQuantity = Math.max(1, currentValue - 1);
+            } else {
+                const maxStock = parseInt(input.getAttribute('max')) || 10;
+                newQuantity = Math.min(maxStock, currentValue + 1);
+            }
 
-// Utility function to get CSRF token
+            if (newQuantity !== currentValue) {
+                input.value = newQuantity;
+                updateQuantity(productId, newQuantity);
+            }
+        });
+    });
+
+    // Event listeners for quantity input
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('focus', function() {
+            // Store the current value before change
+            this.setAttribute('data-previous-value', this.value);
+        });
+
+        input.addEventListener('change', function() {
+            const cartItem = this.closest('.cart-item');
+            const productId = cartItem.getAttribute('data-item-id');
+            const maxStock = parseInt(this.getAttribute('max')) || 10;
+            const previousValue = parseInt(this.getAttribute('data-previous-value')) || 1;
+            let newQuantity = parseInt(this.value);
+            
+            // Validate input
+            if (isNaN(newQuantity) || newQuantity < 1) {
+                newQuantity = 1;
+            } else if (newQuantity > maxStock) {
+                newQuantity = maxStock;
+            }
+
+            this.value = newQuantity;
+            
+            if (newQuantity !== previousValue) {
+                updateQuantity(productId, newQuantity);
+            }
+        });
+    });
+
+    // Event listeners for remove buttons
+    document.querySelectorAll('.remove-btn').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const cartItem = this.closest('.cart-item');
+            const productId = cartItem.getAttribute('data-item-id');
+            
+            if (confirm('Are you sure you want to remove this item?')) {
+                removeFromCart(productId);
+            }
+        });
+    });
+});
+
+// Helper function to get CSRF token
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -324,11 +276,28 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Function to update cart count in header
-function updateCartCount(count) {
-    const cartCountElement = document.querySelector('.cart-count');
-    if (cartCountElement) {
-        cartCountElement.textContent = count;
-        cartCountElement.style.display = count > 0 ? 'block' : 'none';
+// Function to show notifications
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const messageSpan = document.getElementById('notification-message');
+    
+    if (notification && messageSpan) {
+        notification.style.display = 'flex';
+        notification.className = `notification ${type}`;
+        messageSpan.textContent = message;
+        
+        notification.classList.add('show');
+        
+        setTimeout(() => {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 300);
+        }, 3000);
     }
+}
+
+// Function to proceed to checkout
+function proceedToCheckout() {
+    window.location.href = document.getElementById('urls').getAttribute('data-checkout-url');
 }

@@ -1460,3 +1460,68 @@
         justify-content: center;
     }
 }
+
+/* Simplified Button Styles */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Button Variants */
+.btn-primary {
+    background: #3498db;
+    color: white;
+}
+
+.btn-secondary {
+    background: #e9ecef;
+    color: #333;
+}
+
+.btn-save {
+    background: #2ecc71;
+    color: white;
+}
+
+.btn-delete {
+    background: #e74c3c;
+    color: white;
+}
+
+/* Hover States */
+.btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+/* Disabled State */
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Button Groups */
+.btn-group {
+    display: flex;
+    gap: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .btn-group {
+        flex-direction: column;
+    }
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+}

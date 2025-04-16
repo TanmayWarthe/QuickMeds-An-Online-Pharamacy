@@ -326,13 +326,21 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
     
     // Get selected address data
     const selectedAddress = document.querySelector('input[name="selected_address"]:checked');
-    if (selectedAddress) {
-        const addressId = selectedAddress.value;
-        // Add address ID to form data
-        formData.append('address_id', addressId);
+    if (!selectedAddress) {
+        alert('Please select a delivery address');
+        return;
     }
     
+    const addressId = selectedAddress.value;
+    formData.append('address_id', addressId);
+    
     if (paymentMethod === 'razorpay') {
+        // Show loading state
+        const submitButton = document.querySelector('.place-order-btn');
+        const originalText = submitButton.innerHTML;
+        submitButton.innerHTML = 'Processing...';
+        submitButton.disabled = true;
+
         fetch('/create-razorpay-order/', {
             method: 'POST',
             headers: {
@@ -343,7 +351,7 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
         .then(data => {
             if (data.success) {
                 const options = {
-                    key: 'rzp_test_tPcdMpc0pKpdgJ', // Your Razorpay test key
+                    key: '{{ RAZORPAY_KEY_ID }}',  // Using the key from Django context
                     amount: data.amount,
                     currency: data.currency,
                     name: 'QuickMeds',
@@ -367,32 +375,51 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                                 window.location.href = '/order-confirmation/' + data.order_id;
                             } else {
                                 alert('Payment verification failed: ' + (data.error || 'Unknown error'));
+                                submitButton.innerHTML = originalText;
+                                submitButton.disabled = false;
                             }
                         })
                         .catch(error => {
                             console.error('Error processing payment:', error);
                             alert('An error occurred while processing your payment. Please try again.');
+                            submitButton.innerHTML = originalText;
+                            submitButton.disabled = false;
                         });
                     },
                     prefill: {
                         name: getFieldValue('first_name') + ' ' + getFieldValue('last_name'),
-                        email: getFieldValue('email'),
+                        email: '{{ user.email }}',
                         contact: getFieldValue('phone')
                     },
                     theme: {
                         color: '#3498db'
+                    },
+                    modal: {
+                        ondismiss: function() {
+                            submitButton.innerHTML = originalText;
+                            submitButton.disabled = false;
+                        }
                     }
                 };
                 
                 const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    alert('Payment failed. Please try again.');
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+                });
                 rzp.open();
             } else {
                 alert('Failed to create order: ' + (data.error || 'Unknown error'));
+                submitButton.innerHTML = originalText;
+                submitButton.disabled = false;
             }
         })
         .catch(error => {
             console.error('Error creating order:', error);
             alert('An error occurred while creating your order. Please try again.');
+            submitButton.innerHTML = originalText;
+            submitButton.disabled = false;
         });
     } else if (paymentMethod === 'cod') {
         fetch('/process-cod-order/', {
