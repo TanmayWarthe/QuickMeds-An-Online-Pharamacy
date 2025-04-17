@@ -27,10 +27,17 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Update ALLOWED_HOSTS to use python-decouple with default values
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', 
-                      default='localhost,127.0.0.1,dawai-ki-dukan-j67h.onrender.com',
-                      cast=Csv())
+# Update ALLOWED_HOSTS configuration
+if DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+else:
+    # In production, allow all subdomains of onrender.com
+    ALLOWED_HOSTS = [
+        'dawai-ki-dukan-j67h.onrender.com',
+        '.onrender.com',  # This allows all subdomains of onrender.com
+        'localhost',
+        '127.0.0.1'
+    ]
 
 # For production, enable this
 SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
