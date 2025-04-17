@@ -1,0 +1,8 @@
+theme: jekyll-theme-cayman
+title: QuickMeds
+description: Online Pharmacy Management System
+baseurl: ""
+url: ""
+sass:
+  sass_dir: assets/css
+  style: compressed 
