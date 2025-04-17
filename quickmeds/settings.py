@@ -146,21 +146,12 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your Gmail address
-EMAIL_HOST_PASSWORD = 'zvzu gymu uuqa hugp'  # Your Gmail app password (generate a new one from Google Account settings)
+EMAIL_PORT = 465  # Gmail's SSL port
+EMAIL_USE_SSL = True  # Use SSL
+EMAIL_USE_TLS = False  # Don't use TLS
+EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'
+EMAIL_HOST_PASSWORD = 'zvzu gymu uuqa hugp'
 DEFAULT_FROM_EMAIL = 'QuickMeds <tanmaywarthe09@gmail.com>'
-EMAIL_TIMEOUT = 60
-
-# Additional email settings
-EMAIL_USE_LOCALTIME = True
-EMAIL_USE_SSL = True
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL_VERIFY = True
-EMAIL_USE_SSL_VERIFY_HOST = True
-EMAIL_USE_SSL_VERIFY_CERT = True
 
 # Cache Configuration
 CACHES = {
