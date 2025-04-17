@@ -481,10 +481,15 @@
     flex-direction: column;
     gap: 0.5rem;
     min-width: 200px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .floating-nav-menu.active {
     display: flex;
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .floating-nav-item {

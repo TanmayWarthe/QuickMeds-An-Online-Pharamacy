@@ -740,6 +740,211 @@
             justify-content: center;
         }
     }
+
+    .btn-cancel-order {
+        background: #f8f9fa;
+        color: #e74c3c;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel-order:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete-order {
+        background: #f8f9fa;
+        color: #dc3545;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete-order:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .order-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .order-status.cancelled {
+        background-color: #ffebee;
+        color: #e53935;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-status.cancelled .delete-icon {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 4px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .order-status.cancelled .delete-icon:hover {
+        background: rgba(220, 53, 69, 0.1);
+        transform: scale(1.1);
+    }
+
+    .order-status.cancelled .delete-icon i {
+        color: #dc3545;
+        font-size: 0.9rem;
+    }
+
+    .order-status.pending {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .order-status.processing {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .order-status.delivered {
+        background-color: #e8f5e9;
+        color: #43a047;
+    }
+
+    .order-status i {
+        font-size: 0.8rem;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .order-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .order-id-date {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .order-date {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-view-details {
+        background: #f8f9fa;
+        color: #3498db;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view-details:hover {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-cancel-order {
+        background: #f8f9fa;
+        color: #e74c3c;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel-order:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete-order {
+        background: #f8f9fa;
+        color: #dc3545;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete-order:hover {
+        background: #dc3545;
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -1046,7 +1251,7 @@
             {% if orders %}
             <div class="orders-list">
                 {% for order in orders %}
-                <div class="order-card">
+                <div class="order-card" data-order-id="{{ order.id }}">
                     <div class="order-header">
                         <div class="order-info">
                             <div class="order-id-date">
@@ -1058,10 +1263,17 @@
                                 {{ order.order_status }}
                             </span>
                         </div>
-                        <div class="order-payment">
-                            <span class="payment-method">{{ order.payment_method }}</span>
-                            <span class="payment-status {{ order.payment_status|lower }}">{{ order.payment_status }}</span>
+                    </div>
+                    <div class="order-details">
+                        {% for item in order.items.all %}
+                        <div class="order-item">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                            <div class="item-details">
+                                <h4>{{ item.product.name }}</h4>
+                                <p>Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                     <div class="order-footer">
                         <div class="order-summary">
@@ -1075,8 +1287,12 @@
                                 <i class="fas fa-eye"></i> View Details
                             </a>
                             {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
-                            <button class="btn-cancel-order" onclick="cancelOrder({{ order.id }})">
-                                <i class="fas fa-times"></i> Cancel
+                            <button class="btn-cancel-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-times"></i> Cancel Order
+                            </button>
+                            {% elif order.order_status == 'CANCELLED' %}
+                            <button class="btn-delete-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-trash-alt"></i> Delete Order
                             </button>
                             {% endif %}
                         </div>
@@ -1382,7 +1598,7 @@
     });
 
     function cancelOrder(orderId) {
-        if (confirm('Are you sure you want to cancel this order?')) {
+        if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
             fetch(`/orders/${orderId}/cancel/`, {
                 method: 'POST',
                 headers: {
@@ -1392,14 +1608,35 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    window.location.reload();
+                if (data.success) {
+                    // Get the order card
+                    const orderCard = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+                    if (orderCard) {
+                        // Update status
+                        const statusElement = orderCard.querySelector('.order-status');
+                        statusElement.className = 'order-status cancelled';
+                        statusElement.innerHTML = '<i class="fas fa-circle"></i> CANCELLED';
+                        
+                        // Replace cancel button with delete button
+                        const actionsContainer = orderCard.querySelector('.order-actions');
+                        const cancelButton = actionsContainer.querySelector('.btn-cancel-order');
+                        if (cancelButton) {
+                            const deleteButton = document.createElement('button');
+                            deleteButton.className = 'btn-delete-order';
+                            deleteButton.setAttribute('data-order-id', orderId);
+                            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Order';
+                            deleteButton.addEventListener('click', () => deleteOrder(orderId));
+                            cancelButton.replaceWith(deleteButton);
+                        }
+                    }
+                    showNotification('Order cancelled successfully', 'success');
                 } else {
-                    alert(data.message || 'Failed to cancel order');
+                    showNotification(data.message || 'Failed to cancel order', 'error');
                 }
             })
             .catch(error => {
-                alert('Failed to cancel order. Please try again.');
+                console.error('Error:', error);
+                showNotification('Failed to cancel order', 'error');
             });
         }
     }
@@ -1455,5 +1692,53 @@
             });
         }
     }
+
+    function deleteOrder(orderId) {
+        if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+            fetch(`/orders/${orderId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the order card from the DOM
+                    const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+                    if (orderCard) {
+                        orderCard.remove();
+                    }
+                    showNotification('Order deleted successfully', 'success');
+                } else {
+                    showNotification(data.message || 'Failed to delete order', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to delete order', 'error');
+            });
+        }
+    }
+
+    // Add event listeners for cancel and delete buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cancel order buttons
+        document.querySelectorAll('.btn-cancel-order').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                cancelOrder(orderId);
+            });
+        });
+
+        // Delete order buttons
+        document.querySelectorAll('.btn-delete-order').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                deleteOrder(orderId);
+            });
+        });
+    });
 </script>
 {% endblock %}

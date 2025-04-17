@@ -22,6 +22,7 @@ urlpatterns = [
     path('orders/', views.orders_view, name='orders'),
     path('orders/<int:order_id>/', views.order_detail, name='order_detail'),
     path('orders/<int:order_id>/cancel/', views.cancel_order, name='cancel_order'),
+    path('orders/<int:order_id>/delete/', views.delete_order, name='delete_order'),
     path('create-checkout-session/', views.create_checkout_session, name='create_checkout_session'),
     path('process-payment/', views.process_payment, name='process_payment'),
     path('create-razorpay-order/', views.create_razorpay_order, name='create_razorpay_order'),

@@ -1313,6 +1313,7 @@ def orders_view(request):
 def order_detail(request, order_id):
     try:
         order = get_object_or_404(Order, id=order_id, user=request.user)
+        print(order.first_name, order.last_name, order.address)  # Debugging line
         context = {
             'order': order,
             'order_items': order.items.all(),
@@ -1330,14 +1331,14 @@ def cancel_order(request, order_id):
         order = Order.objects.get(id=order_id, user=request.user)
         
         # Check if order can be cancelled
-        if order.order_status in ['delivered', 'cancelled']:
+        if order.order_status in ['DELIVERED', 'CANCELLED']:
             return JsonResponse({
                 'success': False,
                 'message': 'This order cannot be cancelled'
             })
         
         # Update order status
-        order.order_status = 'cancelled'
+        order.order_status = 'CANCELLED'
         order.save()
         
         return JsonResponse({
@@ -1465,4 +1466,34 @@ def get_cart_count(request):
         return JsonResponse({
             'success': False,
             'message': str(e)
+        }, status=500)
+
+@login_required
+@require_POST
+def delete_order(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        
+        # Only allow deletion of cancelled orders
+        if order.order_status != 'CANCELLED':
+            return JsonResponse({
+                'success': False,
+                'message': 'Only cancelled orders can be deleted'
+            })
+        
+        order.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Order deleted successfully'
+        })
+        
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Order not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'Failed to delete order'
         }, status=500)
