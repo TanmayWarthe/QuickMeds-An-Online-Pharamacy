@@ -40,9 +40,11 @@ else:
     ]
 
 # For production, enable this
-SECURE_SSL_REDIRECT = config('SECURE_SSL_REDIRECT', default=False, cast=bool)
-SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool)
-CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool)
+SECURE_SSL_REDIRECT = False
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+SECURE_BROWSER_XSS_FILTER = True
+SECURE_CONTENT_TYPE_NOSNIFF = True
 
 # Application definition
 
@@ -56,6 +58,8 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'QuickMedsApp',
     'whitenoise.runserver_nostatic',  # Add this line
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 MIDDLEWARE = [
@@ -143,6 +147,19 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
 
+# Media files
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Cloudinary configuration
+if not DEBUG and config('USE_CLOUDINARY', default=False, cast=bool):
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
+        'API_KEY': config('CLOUDINARY_API_KEY', default=''),
+        'API_SECRET': config('CLOUDINARY_API_SECRET', default='')
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
 # Enable WhiteNoise compression and caching support
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -155,17 +172,35 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
+<<<<<<< HEAD
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'yrin clgt kcbf hgia'  # Your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+=======
+EMAIL_PORT = 465
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+EMAIL_HOST_USER = config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
+EMAIL_TIMEOUT = 30
+
+# SSL Context Configuration
+if DEBUG:
+    ssl._create_default_https_context = ssl._create_unverified_context
+else:
+    # Production SSL context
+    ssl_context = ssl.create_default_context()
+    ssl_context.check_hostname = False
+    ssl_context.verify_mode = ssl.CERT_NONE
+    EMAIL_SSL_CERTFILE = None
+    EMAIL_SSL_KEYFILE = None
+>>>>>>> c9a98bab916360d5141850df8e3ecabd824d70f5
 
 # Cache Configuration
 CACHES = {
