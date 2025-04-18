@@ -20,6 +20,8 @@ from .payment import create_payment_order, payment_callback, place_order
 import razorpay
 from .razorpay_utils import create_order, verify_payment
 from decouple import config
+from .forms import ContactForm
+from django.core.mail import send_mail
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -1381,52 +1383,35 @@ def product(request):
     }
     return render(request, 'product.html', context)
 
-def purchase_view(request):
-    if request.method == 'POST':
-        try:
-            name = request.POST.get('name')
-            phone = request.POST.get('phone')
-            delivery = request.POST.get('delivery')
-            notes = request.POST.get('notes')
-            
-            # Here you would typically save to database
-            # For now, just return success response
-            return JsonResponse({
-                'success': True,
-                'message': 'Order submitted successfully!'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
-            
-    return render(request, 'purchase.html')
-
 def contact_view(request):
     if request.method == 'POST':
-        try:
-            name = request.POST.get('name')
-            email = request.POST.get('email')
-            phone = request.POST.get('phone')
-            subject = request.POST.get('subject')
-            message = request.POST.get('message')
-            
-            # Here you would typically:
-            # 1. Save to database
-            # 2. Send email notification
-            # For now, just return success response
-            return JsonResponse({
-                'success': True,
-                'message': 'Message sent successfully! We will get back to you soon.'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
-            
-    return render(request, 'contact.html')
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            # Extract data from the form
+            name = form.cleaned_data['name']
+            email = form.cleaned_data['email']
+            phone = form.cleaned_data['phone']
+            subject = form.cleaned_data['subject']
+            message = form.cleaned_data['message']
+
+            # Prepare the email content
+            email_subject = f"New Contact Form Submission: {subject}"
+            email_body = f"Name: {name}\nEmail: {email}\nPhone: {phone}\nMessage:\n{message}"
+
+            # Send the email
+            send_mail(
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,
+                ['tanmaywarthe09@gmail.com'],  # Replace with the recipient's email address
+                fail_silently=False,
+            )
+
+            return redirect('success')  # Redirect to a success page or show a success message
+    else:
+        form = ContactForm()
+
+    return render(request, 'contact.html', {'form': form})
 
 @require_http_methods(["GET"])
 def check_auth(request):
@@ -1497,3 +1482,6 @@ def delete_order(request, order_id):
             'success': False,
             'message': 'Failed to delete order'
         }, status=500)
+
+def success_view(request):
+    return render(request, 'success.html')  # Create a success.html template

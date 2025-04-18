@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 <style>
     body {
         font-family: 'Poppins', sans-serif;
@@ -1077,10 +1078,7 @@
                     <i class="fas fa-prescription-bottle-alt"></i>
                     <span>Products</span>
                 </a>
-                <a href="{% url 'purchase' %}" class="nav-item">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Purchase</span>
-                </a>
+                {# <a href="{% url 'purchase' %}">Purchase</a> #}
                 <a href="{% url 'contact' %}" class="nav-item">
                     <i class="fas fa-phone"></i>
                     <span>Contact</span>
@@ -1456,9 +1454,15 @@
                         <div class="card-body">
                             <form id="password-form" class="needs-validation" novalidate>
                                 <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                
+                                <div class="mb-3">
                                     <label for="current-password" class="form-label">Current Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="current-password" required>
+                                        <input type="password" class="form-control password-field" id="current-password" name="current-password" required autocomplete="current-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -1469,7 +1473,7 @@
                                 <div class="mb-3">
                                     <label for="new-password" class="form-label">New Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="new-password" required>
+                                        <input type="password" class="form-control password-field" id="new-password" name="new-password" required autocomplete="new-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -1481,7 +1485,7 @@
                                 <div class="mb-3">
                                     <label for="confirm-password" class="form-label">Confirm New Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="confirm-password" required>
+                                        <input type="password" class="form-control password-field" id="confirm-password" name="confirm-password" required autocomplete="new-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
