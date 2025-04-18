@@ -20,6 +20,9 @@ from .payment import create_payment_order, payment_callback, place_order
 import razorpay
 from .razorpay_utils import create_order, verify_payment
 from decouple import config
+from django.core.cache import cache
+import logging
+import random
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -1012,44 +1015,26 @@ def create_checkout_session(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_otp(request):
-    try:
-        data = json.loads(request.body)
-        email = data.get('email')
-        
-        if not email:
-            return JsonResponse({
-                'success': False,
-                'message': 'Email is required'
-            }, status=400)
-        
-        # Generate OTP
-        otp = generate_otp()
-        
-        # Store OTP
-        if not store_otp(email, otp):
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to store OTP'
-            }, status=500)
-        
-        # Send OTP via email
-        if send_otp_email(email, otp):
-            return JsonResponse({
-                'success': True,
-                'message': 'OTP sent successfully'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to send OTP'
-            }, status=500)
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            # Generate OTP
+            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             
-    except Exception as e:
-        print(f"Error in send_otp view: {str(e)}")  # Debug print
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+            # Store OTP in cache
+            cache.set(f'otp_{email}', otp, timeout=600)  # 10 minutes timeout
+            
+            # Send OTP
+            if send_otp_email(email, otp):
+                return JsonResponse({'status': 'success', 'message': 'OTP sent successfully'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
+                
+        except Exception as e:
+            logger.error(f"Error in send_otp view: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 @require_http_methods(["POST"])
