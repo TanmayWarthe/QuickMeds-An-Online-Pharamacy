@@ -20,14 +20,8 @@ from .payment import create_payment_order, payment_callback, place_order
 import razorpay
 from .razorpay_utils import create_order, verify_payment
 from decouple import config
-<<<<<<< HEAD
 from .forms import ContactForm
 from django.core.mail import send_mail
-=======
-from django.core.cache import cache
-import logging
-import random
->>>>>>> c9a98bab916360d5141850df8e3ecabd824d70f5
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 

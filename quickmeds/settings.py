@@ -175,32 +175,11 @@ LOGIN_REDIRECT_URL = 'home'
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-<<<<<<< HEAD
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'yrin clgt kcbf hgia'  # Your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-=======
-EMAIL_PORT = 465
-EMAIL_USE_TLS = False
-EMAIL_USE_SSL = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER')
-EMAIL_TIMEOUT = 30
-
-# SSL Context Configuration
-if DEBUG:
-    ssl._create_default_https_context = ssl._create_unverified_context
-else:
-    # Production SSL context
-    ssl_context = ssl.create_default_context()
-    ssl_context.check_hostname = False
-    ssl_context.verify_mode = ssl.CERT_NONE
-    EMAIL_SSL_CERTFILE = None
-    EMAIL_SSL_KEYFILE = None
->>>>>>> c9a98bab916360d5141850df8e3ecabd824d70f5
 
 # Cache Configuration
 CACHES = {
