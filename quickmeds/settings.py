@@ -175,10 +175,11 @@ LOGIN_REDIRECT_URL = 'home'
 # Email Configuration
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_PORT = 465  # Use SSL
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'yrin clgt kcbf hgia'  # Your app password
+EMAIL_HOST_PASSWORD = 'wjlc iris covi oune'  # Your app password
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Cache Configuration
