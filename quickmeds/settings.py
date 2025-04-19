@@ -178,9 +178,10 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465  # Use SSL
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'wjlc iris covi oune'  # Your app password
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'
+EMAIL_HOST_PASSWORD = 'wjlc iris covi oune'
+DEFAULT_FROM_EMAIL = 'tanmaywarthe09@gmail.com'
+EMAIL_TIMEOUT = 60
 
 # Cache Configuration
 CACHES = {
