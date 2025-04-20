@@ -411,43 +411,6 @@
         color: #3498db;
     }
 
-    /* Dashboard Stats Cards */
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2.5rem;
-    }
-
-    .stat-card {
-        background: linear-gradient(135deg, #ffffff, #f8f9fa);
-        border-radius: 15px;
-        padding: 1.8rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    }
-
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
-        background: linear-gradient(45deg, #3498db, #2c3e50);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-    }
-
     /* Form Styles */
     .form-group {
         margin-bottom: 1.8rem;
@@ -946,6 +909,178 @@
         background: #dc3545;
         color: white;
     }
+
+    .personal-info-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .section-header h2 i {
+        color: #3498db;
+        font-size: 1.6rem;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+
+    .info-section {
+        position: relative;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-title i {
+        font-size: 1.4rem;
+        color: #3498db;
+        background: rgba(52, 152, 219, 0.1);
+        padding: 0.8rem;
+        border-radius: 12px;
+    }
+
+    .section-title h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transform: translateX(5px);
+    }
+
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        background: #3498db;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        display: block;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        display: block;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .edit-profile-action {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn-edit-profile {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit-profile:hover {
+        background: linear-gradient(45deg, #2980b9, #2c3e50);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-edit-profile i {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .info-card {
+            padding: 1.5rem;
+        }
+
+        .info-item {
+            padding: 0.8rem;
+            gap: 1rem;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            font-size: 1rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+        }
+
+        .btn-edit-profile {
+            width: 100%;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -963,8 +1098,10 @@
 
             <!-- Search Bar -->
             <div class="search-container">
-                <input type="text" class="search-box" placeholder="Search medicines, health products, and more...">
-                <i class="fas fa-search search-icon"></i>
+                <form action="{% url 'search_products' %}" method="GET" class="search-form">
+                    <input type="text" name="q" class="search-box" placeholder="Search medicines, health products..." required>
+                    <i class="fas fa-search search-icon"></i>
+                </form>
             </div>
 
             <!-- Navigation Links -->
@@ -1029,10 +1166,7 @@
         </div>
         
         <ul class="profile-nav">
-            <li class="active" data-tab="dashboard">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </li>
-            <li data-tab="personal-info">
+            <li class="active" data-tab="personal-info">
                 <i class="fas fa-user-edit"></i> Personal Info
             </li>
             <li data-tab="orders">
@@ -1099,148 +1233,185 @@
                 </div>
             </div>
         </div>
-        <!-- Dashboard Tab -->
-        <div class="profile-tab active" id="dashboard">
-            <div class="dashboard-header">
-                <h2>Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
-            </div>
-            
-            <div class="dashboard-stats">
-                <div class="stat-card orders">
-                    <div class="stat-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ orders_count|default:"1" }}</h3>
-                        <p>Total Orders Placed</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card savings">
-                    <div class="stat-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>₹{{ total_savings|default:"0" }}</h3>
-                        <p>Total Savings</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card addresses">
-                    <div class="stat-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ addresses_count|default:"1" }}</h3>
-                        <p>Saved Addresses</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quick-actions">
-                <h3>Quick Actions</h3>
-                <div class="action-buttons">
-                    <a href="{% url 'product' %}" class="action-btn">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Shop Now</span>
-                    </a>
-                    <button class="action-btn" onclick="showAddressForm()">
-                        <i class="fas fa-plus"></i>
-                        <span>Add Address</span>
-                    </button>
-                    <a href="{% url 'orders' %}" class="action-btn">
-                        <i class="fas fa-history"></i>
-                        <span>Order History</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                {% if recent_orders %}
-                <div class="activity-timeline">
-                    {% for activity in recent_activities %}
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="{{ activity.icon }}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>{{ activity.title }}</h4>
-                            <p>{{ activity.description }}</p>
-                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="activity-empty">
-                    <i class="fas fa-history"></i>
-                    <p>No recent activity</p>
-                    <a href="{% url 'product' %}" class="btn-primary">Start Shopping</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
         <!-- Personal Info Tab -->
-        <div class="profile-tab" id="personal-info">
-            <h2><i class="fas fa-user-edit"></i> Personal Information</h2>
-            <form id="profile-form" class="profile-edit-form">
-                {% csrf_token %}
-                <div class="form-sections">
-                    <div class="form-section">
-                        <h3>Basic Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
-                                <small class="form-text text-muted">Email cannot be changed</small>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required pattern="[0-9]{10}">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
+        <div class="profile-tab active" id="personal-info">
+            <div class="personal-info-container">
+                <!-- View Mode -->
+                <div id="profile-view" class="profile-view-mode">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-circle"></i> Personal Information</h2>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Additional Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select id="gender" name="gender" class="form-control">
-                                    <option value="">Select Gender</option>
-                                    <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
-                                    <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
-                                    <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
-                                </select>
+                    <div class="info-card">
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-id-card-alt"></i>
+                                <h3>Basic Information</h3>
                             </div>
-                            <div class="form-group">
-                                <label for="dob">Date of Birth</label>
-                                <input type="date" id="dob" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Full Name</span>
+                                        <span class="info-value">{{ user.get_full_name }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Email</span>
+                                        <span class="info-value">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Phone</span>
+                                        <span class="info-value">{{ user.userprofile.phone|default:"Not provided" }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Gender</span>
+                                        <span class="info-value">
+                                            {% if user.userprofile.gender == 'M' %}Male
+                                            {% elif user.userprofile.gender == 'F' %}Female
+                                            {% elif user.userprofile.gender == 'O' %}Other
+                                            {% else %}Not specified{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Date of Birth</span>
+                                        <span class="info-value">
+                                            {{ user.userprofile.dob|date:"F d, Y"|default:"Not provided" }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Member Since</span>
+                                        <span class="info-value">{{ user.date_joined|date:"F Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-profile-action">
+                                <button class="btn btn-edit-profile" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" id="cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save" id="saveChanges">Save Changes</button>
+
+                <!-- Edit Mode (Hidden by default) -->
+                <div id="profile-edit" class="profile-edit-mode" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                        <button class="btn btn-cancel-edit" onclick="toggleEditMode()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+
+                    <form id="profile-form" class="profile-edit-form">
+                        {% csrf_token %}
+                        <div class="form-card">
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-id-card"></i>
+                                    <h3>Basic Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="first_name">First Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="last_name">Last Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
+                                        </div>
+                                        <small class="form-text text-muted"><i class="fas fa-info-circle"></i> Email cannot be changed</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required pattern="[0-9]{10}">
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h3>Additional Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="gender">Gender</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                            <select id="gender" name="gender" class="form-control">
+                                                <option value="">Select Gender</option>
+                                                <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
+                                                <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
+                                                <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dob">Date of Birth</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                            <input type="date" id="dob" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-save" id="saveChanges">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
 
         <!-- Orders Tab -->
@@ -1566,6 +1737,7 @@
 {% block extra_js %}
 <script src="{% static 'js/Homepage.js' %}"></script>
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile_search.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1744,5 +1916,24 @@
             });
         });
     });
+
+    function toggleEditMode() {
+        const viewMode = document.getElementById('profile-view');
+        const editMode = document.getElementById('profile-edit');
+        
+        if (viewMode.style.display !== 'none') {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            // Smooth scroll to edit form
+            editMode.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            editMode.style.display = 'none';
+            viewMode.style.display = 'block';
+            // Reset form when canceling
+            document.getElementById('profile-form').reset();
+            // Remove any validation states
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        }
+    }
 </script>
 {% endblock %}

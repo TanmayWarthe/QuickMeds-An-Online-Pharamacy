@@ -69,10 +69,14 @@ function cancelOrder(orderId, button) {
         headers: {
             'X-CSRFToken': getCookie('csrftoken'),
             'Content-Type': 'application/json'
-        }
+        },
+        credentials: 'same-origin'
     })
     .then(response => {
         if (!response.ok) {
+            if (response.status === 404) {
+                throw new Error('Order not found or invalid URL');
+            }
             throw new Error(`HTTP error! status: ${response.status}`);
         }
         return response.json();
@@ -84,7 +88,7 @@ function cancelOrder(orderId, button) {
     .catch(error => {
         console.error('Error:', error);
         hideLoadingOverlay(loadingOverlay);
-        handleCancellationError(button);
+        handleCancellationError(button, error);
     });
 }
 
@@ -99,22 +103,40 @@ function handleCancellationSuccess(data, button) {
     }
 }
 
-function handleCancellationError(button) {
+function handleCancellationError(button, error) {
     resetButton(button);
-    showNotification('Failed to cancel order. Please try again or contact support.', 'error');
+    let errorMessage = 'Failed to cancel order. Please try again or contact support.';
+    
+    if (error.message.includes('404')) {
+        errorMessage = 'Unable to cancel order. The order may have been already cancelled or deleted.';
+    } else if (error.message.includes('JSON')) {
+        errorMessage = 'Server error occurred. Please try again later.';
+    }
+    
+    showNotification(errorMessage, 'error');
+    console.error('Error details:', error);
 }
 
 function updateOrderUI(button, data) {
-    const orderCard = button.closest('.order-card');
-    updateOrderStatus(orderCard);
-    updatePaymentStatus(orderCard, data.payment_status);
-    replaceWithDeleteButton(button, orderCard.dataset.orderId);
+    try {
+        const orderCard = button.closest('.order-card');
+        if (!orderCard) {
+            console.error('Order card not found');
+            return;
+        }
+        updateOrderStatus(orderCard);
+        updatePaymentStatus(orderCard, data.payment_status);
+        replaceWithDeleteButton(button, orderCard.dataset.orderId);
+    } catch (error) {
+        console.error('Error updating UI:', error);
+        showNotification('Order was cancelled but display could not be updated. Please refresh the page.', 'warning');
+    }
 }
 
 function updateOrderStatus(orderCard) {
     const statusElement = orderCard.querySelector('.order-status');
     statusElement.className = `order-status ${getStatusClass('CANCELLED')}`;
-    statusElement.innerHTML = '<i class="fas fa-circle me-2"></i>CANCELLED';
+    statusElement.innerHTML = '<i class="fa-solid fa-circle me-2" aria-hidden="true"></i>CANCELLED';
 }
 
 function updatePaymentStatus(orderCard, paymentStatus) {
@@ -135,7 +157,7 @@ function replaceWithDeleteButton(button, orderId) {
                 onclick="deleteOrder(null, this)" 
                 data-order-id="${orderId}"
                 title="Delete cancelled order">
-            <i class="fas fa-trash-alt"></i> Delete Order
+            <i class="fa-solid fa-trash" aria-hidden="true"></i><span class="ms-1">Delete Order</span>
         </button>
     `;
 }

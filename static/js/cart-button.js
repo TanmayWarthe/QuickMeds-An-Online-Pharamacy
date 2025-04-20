@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
+    updateCartCount(); // Initialize cart count on page load
     const cartButtons = document.querySelectorAll('.cart-button');
     
     cartButtons.forEach(button => {
@@ -23,11 +24,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     'X-CSRFToken': getCookie('csrftoken'),
                     'Accept': 'application/json'
                 },
+                credentials: 'same-origin',
                 body: JSON.stringify({
                     quantity: 1
                 })
             })
             .then(response => {
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    throw new Error('Invalid response format');
+                }
                 if (!response.ok) {
                     if (response.status === 403) {
                         window.location.href = '/login/';
@@ -39,29 +45,64 @@ document.addEventListener('DOMContentLoaded', function() {
             })
             .then(data => {
                 if (data.success) {
-                    const cartBadge = document.querySelector('.cart-icon .badge');
-                    if (cartBadge && data.cart_count !== undefined) {
-                        cartBadge.textContent = data.cart_count;
-                    }
+                    updateCartBadge(data.cart_count);
                     showNotification('Added to cart successfully!', 'success');
                 } else {
                     throw new Error(data.message || 'Failed to add to cart');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification(error.message, 'error');
+                showNotification(error.message || 'Failed to add to cart', 'error');
             })
             .finally(() => {
-                const button = this;
-                setTimeout(() => {
-                    button.disabled = false;
-                    button.classList.remove('clicked');
-                }, 2000);
+                this.classList.remove('clicked');
+                this.disabled = false;
             });
         });
     });
 });
+
+function updateCartCount() {
+    fetch('/get-cart-count/', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        credentials: 'same-origin'
+    })
+    .then(response => {
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+            throw new Error('Invalid response format');
+        }
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            updateCartBadge(data.cart_count);
+        }
+    })
+    .catch(error => {
+        // Silently handle errors and hide the badge
+        updateCartBadge(0);
+    });
+}
+
+function updateCartBadge(count) {
+    const cartBadge = document.querySelector('.cart-icon .badge');
+    if (cartBadge) {
+        if (count > 0) {
+            cartBadge.textContent = count;
+            cartBadge.style.display = 'flex';
+        } else {
+            cartBadge.style.display = 'none';
+        }
+    }
+}
 
 function getCookie(name) {
     let cookieValue = null;
@@ -79,13 +120,20 @@ function getCookie(name) {
 }
 
 function showNotification(message, type = 'success') {
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+
     const notification = document.createElement('div');
     notification.className = `notification ${type}`;
     notification.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
         <span>${message}</span>
     `;
+
     document.body.appendChild(notification);
+    
     setTimeout(() => notification.classList.add('show'), 10);
     setTimeout(() => {
         notification.classList.remove('show');

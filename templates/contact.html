@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/contact.css' %}">
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
 /* Footer Styles */
 footer {
@@ -431,23 +431,23 @@ footer .contact-info i {
     <div class="container-fluid px-4">
         <div class="nav-start">
             <div class="brand-section">
-                <button id="sidebarToggle" class="sidebar-toggle" aria-label="Toggle navigation menu">
+                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
                     <span class="toggle-icon"></span>
                     <span class="toggle-icon"></span>
                     <span class="toggle-icon"></span>
                 </button>
                 <div class="logo-wrapper">
-                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="Logo">
+                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
                 </div>
                 <a class="navbar-brand" href="{% url 'home' %}">QuickMeds</a>
             </div>
         </div>
-
+        
         <div class="nav-actions">
             <a href="{% url 'product' %}" class="quick-order-btn">
-                <i class="fas fa-bolt"></i> <span>Quick Order</span>
+                <i class="fas fa-bolt"></i>
+                <span>Quick Order</span>
             </a>
-
             {% if user.is_authenticated %}
             <div class="nav-icons">
                 <a href="{% url 'cart' %}" class="icon-btn cart-icon">
@@ -455,10 +455,10 @@ footer .contact-info i {
                     <span class="badge">{{ cart_count|default:0 }}</span>
                 </a>
                 <div class="dropdown">
-                    <a href="{% url 'profile' %}" class="icon-btn user-icon">
+                    <button class="icon-btn user-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-user"></i>
-                    </a>
-                    <ul class="dropdown-menu">
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
@@ -479,7 +479,7 @@ footer .contact-info i {
 <div class="tagline">
     <div class="centered-text-container">
         <i class="fas fa-heartbeat tagline-icon"></i>
-        <span>SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
+        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
         <i class="fas fa-pills tagline-icon"></i>
     </div>
 </div>
@@ -585,48 +585,46 @@ footer .contact-info i {
 </div>
 
 <!-- Footer -->
-<footer>
-    <div class="container">
-        <div class="row">
-            <!-- About QuickMeds -->
+<footer class="bg-dark text-white py-5">
+    <div class="container-fluid">
+        <div class="row mx-5">
+            <!-- About Section -->
             <div class="col-md-4 mb-4">
-                <h5>ABOUT QUICKMEDS</h5>
-                <p>Your trusted online pharmacy for all your medical needs.</p>
-                <p>Quality medicines delivered to your doorstep.</p>
+                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
+                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
             </div>
 
             <!-- Quick Links -->
             <div class="col-md-4 mb-4">
-                <h5>QUICK LINKS</h5>
-                <ul>
-                    <li><a href="{% url 'home' %}">Home</a></li>
-                    <li><a href="{% url 'product' %}">Products</a></li>
-                    <li><a href="{% url 'about' %}">About Us</a></li>
-                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                <h5 class="text-uppercase fw-bold">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
+                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-white text-decoration-none">Contact</a></li>
                 </ul>
             </div>
 
-            <!-- Contact Us -->
+            <!-- Contact Info -->
             <div class="col-md-4 mb-4">
-                <h5>CONTACT US</h5>
-                <div class="contact-info">
-                    <p><i class="fas fa-map-marker-alt"></i>Nagpur, Maharashtra, India</p>
-                    <p><i class="fas fa-phone"></i>+91 123-456-7890</p>
-                    <p><i class="fas fa-envelope"></i>info@quickmeds.com</p>
-                </div>
+                <h5 class="text-uppercase fw-bold">Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
+                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
+                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
+                </ul>
             </div>
         </div>
 
-        <div class="footer-bottom">
-            <div class="social-icons text-center">
-                <a href="#"><i class="fab fa-facebook-f"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-linkedin-in"></i></a>
+        <!-- Social Links & Copyright -->
+        <div class="text-center border-top pt-4 mt-4">
+            <div class="mb-3">
+                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
             </div>
-            <div class="copyright text-center">
-                © 2025 QuickMeds. All rights reserved.
-            </div>
+            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
         </div>
     </div>
 </footer>
@@ -696,9 +694,38 @@ footer .contact-info i {
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/sidebar.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all dropdowns
+    const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+    const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl));
+
+    // Profile dropdown specific initialization
+    const userIcon = document.querySelector('.user-icon');
+    if (userIcon) {
+        userIcon.addEventListener('click', function() {
+            const dropdownMenu = this.nextElementSibling;
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            } else {
+                dropdownMenu.classList.add('show');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userIcon.contains(e.target)) {
+                const dropdownMenu = userIcon.nextElementSibling;
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+        });
+    }
+
+    // Contact form handling
     const contactForm = document.getElementById('contactForm');
     const submitBtn = contactForm.querySelector('.submit-btn');
     const loadingOverlay = document.getElementById('loadingOverlay');

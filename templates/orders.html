@@ -5,7 +5,6 @@
 {% block title %}My Orders - QuickMeds{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/orders.css' %}">
 <style>
 /* Order Status Styles */
 .order-status {
@@ -255,7 +254,7 @@
                                     onclick="deleteOrder(null, this)" 
                                     data-order-id="{{ order.id }}"
                                     title="Delete cancelled order">
-                                <i class="fas fa-trash-alt"></i> Delete Order
+                                <i class="fa-solid fa-trash" aria-hidden="true"></i><span class="ms-1">Delete Order</span>
                             </button>
                         {% else %}
                             {% if order.can_cancel %}
@@ -263,12 +262,12 @@
                                         data-order-id="{{ order.id }}"
                                         data-order-status="{{ order.order_status }}"
                                         data-order-age="{{ order.created_at|timesince }}">
-                                    <i class="fas fa-times"></i> Cancel Order
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="ms-1">Cancel Order</span>
                                 </button>
                             {% endif %}
                             <a href="{% url 'order_detail' order.id %}" 
                                class="btn btn-outline-primary btn-sm">
-                                <i class="fas fa-eye"></i> View Details
+                                <i class="fa-solid fa-eye" aria-hidden="true"></i><span class="ms-1">View Details</span>
                             </a>
                         {% endif %}
                     </div>

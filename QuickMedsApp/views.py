@@ -25,6 +25,7 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.db import transaction
 import logging
+from datetime import datetime
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -339,51 +340,68 @@ def profile_view(request):
     return render(request, 'profile.html', context)
 
 @login_required
-@csrf_exempt
 def update_profile(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
     
     try:
-        # Try to parse JSON data first
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            # If JSON parsing fails, use POST data
-            data = request.POST
-        
+        # Get data from request
+        data = request.POST
         user = request.user
+        profile = user.userprofile
         
-        # Update user info
+        # Validate required fields
+        errors = {}
+        
+        # Validate first name
         first_name = data.get('first_name', '').strip()
+        if not first_name:
+            errors['first_name'] = ['First name is required']
+            
+        # Validate last name
         last_name = data.get('last_name', '').strip()
+        if not last_name:
+            errors['last_name'] = ['Last name is required']
+            
+        # Validate phone (if provided)
         phone = data.get('phone', '').strip()
-        address = data.get('address', '').strip()
-        city = data.get('city', '').strip()
-        state = data.get('state', '').strip()
-        pincode = data.get('pincode', '').strip()
+        if phone and not phone.isdigit():
+            errors['phone'] = ['Phone number must contain only digits']
+        elif phone and len(phone) != 10:
+            errors['phone'] = ['Phone number must be 10 digits']
+            
+        # If there are validation errors, return them
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Validation failed',
+                'errors': errors
+            }, status=400)
         
         # Update User model fields
-        if first_name:
-            user.first_name = first_name
-        if last_name:
-            user.last_name = last_name
+        user.first_name = first_name
+        user.last_name = last_name
         user.save()
         
         # Update UserProfile fields
-        profile = user.userprofile
-        if phone:
-            profile.phone = phone
-        if address:
-            profile.address = address
-        if city:
-            profile.city = city
-        if state:
-            profile.state = state
-        if pincode:
-            profile.pincode = pincode
+        profile.phone = phone if phone else None
+        
+        # Update gender if provided
+        gender = data.get('gender')
+        if gender in ['M', 'F', 'O']:
+            profile.gender = gender
+            
+        # Update date of birth if provided
+        dob = data.get('dob')
+        if dob:
+            try:
+                profile.dob = datetime.strptime(dob, '%Y-%m-%d').date()
+            except ValueError:
+                pass  # Ignore invalid date format
+                
         profile.save()
         
+        # Return success response with updated data
         return JsonResponse({
             'status': 'success',
             'message': 'Profile updated successfully!',
@@ -391,11 +409,9 @@ def update_profile(request):
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'email': user.email,
-                'phone': profile.phone,
-                'address': profile.address,
-                'city': profile.city,
-                'state': profile.state,
-                'pincode': profile.pincode
+                'phone': profile.phone or '',
+                'gender': profile.gender or '',
+                'dob': profile.dob.strftime('%Y-%m-%d') if profile.dob else '',
             }
         })
         
@@ -403,7 +419,7 @@ def update_profile(request):
         return JsonResponse({
             'status': 'error',
             'message': f'Error updating profile: {str(e)}'
-        }, status=400)
+        }, status=500)
 
 @login_required
 @require_POST
