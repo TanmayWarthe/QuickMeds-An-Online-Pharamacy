@@ -9,10 +9,17 @@
     <meta http-equiv="Expires" content="0">
     {% csrf_token %}
     <title>{% block title %}QuickMeds - Online Pharmacy{% endblock %}</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'img/medicines-icon.png' %}">
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/medicines-icon.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/medicines-icon.png' %}">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="manifest" href="{% static 'site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'img/medicines-icon.png' %}" color="#5bbad5">
+    <meta name="msapplication-TileImage" content="{% static 'img/medicines-icon.png' %}">
+    <meta name="msapplication-TileColor" content="#2196F3">
+    <meta name="theme-color" content="#2196F3">
     {% block extra_css %}
     <style>
 

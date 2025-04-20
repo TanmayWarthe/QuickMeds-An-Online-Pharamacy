@@ -204,7 +204,8 @@ class Order(models.Model):
         ('PENDING', 'Pending'),
         ('COMPLETED', 'Completed'),
         ('FAILED', 'Failed'),
-        ('REFUNDED', 'Refunded')
+        ('REFUNDED', 'Refunded'),
+        ('REFUND_PENDING', 'Refund Pending')
     ]
     PAYMENT_METHOD_CHOICES = [
         ('COD', 'Cash on Delivery'),
@@ -234,6 +235,51 @@ class Order(models.Model):
     
     def __str__(self):
         return f"Order #{self.id} by {self.user.email}"
+
+    def can_cancel(self):
+        """
+        Check if the order can be cancelled based on its current status and time since creation
+        """
+        if self.order_status in ['DELIVERED', 'CANCELLED']:
+            return False
+            
+        # Orders in processing state can only be cancelled within 24 hours
+        if self.order_status == 'PROCESSING':
+            time_since_creation = timezone.now() - self.created_at
+            if time_since_creation > timezone.timedelta(hours=24):
+                return False
+                
+        # Orders in shipped state cannot be cancelled
+        if self.order_status == 'SHIPPED':
+            return False
+            
+        return True
+        
+    def get_status_display_class(self):
+        """
+        Returns the CSS class for status display
+        """
+        status_classes = {
+            'PENDING': 'status-pending',
+            'PROCESSING': 'status-processing',
+            'SHIPPED': 'status-shipped',
+            'DELIVERED': 'status-delivered',
+            'CANCELLED': 'status-cancelled'
+        }
+        return status_classes.get(self.order_status, '')
+        
+    def get_payment_status_display_class(self):
+        """
+        Returns the CSS class for payment status display
+        """
+        status_classes = {
+            'PENDING': 'payment-pending',
+            'COMPLETED': 'payment-completed',
+            'FAILED': 'payment-failed',
+            'REFUNDED': 'payment-refunded',
+            'REFUND_PENDING': 'payment-refund-pending'
+        }
+        return status_classes.get(self.payment_status, '')
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
