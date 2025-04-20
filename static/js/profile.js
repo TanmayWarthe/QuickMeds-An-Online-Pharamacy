@@ -181,7 +181,7 @@ let addressFormVisible = false;
 function showAddressForm() {
     if (!addressFormContainer || addressFormVisible) return;
     
-    addressFormContainer.style.display = 'block';
+        addressFormContainer.style.display = 'block';
     addressFormVisible = true;
     
     // Use IntersectionObserver for smooth scrolling
@@ -193,7 +193,7 @@ function showAddressForm() {
     });
     observer.observe(addressFormContainer);
     
-    // Reset form when showing
+        // Reset form when showing
     if (addressForm) {
         addressForm.reset();
         resetValidationState();
@@ -204,16 +204,16 @@ function showAddressForm() {
 function hideAddressForm() {
     if (!addressFormContainer || !addressFormVisible) return;
     
-    addressFormContainer.style.display = 'none';
+        addressFormContainer.style.display = 'none';
     addressFormVisible = false;
     
-    // Reset form when hiding
+        // Reset form when hiding
     if (addressForm) {
         addressForm.reset();
         resetValidationState();
     }
-    currentEditingAddressId = null;
-}
+        currentEditingAddressId = null;
+    }
 
 // Reset validation state
 function resetValidationState() {
@@ -363,7 +363,7 @@ async function deleteAddress(addressId) {
         }
 
         const data = await response.json();
-        
+
         showNotification('Address deleted successfully!', 'success');
         
         // Update DOM directly if possible
@@ -371,9 +371,9 @@ async function deleteAddress(addressId) {
             updateAddressList(data.html);
         } else {
             const addressCard = document.querySelector(`[data-id="${addressId}"]`);
-            if (addressCard) {
-                addressCard.remove();
-            } else {
+        if (addressCard) {
+            addressCard.remove();
+        } else {
                 window.location.reload();
             }
         }
@@ -402,7 +402,7 @@ async function setDefaultAddress(addressId) {
         }
 
         const data = await response.json();
-        
+
         showNotification('Default address updated successfully!', 'success');
         
         // Update DOM directly
