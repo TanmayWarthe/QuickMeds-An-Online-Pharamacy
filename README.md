@@ -1,10 +1,4 @@
-Perfect ✅ I’ll give you the **entire README.md in one single block** so you can **copy-paste it directly** into your repo without needing to join parts.
 
-Here’s your **final one-piece README.md** 👇
-
----
-
-````markdown
 # 🚀 QuickMeds - Online Pharmacy Management System  
 
 [![Django](https://img.shields.io/badge/Django-4.2-green?logo=django)](https://www.djangoproject.com/)  
@@ -87,7 +81,7 @@ If you’d like to run this project locally:
 
 1. **Clone the repository**  
 ```bash
-git clone https://github.com/yourusername/QuickMeds-Online-Pharmacy.git
+git clone https://github.com/TanmayWarthe/QuickMeds-Online-Pharmacy.git
 cd QuickMeds-Online-Pharmacy
 ````
 
@@ -117,8 +111,6 @@ python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
 ```
-
----
 
 ## 🚀 Production Deployment
 
