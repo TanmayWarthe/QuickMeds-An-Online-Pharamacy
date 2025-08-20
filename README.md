@@ -57,7 +57,7 @@ It provides:
 |--------------|------------|
 | **Backend**  | Django (Python) |
 | **Frontend** | HTML5, CSS3, JavaScript, Bootstrap |
-| **Database** | SQLite (Dev), PostgreSQL/MySQL (Prod) |
+| **Database** | SQLite (Dev) |
 | **Hosting**  | Render |
 | **Version Control** | Git & GitHub |
 
@@ -81,11 +81,11 @@ If you’d like to run this project locally:
 
 1. **Clone the repository**  
 ```bash
-git clone https://github.com/TanmayWarthe/QuickMeds-Online-Pharmacy.git
-cd QuickMeds-Online-Pharmacy
+git clone https://github.com/TanmayWarthe/DAWAI-KI-DUKAN
+cd DAWAI-KI-DUKAN
 ````
 
-2. **Create virtual environment & install dependencies**
+2. **Create virtual envvironment & install dependencies**
 
 ```bash
 python -m venv .venv
@@ -169,4 +169,4 @@ I’d love contributions to make QuickMeds even better 🚀
 Hi, I’m **Tanmay** 👋
 
 * 📧 Email: tanmaywarthe02@gmail.com
-* 🐙 GitHub: TanmayWarthe
+* 🐙 GitHub: [TanmayWarthe](https://github.com/TanmayWarthe)
