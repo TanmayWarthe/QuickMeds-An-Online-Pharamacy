@@ -20,6 +20,15 @@ from .payment import create_payment_order, payment_callback, place_order
 import razorpay
 from .razorpay_utils import create_order, verify_payment
 from decouple import config
+from .forms import ContactForm
+from django.core.mail import send_mail
+from django.utils import timezone
+from django.db import transaction
+import logging
+from datetime import datetime
+
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Compare this snippet from QuickMeds-Online-Pharmacy/QuickMedsApp/views.py:    
 
@@ -331,51 +340,68 @@ def profile_view(request):
     return render(request, 'profile.html', context)
 
 @login_required
-@csrf_exempt
 def update_profile(request):
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
     
     try:
-        # Try to parse JSON data first
-        try:
-            data = json.loads(request.body)
-        except json.JSONDecodeError:
-            # If JSON parsing fails, use POST data
-            data = request.POST
-        
+        # Get data from request
+        data = request.POST
         user = request.user
+        profile = user.userprofile
         
-        # Update user info
+        # Validate required fields
+        errors = {}
+        
+        # Validate first name
         first_name = data.get('first_name', '').strip()
+        if not first_name:
+            errors['first_name'] = ['First name is required']
+            
+        # Validate last name
         last_name = data.get('last_name', '').strip()
+        if not last_name:
+            errors['last_name'] = ['Last name is required']
+            
+        # Validate phone (if provided)
         phone = data.get('phone', '').strip()
-        address = data.get('address', '').strip()
-        city = data.get('city', '').strip()
-        state = data.get('state', '').strip()
-        pincode = data.get('pincode', '').strip()
+        if phone and not phone.isdigit():
+            errors['phone'] = ['Phone number must contain only digits']
+        elif phone and len(phone) != 10:
+            errors['phone'] = ['Phone number must be 10 digits']
+            
+        # If there are validation errors, return them
+        if errors:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'Validation failed',
+                'errors': errors
+            }, status=400)
         
         # Update User model fields
-        if first_name:
-            user.first_name = first_name
-        if last_name:
-            user.last_name = last_name
+        user.first_name = first_name
+        user.last_name = last_name
         user.save()
         
         # Update UserProfile fields
-        profile = user.userprofile
-        if phone:
-            profile.phone = phone
-        if address:
-            profile.address = address
-        if city:
-            profile.city = city
-        if state:
-            profile.state = state
-        if pincode:
-            profile.pincode = pincode
+        profile.phone = phone if phone else None
+        
+        # Update gender if provided
+        gender = data.get('gender')
+        if gender in ['M', 'F', 'O']:
+            profile.gender = gender
+            
+        # Update date of birth if provided
+        dob = data.get('dob')
+        if dob:
+            try:
+                profile.dob = datetime.strptime(dob, '%Y-%m-%d').date()
+            except ValueError:
+                pass  # Ignore invalid date format
+                
         profile.save()
         
+        # Return success response with updated data
         return JsonResponse({
             'status': 'success',
             'message': 'Profile updated successfully!',
@@ -383,11 +409,9 @@ def update_profile(request):
                 'first_name': user.first_name,
                 'last_name': user.last_name,
                 'email': user.email,
-                'phone': profile.phone,
-                'address': profile.address,
-                'city': profile.city,
-                'state': profile.state,
-                'pincode': profile.pincode
+                'phone': profile.phone or '',
+                'gender': profile.gender or '',
+                'dob': profile.dob.strftime('%Y-%m-%d') if profile.dob else '',
             }
         })
         
@@ -395,7 +419,7 @@ def update_profile(request):
         return JsonResponse({
             'status': 'error',
             'message': f'Error updating profile: {str(e)}'
-        }, status=400)
+        }, status=500)
 
 @login_required
 @require_POST
@@ -1012,44 +1036,26 @@ def create_checkout_session(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_otp(request):
-    try:
-        data = json.loads(request.body)
-        email = data.get('email')
-        
-        if not email:
-            return JsonResponse({
-                'success': False,
-                'message': 'Email is required'
-            }, status=400)
-        
-        # Generate OTP
-        otp = generate_otp()
-        
-        # Store OTP
-        if not store_otp(email, otp):
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to store OTP'
-            }, status=500)
-        
-        # Send OTP via email
-        if send_otp_email(email, otp):
-            return JsonResponse({
-                'success': True,
-                'message': 'OTP sent successfully'
-            })
-        else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Failed to send OTP'
-            }, status=500)
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            # Generate OTP
+            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
             
-    except Exception as e:
-        print(f"Error in send_otp view: {str(e)}")  # Debug print
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+            # Store OTP in cache
+            cache.set(f'otp_{email}', otp, timeout=600)  # 10 minutes timeout
+            
+            # Send OTP
+            if send_otp_email(email, otp):
+                return JsonResponse({'status': 'success', 'message': 'OTP sent successfully'})
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
+                
+        except Exception as e:
+            logger.error(f"Error in send_otp view: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
 
 @csrf_exempt
 @require_http_methods(["POST"])
@@ -1313,6 +1319,7 @@ def orders_view(request):
 def order_detail(request, order_id):
     try:
         order = get_object_or_404(Order, id=order_id, user=request.user)
+        print(order.first_name, order.last_name, order.address)  # Debugging line
         context = {
             'order': order,
             'order_items': order.items.all(),
@@ -1330,19 +1337,97 @@ def cancel_order(request, order_id):
         order = Order.objects.get(id=order_id, user=request.user)
         
         # Check if order can be cancelled
-        if order.order_status in ['delivered', 'cancelled']:
+        if order.order_status in ['DELIVERED', 'CANCELLED']:
             return JsonResponse({
                 'success': False,
-                'message': 'This order cannot be cancelled'
+                'message': f'Order cannot be cancelled as it is already {order.order_status.lower()}'
             })
-        
-        # Update order status
-        order.order_status = 'cancelled'
-        order.save()
+            
+        # Check if order is too old to cancel (e.g., more than 24 hours for processing orders)
+        if order.order_status == 'PROCESSING' and timezone.now() > (order.created_at + timezone.timedelta(hours=24)):
+            return JsonResponse({
+                'success': False,
+                'message': 'Order cannot be cancelled as it has been processing for more than 24 hours'
+            })
+            
+        # Start transaction to ensure all operations are atomic
+        with transaction.atomic():
+            # Update order status
+            order.order_status = 'CANCELLED'
+            
+            # Handle refund if payment was made
+            if order.payment_status == 'COMPLETED':
+                if order.payment_method == 'RAZORPAY':
+                    try:
+                        # Initialize Razorpay client
+                        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+                        
+                        # Initiate refund
+                        refund_data = {
+                            'payment_id': order.transaction_id,
+                            'amount': int(float(order.total_amount) * 100),  # Amount in paisa
+                            'notes': {
+                                'order_id': str(order.id),
+                                'reason': 'Order Cancellation'
+                            }
+                        }
+                        refund = client.payment.refund(order.transaction_id, refund_data)
+                        
+                        # Update payment status
+                        order.payment_status = 'REFUNDED'
+                    except Exception as e:
+                        # Log the error but don't stop the cancellation
+                        logger.error(f"Refund failed for order {order.id}: {str(e)}")
+                        # Mark for manual refund processing
+                        order.payment_status = 'REFUND_PENDING'
+            
+            # Restore inventory
+            for item in order.items.all():
+                product = item.product
+                product.stock += item.quantity
+                product.save()
+            
+            order.save()
+            
+            # Send cancellation email to customer
+            try:
+                subject = f'Order #{order.id} Cancelled Successfully'
+                message = f"""
+                Dear {order.user.get_full_name()},
+                
+                Your order #{order.id} has been cancelled successfully.
+                
+                Order Details:
+                - Order Date: {order.created_at.strftime('%B %d, %Y')}
+                - Total Amount: ₹{order.total_amount}
+                - Payment Status: {order.payment_status}
+                
+                {
+                    "Refund has been initiated and will be processed within 5-7 business days." 
+                    if order.payment_status in ['REFUNDED', 'REFUND_PENDING'] 
+                    else ""
+                }
+                
+                If you have any questions, please contact our support team.
+                
+                Thank you for shopping with QuickMeds!
+                """
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.user.email],
+                    fail_silently=True
+                )
+            except Exception as e:
+                # Log the error but don't stop the process
+                logger.error(f"Failed to send cancellation email for order {order.id}: {str(e)}")
         
         return JsonResponse({
             'success': True,
-            'message': 'Order cancelled successfully'
+            'message': 'Order cancelled successfully',
+            'payment_status': order.payment_status
         })
         
     except Order.DoesNotExist:
@@ -1351,9 +1436,10 @@ def cancel_order(request, order_id):
             'message': 'Order not found'
         }, status=404)
     except Exception as e:
+        logger.error(f"Order cancellation failed for order {order_id}: {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': 'Failed to cancel order'
+            'message': 'Failed to cancel order. Please try again or contact support.'
         }, status=500)
 
 from django.shortcuts import render
@@ -1380,52 +1466,72 @@ def product(request):
     }
     return render(request, 'product.html', context)
 
-def purchase_view(request):
-    if request.method == 'POST':
-        try:
-            name = request.POST.get('name')
-            phone = request.POST.get('phone')
-            delivery = request.POST.get('delivery')
-            notes = request.POST.get('notes')
-            
-            # Here you would typically save to database
-            # For now, just return success response
-            return JsonResponse({
-                'success': True,
-                'message': 'Order submitted successfully!'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
-            
-    return render(request, 'purchase.html')
-
 def contact_view(request):
     if request.method == 'POST':
-        try:
-            name = request.POST.get('name')
-            email = request.POST.get('email')
-            phone = request.POST.get('phone')
-            subject = request.POST.get('subject')
-            message = request.POST.get('message')
-            
-            # Here you would typically:
-            # 1. Save to database
-            # 2. Send email notification
-            # For now, just return success response
-            return JsonResponse({
-                'success': True,
-                'message': 'Message sent successfully! We will get back to you soon.'
-            })
-        except Exception as e:
-            return JsonResponse({
-                'success': False,
-                'message': str(e)
-            }, status=400)
-            
-    return render(request, 'contact.html')
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            try:
+                # Save the contact form data
+                contact = form.save()
+                
+                # Extract data from the form
+                name = form.cleaned_data['name']
+                email = form.cleaned_data['email']
+                phone = form.cleaned_data['phone']
+                subject = form.cleaned_data['subject']
+                message = form.cleaned_data['message']
+
+                # Prepare the email content
+                email_subject = f"New Contact Form Submission: {subject}"
+                email_body = f"""
+                Name: {name}
+                Email: {email}
+                Phone: {phone}
+                
+                Message:
+                {message}
+                """
+
+                # Send the email
+                send_mail(
+                    email_subject,
+                    email_body,
+                    settings.DEFAULT_FROM_EMAIL,
+                    ['tanmaywarthe09@gmail.com'],  # Replace with your email
+                    fail_silently=False,
+                )
+
+                # Check if it's an AJAX request
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'Your message has been sent successfully!'
+                    })
+                else:
+                    messages.success(request, 'Your message has been sent successfully!')
+                    return redirect('contact')
+
+            except Exception as e:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Failed to send message. Please try again.'
+                    }, status=500)
+                else:
+                    messages.error(request, 'Failed to send message. Please try again.')
+                    return render(request, 'contact.html', {'form': form})
+        else:
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Please correct the errors in the form.',
+                    'errors': form.errors
+                }, status=400)
+            else:
+                return render(request, 'contact.html', {'form': form})
+    else:
+        form = ContactForm()
+        return render(request, 'contact.html', {'form': form})
 
 @require_http_methods(["GET"])
 def check_auth(request):
@@ -1466,3 +1572,36 @@ def get_cart_count(request):
             'success': False,
             'message': str(e)
         }, status=500)
+
+@login_required
+@require_POST
+def delete_order(request, order_id):
+    try:
+        order = Order.objects.get(id=order_id, user=request.user)
+        
+        # Only allow deletion of cancelled orders
+        if order.order_status != 'CANCELLED':
+            return JsonResponse({
+                'success': False,
+                'message': 'Only cancelled orders can be deleted'
+            })
+        
+        order.delete()
+        return JsonResponse({
+            'success': True,
+            'message': 'Order deleted successfully'
+        })
+        
+    except Order.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Order not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': 'Failed to delete order'
+        }, status=500)
+
+def success_view(request):
+    return render(request, 'success.html')  # Create a success.html template

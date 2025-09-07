@@ -22,10 +22,10 @@
 				</div>
 				<span>or use your email for registration</span>
 				<div id="registration-step-1">
-					<input type="text" name="name" placeholder="Full Name" required pattern="[A-Za-z\s]+" title="Please enter only letters and spaces" />
-					<input type="email" name="email" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" />
-					<input type="password" name="password" id="password" placeholder="Password" required minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" />
-					<input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required />
+					<input type="text" name="name" placeholder="Full Name" required pattern="[A-Za-z\s]+" title="Please enter only letters and spaces" autocomplete="name" />
+					<input type="email" name="email" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" autocomplete="email" />
+					<input type="password" name="password" id="password" placeholder="Password" required minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" autocomplete="new-password" />
+					<input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required autocomplete="new-password" />
 					<div id="password-match-message" class="password-message"></div>
 					<button type="submit" class="sign-button">SIGN UP</button>
 				</div>

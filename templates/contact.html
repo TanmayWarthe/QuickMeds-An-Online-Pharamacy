@@ -8,9 +8,424 @@
 <link rel="stylesheet" href="{% static 'css/contact.css' %}">
 <link rel="stylesheet" href="{% static 'css/home.css' %}">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+/* Footer Styles */
+footer {
+    background-color: #1a1e21;
+    color: #fff;
+    padding: 40px 0;
+}
+
+footer h5 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    position: relative;
+    letter-spacing: 0.5px;
+}
+
+footer h5::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -8px;
+    width: 30px;
+    height: 2px;
+    background-color: #0d6efd;
+}
+
+footer p {
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+footer ul {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+footer ul li {
+    margin-bottom: 12px;
+}
+
+footer ul li a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.2s ease;
+    font-size: 14px;
+}
+
+footer ul li a:hover {
+    color: #0d6efd !important;
+}
+
+footer .contact-info {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+footer .contact-info p {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+footer .contact-info i {
+    margin-right: 12px;
+    color: #fff;
+    font-size: 14px;
+    width: 16px;
+}
+
+.footer-bottom {
+    margin-top: 40px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.social-icons {
+    margin-bottom: 15px;
+}
+
+.social-icons a {
+    color: #fff;
+    margin: 0 12px;
+    font-size: 16px;
+    transition: color 0.2s ease;
+}
+
+.social-icons a:hover {
+    color: #0d6efd;
+}
+
+.copyright {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    footer {
+        text-align: center;
+    }
+    
+    footer h5::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+
+    footer .contact-info p {
+        justify-content: center;
+    }
+}
+
+/* Form Loading State */
+.submit-btn.loading {
+    position: relative;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.submit-btn.loading::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    border-top-color: transparent;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Modal Styling */
+.modal-content {
+    border: none;
+    border-radius: 15px;
+}
+
+.modal-header {
+    padding: 1rem 1rem 0;
+}
+
+.btn-close {
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-body i {
+    display: block;
+    margin: 0 auto 1rem;
+}
+
+.modal-body h3 {
+    color: #2c3e50;
+    font-weight: 600;
+}
+
+.modal-body p {
+    color: #6c757d;
+}
+
+.modal-body .btn {
+    padding: 0.6rem 2rem;
+    font-weight: 500;
+}
+
+/* Success Modal Styling */
+.success-modal {
+    border: none;
+    border-radius: 25px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+    position: relative;
+}
+
+.confetti-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: #4a90e2;
+    animation: confettiRain 3s ease-out infinite;
+}
+
+.confetti:nth-child(2n) {
+    background: #e74c3c;
+    animation-delay: 0.2s;
+}
+
+.confetti:nth-child(3n) {
+    background: #2ecc71;
+    animation-delay: 0.4s;
+}
+
+.confetti:nth-child(4n) {
+    background: #f1c40f;
+    animation-delay: 0.6s;
+}
+
+@keyframes confettiRain {
+    0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+.success-icon {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+    background: #f8f9fa;
+    border-radius: 50%;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.success-pill-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.success-pill {
+    width: 15px;
+    height: 40px;
+    background: #4a90e2;
+    border-radius: 20px;
+    position: relative;
+    animation: successPill 1s ease-out forwards;
+}
+
+.success-heart {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 20px;
+    height: 20px;
+    background: #e74c3c;
+    transform-origin: bottom;
+    clip-path: path('M12 21.593c-5.63-5.539-11-10.297-11-14.402 0-3.791 3.068-5.191 5.281-5.191 1.312 0 4.151.501 5.719 4.457 1.59-3.968 4.464-4.447 5.726-4.447 2.54 0 5.274 1.621 5.274 5.181 0 4.069-5.136 8.625-11 14.402m5.726-20.583c-2.203 0-4.446 1.042-5.726 3.238-1.285-2.206-3.522-3.248-5.719-3.248-3.183 0-6.281 2.187-6.281 6.191 0 4.661 5.571 9.429 12 15.809 6.43-6.38 12-11.148 12-15.809 0-4.011-3.095-6.181-6.274-6.181');
+    animation: successHeart 1s ease-out forwards;
+}
+
+@keyframes successPill {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes successHeart {
+    0% {
+        transform: translateX(-50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translateX(-50%) scale(1.2);
+    }
+    100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 1;
+    }
+}
+
+.success-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 1.5rem 0 1rem;
+}
+
+.success-text {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.btn-custom-success {
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    color: white;
+    border: none;
+    padding: 12px 35px;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(74, 144, 226, 0.3);
+}
+
+.btn-custom-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
+}
+
+/* Modal Animation */
+.modal.fade .modal-dialog {
+    transform: scale(0.7);
+    opacity: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.modal.show .modal-dialog {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* Close Button */
+.btn-close {
+    position: absolute;
+    right: 1.5rem;
+    top: 1.5rem;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    backdrop-filter: blur(5px);
+}
+
+.loading-content {
+    text-align: center;
+}
+
+.loading-pill-container {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.loading-pill {
+    width: 12px;
+    height: 30px;
+    background: #4a90e2;
+    border-radius: 15px;
+    animation: pillAnimation 1.2s infinite ease-in-out;
+}
+
+.loading-pill:nth-child(2) {
+    animation-delay: 0.2s;
+    background: #e74c3c;
+}
+
+.loading-pill:nth-child(3) {
+    animation-delay: 0.4s;
+    background: #2ecc71;
+}
+
+@keyframes pillAnimation {
+    0%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.4);
+    }
+}
+
+.loading-text {
+    color: #333;
+    font-size: 18px;
+    margin-top: 20px;
+    font-weight: 500;
+}
+</style>
 {% endblock %}
 
 {% block content %}
+
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid px-4">
@@ -40,10 +455,10 @@
                     <span class="badge">{{ cart_count|default:0 }}</span>
                 </a>
                 <div class="dropdown">
-                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
+                    <button class="icon-btn user-icon dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-user"></i>
                     </button>
-                    <ul class="dropdown-menu">
+                    <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
@@ -60,7 +475,7 @@
     </div>
 </nav>
 
-<!--  Tagline -->
+<!-- Tagline -->
 <div class="tagline">
     <div class="centered-text-container">
         <i class="fas fa-heartbeat tagline-icon"></i>
@@ -69,53 +484,33 @@
     </div>
 </div>
 
-<!-- Sidebar Navigation -->
+<!-- Sidebar -->
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
         <div class="sidebar-brand">
-            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+            <img src="{% static 'img/medicines-icon.png' %}" class="sidebar-logo" alt="Logo">
             <span>QuickMeds</span>
         </div>
-        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+        <button id="closeSidebar" class="close-sidebar" aria-label="Close sidebar">
             <i class="fas fa-times"></i>
         </button>
     </div>
-    
     <nav class="sidebar-nav">
-        <a href="{% url 'home' %}" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'product' %}" class="nav-item">
-            <i class="fas fa-prescription-bottle-alt"></i>
-            <span>Products</span>
-        </a>
-        <a href="{% url 'purchase' %}" class="nav-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Purchase</span>
-        </a>
-        <a href="{% url 'contact' %}" class="nav-item active">
-            <i class="fas fa-phone"></i>
-            <span>Contact</span>
-        </a>
-        <a href="{% url 'about' %}" class="nav-item">
-            <i class="fas fa-comment-dots"></i>
-            <span>About</span>
-        </a>
+        <a href="{% url 'home' %}" class="nav-item"><i class="fas fa-home"></i> Home</a>
+        <a href="{% url 'product' %}" class="nav-item"><i class="fas fa-prescription-bottle-alt"></i> Products</a>
+        <a href="{% url 'contact' %}" class="nav-item active"><i class="fas fa-phone"></i> Contact</a>
+        <a href="{% url 'about' %}" class="nav-item"><i class="fas fa-comment-dots"></i> About</a>
     </nav>
-    
     <div class="sidebar-footer">
         <div class="support-info">
             <i class="fas fa-headset"></i>
-            <div class="support-text">
+            <div>
                 <small>Need Help?</small>
                 <p>1-234-567-890</p>
             </div>
         </div>
     </div>
 </div>
-
-<!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- Contact Header -->
@@ -126,10 +521,10 @@
     </div>
 </div>
 
-<!-- Main Contact Content -->
+<!-- Main Content -->
 <div class="contact-container">
     <div class="contact-grid">
-        <!-- Contact Information -->
+        <!-- Info Cards -->
         <div class="contact-info">
             <div class="info-card">
                 <i class="fas fa-map-marker-alt"></i>
@@ -143,21 +538,21 @@
                 <h3>Call Us</h3>
                 <p>Toll Free: 1800-123-4567</p>
                 <p>Support: +91 123-456-7890</p>
-                <p>Hours: 24x7 Available</p>
+                <p>24x7 Available</p>
             </div>
             <div class="info-card">
                 <i class="fas fa-envelope"></i>
                 <h3>Email Us</h3>
-                <p>Support: support@quickmeds.com</p>
-                <p>Business: info@quickmeds.com</p>
-                <p>Careers: careers@quickmeds.com</p>
+                <p>support@quickmeds.com</p>
+                <p>info@quickmeds.com</p>
+                <p>careers@quickmeds.com</p>
             </div>
         </div>
 
         <!-- Contact Form -->
         <div class="contact-form">
             <h2>Send us a Message</h2>
-            <form id="contactForm">
+            <form id="contactForm" method="POST" action="{% url 'contact' %}">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="name">Full Name*</label>
@@ -187,64 +582,207 @@
             </form>
         </div>
     </div>
+</div>
 
-    <!-- Map Section -->
-    <div class="map-section">
-        <h2>Find Us on Map</h2>
-        <div class="map-container">
-            <!-- Add your Google Maps iframe here -->
-            <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.1234567890123!2d79.1234567!3d21.1234567!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjHCsDA3JzM0LjQiTiA3OcKwMDcnMzQuNCJF!5e0!3m2!1sen!2sin!4v1234567890123" 
-                width="100%" 
-                height="450" 
-                style="border:0;" 
-                allowfullscreen="" 
-                loading="lazy">
-            </iframe>
+<!-- Footer -->
+<footer class="bg-dark text-white py-5">
+    <div class="container-fluid">
+        <div class="row mx-5">
+            <!-- About Section -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
+                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Quick Links</h5>
+                <ul class="list-unstyled">
+                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
+                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
+                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="text-white text-decoration-none">Contact</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact Info -->
+            <div class="col-md-4 mb-4">
+                <h5 class="text-uppercase fw-bold">Contact Us</h5>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
+                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
+                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Social Links & Copyright -->
+        <div class="text-center border-top pt-4 mt-4">
+            <div class="mb-3">
+                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
+        </div>
+    </div>
+</footer>
+
+<!-- Loading Overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="loading-content">
+        <div class="loading-pill-container">
+            <div class="loading-pill"></div>
+            <div class="loading-pill"></div>
+            <div class="loading-pill"></div>
+        </div>
+        <p class="loading-text">Sending your message...</p>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content success-modal">
+            <div class="confetti-container">
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+                <div class="confetti"></div>
+            </div>
+            <div class="modal-body text-center p-5">
+                <div class="success-icon">
+                    <div class="success-pill-container">
+                        <div class="success-pill"></div>
+                        <div class="success-heart"></div>
+                    </div>
+                </div>
+                <h3 class="success-title mt-4">Thank You!</h3>
+                <p class="success-text">Your message has been sent successfully.<br>We'll get back to you soon!</p>
+                <button type="button" class="btn-custom-success" data-bs-dismiss="modal">
+                    Got it!
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Error Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="fas fa-exclamation-circle text-danger mb-4" style="font-size: 4rem;"></i>
+                <h3 class="modal-title mb-3" id="errorModalLabel">Oops!</h3>
+                <p class="text-muted mb-4" id="errorMessage">Something went wrong. Please try again later.</p>
+                <button type="button" class="btn btn-primary px-4" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{% static 'js/sidebar.js' %}"></script>
 <script>
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('/contact/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        const notification = document.getElementById('notification');
-        notification.textContent = data.message || 'Message sent successfully!';
-        notification.style.display = 'block';
-        notification.className = 'notification ' + (data.success ? 'success' : 'error');
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize all dropdowns
+    const dropdownElementList = document.querySelectorAll('.dropdown-toggle');
+    const dropdownList = [...dropdownElementList].map(dropdownToggleEl => new bootstrap.Dropdown(dropdownToggleEl));
+
+    // Profile dropdown specific initialization
+    const userIcon = document.querySelector('.user-icon');
+    if (userIcon) {
+        userIcon.addEventListener('click', function() {
+            const dropdownMenu = this.nextElementSibling;
+            if (dropdownMenu.classList.contains('show')) {
+                dropdownMenu.classList.remove('show');
+            } else {
+                dropdownMenu.classList.add('show');
+            }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!userIcon.contains(e.target)) {
+                const dropdownMenu = userIcon.nextElementSibling;
+                if (dropdownMenu.classList.contains('show')) {
+                    dropdownMenu.classList.remove('show');
+                }
+            }
+        });
+    }
+
+    // Contact form handling
+    const contactForm = document.getElementById('contactForm');
+    const submitBtn = contactForm.querySelector('.submit-btn');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+    const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+    const errorMessage = document.getElementById('errorMessage');
+
+    contactForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        if (data.success) {
-            this.reset();
+        // Show loading overlay
+        loadingOverlay.style.display = 'flex';
+        submitBtn.disabled = true;
+        
+        try {
+            const formData = new FormData(this);
+            const response = await fetch("{% url 'contact' %}", {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            // Hide loading overlay
+            loadingOverlay.style.display = 'none';
+
+            if (response.ok && data.success) {
+                // Reset form and show success modal
+                contactForm.reset();
+                successModal.show();
+                
+                // Start confetti animation
+                startConfetti();
+            } else {
+                throw new Error(data.message || 'Something went wrong');
+            }
+        } catch (error) {
+            // Hide loading overlay and show error modal
+            loadingOverlay.style.display = 'none';
+            errorModal.show();
+        } finally {
+            submitBtn.disabled = false;
         }
-        
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
-    })
-    .catch(error => {
-        const notification = document.getElementById('notification');
-        notification.textContent = 'An error occurred. Please try again.';
-        notification.style.display = 'block';
-        notification.className = 'notification error';
-        setTimeout(() => {
-            notification.style.display = 'none';
-        }, 3000);
     });
+
+    function startConfetti() {
+        const confetti = document.querySelectorAll('.confetti');
+        confetti.forEach((c, i) => {
+            c.style.left = `${Math.random() * 100}%`;
+            c.style.animationDuration = `${Math.random() * 2 + 1}s`;
+            c.style.animationDelay = `${Math.random() * 0.5}s`;
+        });
+    }
 });
 </script>
 {% endblock %}

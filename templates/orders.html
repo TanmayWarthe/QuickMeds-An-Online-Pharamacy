@@ -6,394 +6,288 @@
 
 {% block extra_css %}
 <style>
-.orders-container {
-    max-width: 1200px;
-    margin: 2rem auto;
-    padding: 0 1rem;
-}
-
-.orders-container h1 {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    color: #2c3e50;
-    margin-bottom: 2rem;
-}
-
-.orders-container h1 i {
-    color: #3498db;
-}
-
-.order-card {
-    background: white;
-    border-radius: 15px;
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-    transition: transform 0.3s ease;
-}
-
-.order-card:hover {
-    transform: translateY(-5px);
-}
-
-.order-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-}
-
-.order-info {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.order-id {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: #2c3e50;
-}
-
-.order-date {
-    color: #6c757d;
-    font-size: 0.9rem;
-}
-
+/* Order Status Styles */
 .order-status {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.9rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-right: 0.5rem;
 }
 
-.order-status.pending {
-    background-color: #fff8e1;
-    color: #f57c00;
+.status-pending {
+    background-color: #fff3cd;
+    color: #856404;
 }
 
-.order-status.processing {
-    background-color: #e3f2fd;
-    color: #1976d2;
+.status-processing {
+    background-color: #cce5ff;
+    color: #004085;
 }
 
-.order-status.shipped {
-    background-color: #e8f5e9;
-    color: #388e3c;
+.status-shipped {
+    background-color: #d4edda;
+    color: #155724;
 }
 
-.order-status.delivered {
-    background-color: #e8f5e9;
-    color: #388e3c;
+.status-delivered {
+    background-color: #d1e7dd;
+    color: #0f5132;
 }
 
-.order-status.cancelled {
-    background-color: #fbe9e7;
-    color: #d32f2f;
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
 }
 
-.order-status i {
-    font-size: 0.6rem;
-}
-
-.order-payment {
-    text-align: right;
-}
-
-.payment-method {
-    display: block;
-    font-size: 0.9rem;
-    color: #6c757d;
-    margin-bottom: 0.25rem;
-}
-
+/* Payment Status Styles */
 .payment-status {
-    display: inline-block;
-    padding: 0.25rem 0.5rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-}
-
-.order-items {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
-}
-
-.order-item {
-    display: flex;
-    gap: 1rem;
+    display: inline-flex;
     align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
 }
 
-.item-image {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
+.payment-pending {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.payment-completed {
+    background-color: #d1e7dd;
+    color: #0f5132;
+}
+
+.payment-failed {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+.payment-refunded {
+    background-color: #e2e3e5;
+    color: #383d41;
+}
+
+.payment-refund-pending {
+    background-color: #cff4fc;
+    color: #055160;
+}
+
+/* Loading Overlay */
+.loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-content {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+/* Order Card */
+.order-card {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
     overflow: hidden;
 }
 
-.item-image img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.order-card:hover {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
 }
 
-.item-details {
-    flex: 1;
-}
-
-.item-name {
-    font-size: 1rem;
-    font-weight: 500;
-    color: #2c3e50;
-    margin-bottom: 0.5rem;
-}
-
-.item-info {
+.order-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
     display: flex;
-    gap: 1rem;
-    color: #6c757d;
-    font-size: 0.9rem;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.order-body {
+    padding: 1rem;
 }
 
 .order-footer {
+    padding: 1rem;
+    border-top: 1px solid #e9ecef;
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
-}
-
-.order-summary {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.summary-item {
-    display: flex;
-    justify-content: space-between;
-    gap: 2rem;
-    font-size: 0.95rem;
-    color: #6c757d;
-}
-
-.summary-item.total {
-    font-weight: 600;
-    color: #2c3e50;
-    font-size: 1.1rem;
-    padding-top: 0.5rem;
-    margin-top: 0.5rem;
-    border-top: 1px dashed #eee;
-}
-
-.btn-view-details {
-    display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-view-details:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-    color: white;
-}
-
-.orders-empty {
-    text-align: center;
-    padding: 3rem;
-    background: #f8f9fa;
-    border-radius: 15px;
-    margin-top: 1rem;
-}
-
-.orders-empty i {
-    font-size: 4rem;
-    color: #dee2e6;
-    margin-bottom: 1.5rem;
-}
-
-.orders-empty p {
-    color: #6c757d;
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-}
-
-.btn-shop-now {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.5rem;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    text-decoration: none;
-    border-radius: 12px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.btn-shop-now:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
-    color: white;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .order-actions {
     display: flex;
-    gap: 1rem;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 1rem;
-}
-
-.btn-cancel-order {
-    background-color: #dc3545;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 5px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
-    font-size: 0.9rem;
-    transition: background-color 0.3s ease;
+    flex-wrap: wrap;
 }
 
-.btn-cancel-order:hover {
-    background-color: #c82333;
+/* Empty State */
+.empty-orders {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+.empty-orders i {
+    font-size: 3rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* Product Image */
+.product-image {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Responsive Adjustments */
 @media (max-width: 768px) {
     .order-header {
         flex-direction: column;
-        gap: 1rem;
+        align-items: flex-start;
     }
     
-    .order-payment {
-        text-align: left;
+    .order-status, .payment-status {
+        font-size: 0.75rem;
     }
     
     .order-footer {
         flex-direction: column;
-        gap: 1rem;
-        align-items: stretch;
+        align-items: flex-start;
     }
     
-    .btn-view-details {
-        text-align: center;
-        justify-content: center;
-    }
-    
-    .item-info {
-        flex-direction: column;
-        gap: 0.25rem;
+    .order-actions {
+        width: 100%;
+        justify-content: flex-start;
     }
 }
 </style>
 {% endblock %}
 
-{% block extra_js %}
-<script src="{% static 'js/order-cancel.js' %}"></script>
-{% endblock %}
-
 {% block content %}
-<div class="orders-container">
-    <h1><i class="fas fa-shopping-bag"></i> My Orders</h1>
+<div class="container my-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">My Orders</h2>
+        <a href="{% url 'product' %}" class="btn btn-primary">
+            <i class="fas fa-shopping-cart"></i> Continue Shopping
+        </a>
+    </div>
     
-    {% if orders %}
-    <div class="orders-list">
-        {% for order in orders %}
-        <div class="order-card">
-            <div class="order-header">
-                <div class="order-info">
-                    <div class="order-id-date">
-                        <span class="order-id">Order #{{ order.id }}</span>
-                        <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+    <div class="orders-container">
+        {% if orders %}
+            {% for order in orders %}
+            <div class="order-card" data-order-id="{{ order.id }}">
+                <div class="order-header">
+                    <div>
+                        <h5 class="mb-0">Order #{{ order.id }}</h5>
+                        <small class="text-muted">Placed {{ order.created_at|date:"F d, Y" }}</small>
                     </div>
-                    <span class="order-status {{ order.order_status|lower }}">
-                        <i class="fas fa-circle"></i>
-                        {{ order.get_order_status_display }}
-                    </span>
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <span class="order-status {{ order.get_status_display_class }}">
+                            <i class="fas fa-circle me-2"></i>
+                            {{ order.get_order_status_display }}
+                        </span>
+                        <span class="payment-status {{ order.get_payment_status_display_class }}">
+                            <i class="fas fa-money-bill-wave me-2"></i>
+                            {{ order.get_payment_status_display }}
+                        </span>
+                    </div>
                 </div>
-                <div class="order-payment">
-                    <span class="payment-method">{{ order.payment_method }}</span>
-                    <span class="payment-status {{ order.payment_status|lower }}">
-                        {{ order.payment_status }}
-                    </span>
+                
+                <div class="order-body">
+                    <div class="row g-3">
+                        {% for item in order.items.all %}
+                        <div class="col-md-6">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ item.product.image.url|default:'/static/img/medicines-icon.png' }}" 
+                                     alt="{{ item.product.name }}" 
+                                     class="product-image me-3">
+                                <div>
+                                    <h6 class="mb-1">{{ item.product.name }}</h6>
+                                    <p class="mb-0 text-muted">
+                                        {{ item.quantity }} × ₹{{ item.price|floatformat:2 }}
+                                        <span class="ms-2">= ₹{{ item.get_total|floatformat:2 }}</span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                 </div>
-            </div>
-            
-            <div class="order-items">
-                {% for item in order.items.all %}
-                <div class="order-item">
-                    <div class="item-image">
-                        {% if item.product.image %}
-                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}">
+                
+                <div class="order-footer">
+                    <div class="order-total">
+                        <span class="text-muted">Total:</span>
+                        <strong class="ms-2">₹{{ order.total_amount|floatformat:2 }}</strong>
+                    </div>
+                    <div class="order-actions">
+                        {% if order.order_status == 'CANCELLED' %}
+                            <button class="btn btn-outline-danger btn-sm" 
+                                    onclick="deleteOrder(null, this)" 
+                                    data-order-id="{{ order.id }}"
+                                    title="Delete cancelled order">
+                                <i class="fa-solid fa-trash" aria-hidden="true"></i><span class="ms-1">Delete Order</span>
+                            </button>
                         {% else %}
-                            <img src="{% static 'img/medicines-icon.png' %}" alt="{{ item.product.name }}">
+                            {% if order.can_cancel %}
+                                <button class="btn btn-outline-danger btn-sm btn-cancel-order" 
+                                        data-order-id="{{ order.id }}"
+                                        data-order-status="{{ order.order_status }}"
+                                        data-order-age="{{ order.created_at|timesince }}">
+                                    <i class="fa-solid fa-xmark" aria-hidden="true"></i><span class="ms-1">Cancel Order</span>
+                                </button>
+                            {% endif %}
+                            <a href="{% url 'order_detail' order.id %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="fa-solid fa-eye" aria-hidden="true"></i><span class="ms-1">View Details</span>
+                            </a>
                         {% endif %}
                     </div>
-                    <div class="item-details">
-                        <h4 class="item-name">{{ item.product.name }}</h4>
-                        <div class="item-info">
-                            <span class="item-quantity">Qty: {{ item.quantity }}</span>
-                            <span class="item-price">₹{{ item.price|intcomma }}</span>
-                        </div>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-            
-            <div class="order-footer">
-                <div class="order-summary">
-                    <div class="summary-item">
-                        <span>Subtotal:</span>
-                        <span>₹{{ order.get_subtotal|intcomma }}</span>
-                    </div>
-                    <div class="summary-item">
-                        <span>Delivery Fee:</span>
-                        <span>₹50</span>
-                    </div>
-                    <div class="summary-item total">
-                        <span>Total Amount:</span>
-                        <span>₹{{ order.total_amount|intcomma }}</span>
-                    </div>
-                </div>
-                <div class="order-actions">
-                    <a href="{% url 'order_confirmation' order.id %}" class="btn-view-details">
-                        View Details
-                    </a>
-                    {% if order.order_status != 'delivered' and order.order_status != 'cancelled' %}
-                    <button class="btn-cancel-order" data-order-id="{{ order.id }}">
-                        <i class="fas fa-times"></i> Cancel Order
-                    </button>
-                    {% endif %}
                 </div>
             </div>
-        </div>
-        {% endfor %}
+            {% endfor %}
+        {% else %}
+            <div class="empty-orders">
+                <i class="fas fa-shopping-bag mb-3"></i>
+                <h3>No Orders Found</h3>
+                <p class="text-muted">You haven't placed any orders yet.</p>
+                <a href="{% url 'product' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-shopping-cart"></i> Start Shopping
+                </a>
+            </div>
+        {% endif %}
     </div>
-    {% else %}
-    <div class="orders-empty">
-        <i class="fas fa-shopping-bag"></i>
-        <p>You haven't placed any orders yet</p>
-        <a href="{% url 'product' %}" class="btn-shop-now">Start Shopping</a>
-    </div>
-    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/order-cancel.js' %}"></script>
 {% endblock %}

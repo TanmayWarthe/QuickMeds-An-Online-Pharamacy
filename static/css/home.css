@@ -2866,3 +2866,49 @@ body.sidebar-open {
 .product-card .product-info {
     cursor: pointer;
 }
+
+/* Add this to the end of your home.css file */
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack navbar items vertically */
+    }
+
+    .hero-section {
+        padding: 20px; /* Reduce padding */
+    }
+
+    .hero-section h1 {
+        font-size: 2rem; /* Adjust font size */
+    }
+
+    .hero-section h2 {
+        font-size: 1.5rem; /* Adjust font size */
+    }
+
+    .product-slider-wrapper {
+        flex-direction: column; /* Stack products vertically */
+    }
+
+    .product-card {
+        width: 100%; /* Full width for product cards */
+        margin-bottom: 20px; /* Space between cards */
+    }
+
+    .sidebar {
+        display: none; /* Hide sidebar on small screens */
+    }
+
+    .sidebar-overlay {
+        display: block; /* Show overlay for mobile */
+    }
+
+    .search-container {
+        flex-direction: column; /* Stack search elements */
+    }
+
+    .search-box {
+        width: 100%; /* Full width for search box */
+    }
+}

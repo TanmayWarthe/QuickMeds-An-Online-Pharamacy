@@ -2,3 +2,7 @@ Django>=5.1.5
 Pillow>=10.0.0
 python-decouple>=3.8
 razorpay==1.4.2 
+gunicorn>=21.2.0
+whitenoise>=6.6.0
+cloudinary==1.36.0
+django-cloudinary-storage==0.3.0 

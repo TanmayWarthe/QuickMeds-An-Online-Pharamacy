@@ -32,28 +32,50 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Tab Navigation
+    // Optimize tab switching
     const tabLinks = document.querySelectorAll('.profile-nav li[data-tab]');
     const tabs = document.querySelectorAll('.profile-tab');
     
+    function switchTab(tabId) {
+        tabLinks.forEach(l => l.classList.remove('active'));
+        tabs.forEach(t => {
+            t.style.opacity = '0';
+            t.classList.remove('active');
+        });
+        
+        const activeLink = document.querySelector(`.profile-nav li[data-tab="${tabId}"]`);
+        const activeTab = document.getElementById(tabId);
+        
+        if (activeLink && activeTab) {
+            activeLink.classList.add('active');
+            activeTab.classList.add('active');
+            
+            requestAnimationFrame(() => {
+                activeTab.style.opacity = '1';
+            });
+            
+            const currentUrl = new URL(window.location.href);
+            if (currentUrl.searchParams.get('tab') !== tabId) {
+                history.replaceState(null, '', `?tab=${tabId}`);
+            }
+        }
+    }
+    
+    // Initialize with current tab from URL or default to personal-info
+    const initialTab = new URLSearchParams(window.location.search).get('tab') || 'personal-info';
+    switchTab(initialTab);
+    
+    // Event listeners for tab switching
     tabLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
-            
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabs.forEach(t => t.classList.remove('active'));
-            
-            this.classList.add('active');
-            document.getElementById(tabId).classList.add('active');
-            
-            // Update URL without page reload
-            history.pushState(null, '', `?tab=${tabId}`);
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab(this.dataset.tab);
         });
     });
     
     // Handle browser back/forward
     window.addEventListener('popstate', function() {
-        const tabId = new URLSearchParams(window.location.search).get('tab') || 'dashboard';
+        const tabId = new URLSearchParams(window.location.search).get('tab') || 'personal-info';
         switchTab(tabId);
     });
 
@@ -146,55 +168,80 @@ if (profileForm) {
     });
 }
 
-// Address Management Functions
+// Address Management Functions with optimizations
 const addressForm = document.getElementById('address-form');
 const addressFormContainer = document.querySelector('.address-form-container');
 const addAddressBtn = document.getElementById('add-address-btn');
 const cancelAddressBtn = document.getElementById('cancel-address-btn');
 
 let currentEditingAddressId = null;
+let addressFormVisible = false;
 
-// Show/Hide Address Form
+// Show/Hide Address Form with optimizations
 function showAddressForm() {
-    if (addressFormContainer) {
+    if (!addressFormContainer || addressFormVisible) return;
+    
         addressFormContainer.style.display = 'block';
-        addressFormContainer.scrollIntoView({ behavior: 'smooth' });
+    addressFormVisible = true;
+    
+    // Use IntersectionObserver for smooth scrolling
+    const observer = new IntersectionObserver((entries) => {
+        if (!entries[0].isIntersecting) {
+            addressFormContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        observer.disconnect();
+    });
+    observer.observe(addressFormContainer);
+    
         // Reset form when showing
+    if (addressForm) {
         addressForm.reset();
-        currentEditingAddressId = null;
+        resetValidationState();
     }
+    currentEditingAddressId = null;
 }
 
 function hideAddressForm() {
-    if (addressFormContainer) {
+    if (!addressFormContainer || !addressFormVisible) return;
+    
         addressFormContainer.style.display = 'none';
+    addressFormVisible = false;
+    
         // Reset form when hiding
+    if (addressForm) {
         addressForm.reset();
+        resetValidationState();
+    }
         currentEditingAddressId = null;
     }
+
+// Reset validation state
+function resetValidationState() {
+    const invalidFields = addressForm.querySelectorAll('.is-invalid');
+    const feedbackElements = addressForm.querySelectorAll('.invalid-feedback');
+    
+    invalidFields.forEach(field => field.classList.remove('is-invalid'));
+    feedbackElements.forEach(feedback => feedback.textContent = '');
 }
 
-// Initialize Address Form Events
+// Optimize address form submission
 if (addressForm) {
     addressForm.addEventListener('submit', async function(e) {
         e.preventDefault();
         
-        if (!validateAddressForm()) {
-            return;
-        }
+        if (!validateAddressForm()) return;
 
         const formData = new FormData(this);
-        const formDataObject = {};
-        formData.forEach((value, key) => {
-            if (key !== 'csrfmiddlewaretoken') {
-                formDataObject[key] = value;
-            }
-        });
+        const formDataObject = Object.fromEntries(
+            Array.from(formData.entries()).filter(([key]) => key !== 'csrfmiddlewaretoken')
+        );
 
         try {
-            const response = await fetch(currentEditingAddressId 
+            const endpoint = currentEditingAddressId 
                 ? `/address/${currentEditingAddressId}/update/`
-                : '/address/add/', {
+                : '/address/add/';
+                
+            const response = await fetch(endpoint, {
                 method: currentEditingAddressId ? 'PUT' : 'POST',
                 headers: {
                     'X-CSRFToken': getCookie('csrftoken'),
@@ -216,8 +263,15 @@ if (addressForm) {
                     : 'New address added successfully!',
                 'success'
             );
+            
             hideAddressForm();
-            window.location.reload(); // Refresh to show updated addresses
+            
+            // Optimize page reload by updating DOM directly if possible
+            if (data.html) {
+                updateAddressList(data.html);
+            } else {
+                window.location.reload();
+            }
         } catch (error) {
             showNotification(error.message || 'Failed to save address. Please try again.', 'error');
             console.error('Error:', error);
@@ -225,39 +279,72 @@ if (addressForm) {
     });
 }
 
+// Update address list without page reload
+function updateAddressList(html) {
+    const addressList = document.querySelector('.address-list');
+    if (addressList) {
+        addressList.innerHTML = html;
+        initializeAddressCardEvents();
+    }
+}
+
+// Initialize address card events
+function initializeAddressCardEvents() {
+    const addressCards = document.querySelectorAll('.address-card');
+    
+    addressCards.forEach(card => {
+        const editBtn = card.querySelector('.btn-edit');
+        const deleteBtn = card.querySelector('.btn-delete');
+        const defaultBtn = card.querySelector('.btn-set-default');
+        
+        if (editBtn) {
+            editBtn.addEventListener('click', () => editAddress(card.dataset.id));
+        }
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', () => deleteAddress(card.dataset.id));
+        }
+        if (defaultBtn) {
+            defaultBtn.addEventListener('click', () => setDefaultAddress(card.dataset.id));
+        }
+    });
+}
+
 // Edit Address
 async function editAddress(addressId) {
+    if (!addressId || !addressForm) return;
+    
     try {
-        const response = await fetch(`/address/${addressId}/`);
+        const response = await fetch(`/address/${addressId}/`, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
         if (!response.ok) {
             throw new Error('Failed to fetch address details');
         }
 
-        const address = await response.json();
-        currentEditingAddressId = addressId;
+        const addressData = await response.json();
         
         // Populate form fields
-        const form = document.getElementById('address-form');
-        if (form) {
-            form.elements['full_name'].value = address.full_name;
-            form.elements['phone_number'].value = address.phone_number;
-            form.elements['type'].value = address.type;
-            form.elements['street_address'].value = address.street_address;
-            form.elements['city'].value = address.city;
-            form.elements['state'].value = address.state;
-            form.elements['postal_code'].value = address.postal_code;
-            form.elements['is_default'].checked = address.is_default;
-        }
-        
+        Object.entries(addressData).forEach(([key, value]) => {
+            const field = addressForm.elements[key];
+            if (field) {
+                field.value = value;
+            }
+        });
+
+        currentEditingAddressId = addressId;
         showAddressForm();
     } catch (error) {
-        showNotification(error.message, 'error');
+        showNotification('Failed to load address details. Please try again.', 'error');
+        console.error('Error:', error);
     }
 }
 
 // Delete Address
 async function deleteAddress(addressId) {
-    if (!confirm('Are you sure you want to delete this address?')) {
+    if (!addressId || !confirm('Are you sure you want to delete this address?')) {
         return;
     }
 
@@ -265,31 +352,41 @@ async function deleteAddress(addressId) {
         const response = await fetch(`/address/${addressId}/delete/`, {
             method: 'DELETE',
             headers: {
-                'X-CSRFToken': getCookie('csrftoken')
+                'X-CSRFToken': getCookie('csrftoken'),
+                'Content-Type': 'application/json'
             }
         });
 
         if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.message || 'Failed to delete address');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to delete address');
         }
+
+        const data = await response.json();
 
         showNotification('Address deleted successfully!', 'success');
         
-        // Remove the address card from DOM
-        const addressCard = document.querySelector(`.address-card[data-id="${addressId}"]`);
+        // Update DOM directly if possible
+        if (data.html) {
+            updateAddressList(data.html);
+        } else {
+            const addressCard = document.querySelector(`[data-id="${addressId}"]`);
         if (addressCard) {
             addressCard.remove();
         } else {
-            window.location.reload(); // Fallback: refresh the page
+                window.location.reload();
+            }
         }
     } catch (error) {
-        showNotification(error.message, 'error');
+        showNotification(error.message || 'Failed to delete address. Please try again.', 'error');
+        console.error('Error:', error);
     }
 }
 
 // Set Default Address
 async function setDefaultAddress(addressId) {
+    if (!addressId) return;
+
     try {
         const response = await fetch(`/address/${addressId}/set-default/`, {
             method: 'POST',
@@ -300,14 +397,31 @@ async function setDefaultAddress(addressId) {
         });
 
         if (!response.ok) {
-            const data = await response.json();
-            throw new Error(data.message || 'Failed to set default address');
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Failed to set default address');
         }
 
+        const data = await response.json();
+
         showNotification('Default address updated successfully!', 'success');
-        window.location.reload(); // Refresh to update UI
+        
+        // Update DOM directly
+        const addressCards = document.querySelectorAll('.address-card');
+        addressCards.forEach(card => {
+            const defaultBadge = card.querySelector('.default-badge');
+            const defaultBtn = card.querySelector('.btn-set-default');
+            
+            if (card.dataset.id === addressId) {
+                if (defaultBadge) defaultBadge.style.display = 'inline-block';
+                if (defaultBtn) defaultBtn.style.display = 'none';
+            } else {
+                if (defaultBadge) defaultBadge.style.display = 'none';
+                if (defaultBtn) defaultBtn.style.display = 'inline-block';
+            }
+        });
     } catch (error) {
-        showNotification(error.message, 'error');
+        showNotification(error.message || 'Failed to set default address. Please try again.', 'error');
+        console.error('Error:', error);
     }
 }
 
@@ -541,138 +655,283 @@ function getCookie(name) {
     return cookieValue;
 }
 
-function switchTab(tabId) {
-    const tab = document.querySelector(`.profile-nav li[data-tab="${tabId}"]`);
-    if (tab) {
-        tab.click();
+// Add CSS for animations (removed dashboard-specific styles)
+const style = document.createElement('style');
+style.textContent = `
+    .quick-actions .action-btn {
+        transition: all 0.3s ease;
+    }
+    
+    .quick-actions .action-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+`;
+document.head.appendChild(style);
+
+// Initialize address management
+function initializeAddressManagement() {
+    if (addAddressBtn) {
+        addAddressBtn.addEventListener('click', showAddressForm);
+    }
+    
+    if (cancelAddressBtn) {
+        cancelAddressBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAddressForm();
+        });
+    }
+
+    initializeAddressCardEvents();
+}
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', initializeAddressManagement);
+
+// Show notification function
+function showNotification(message, type = 'success') {
+    // Remove any existing notifications
+    const existingNotifications = document.querySelectorAll('.notification');
+    existingNotifications.forEach(notification => notification.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    // Create notification content with simpler design
+    notification.innerHTML = `
+        <div class="notification-content">
+            <p>${message}</p>
+        </div>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Add styles if they don't exist
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                padding: 12px 24px;
+                border-radius: 4px;
+                transform: translateX(120%);
+                transition: transform 0.3s ease;
+                z-index: 10000;
+                min-width: 200px;
+                max-width: 400px;
+                text-align: center;
+            }
+            .notification.show {
+                transform: translateX(0);
+            }
+            .notification.success {
+                background: #4CAF50;
+                color: white;
+            }
+            .notification.error {
+                background: #f44336;
+                color: white;
+            }
+            .notification-content {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .notification-content p {
+                margin: 0;
+                font-size: 1rem;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Remove notification after delay
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Toggle between view and edit modes
+function toggleEditMode() {
+    const viewMode = document.getElementById('profile-view');
+    const editMode = document.getElementById('profile-edit');
+    
+    if (viewMode.style.display !== 'none') {
+        viewMode.style.display = 'none';
+        editMode.style.display = 'block';
+        editMode.scrollIntoView({ behavior: 'smooth' });
+    } else {
+        editMode.style.display = 'none';
+        viewMode.style.display = 'block';
+        document.getElementById('profile-form').reset();
+        clearValidationErrors();
     }
 }
 
-// Add animation to stat cards when they come into view
-function animateStatCards() {
-    const statCards = document.querySelectorAll('.stat-card');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-                
-                // Animate progress bar
-                const progressBar = entry.target.querySelector('.progress-bar');
-                if (progressBar) {
-                    const width = progressBar.style.width;
-                    progressBar.style.width = '0%';
-                    setTimeout(() => {
-                        progressBar.style.width = width;
-                    }, 100);
-                }
-                
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
-
-    statCards.forEach(card => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = 'all 0.6s ease-out';
-        observer.observe(card);
+// Clear validation errors
+function clearValidationErrors() {
+    document.querySelectorAll('.is-invalid').forEach(el => {
+        el.classList.remove('is-invalid');
+        const feedback = el.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = '';
+        }
     });
 }
 
-// Add hover effects to action buttons
-function initializeActionButtons() {
-    const actionButtons = document.querySelectorAll('.action-btn');
-    
-    actionButtons.forEach(btn => {
-        btn.addEventListener('mouseenter', () => {
-            const icon = btn.querySelector('i');
-            if (icon) {
-                icon.style.transform = 'scale(1.2) rotate(5deg)';
-            }
-        });
-        
-        btn.addEventListener('mouseleave', () => {
-            const icon = btn.querySelector('i');
-            if (icon) {
-                icon.style.transform = 'scale(1) rotate(0)';
-            }
-        });
-    });
+// Show validation error
+function showValidationError(field, message) {
+    const input = document.getElementById(field);
+    if (input) {
+        input.classList.add('is-invalid');
+        const feedback = input.nextElementSibling;
+        if (feedback && feedback.classList.contains('invalid-feedback')) {
+            feedback.textContent = message;
+        }
+    }
 }
 
-// Animate activity timeline items
-function animateActivityTimeline() {
-    const activityItems = document.querySelectorAll('.activity-item');
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateX(0)';
-                observer.unobserve(entry.target);
-            }
-        });
-    }, {
-        threshold: 0.1
-    });
+// Validate form fields
+function validateProfileForm() {
+    let isValid = true;
+    clearValidationErrors();
 
-    activityItems.forEach((item, index) => {
-        item.style.opacity = '0';
-        item.style.transform = 'translateX(-20px)';
-        item.style.transition = `all 0.5s ease-out ${index * 0.1}s`;
-        observer.observe(item);
-    });
+    // Validate first name
+    const firstName = document.getElementById('first_name');
+    if (!firstName.value.trim()) {
+        showValidationError('first_name', 'First name is required');
+        isValid = false;
+    }
+
+    // Validate last name
+    const lastName = document.getElementById('last_name');
+    if (!lastName.value.trim()) {
+        showValidationError('last_name', 'Last name is required');
+        isValid = false;
+    }
+
+    // Validate phone number
+    const phone = document.getElementById('phone');
+    if (phone.value.trim() && !/^[0-9]{10}$/.test(phone.value.trim())) {
+        showValidationError('phone', 'Please enter a valid 10-digit phone number');
+        isValid = false;
+    }
+
+    return isValid;
 }
 
-// Initialize dashboard
-function initializeDashboard() {
-    animateStatCards();
-    initializeActionButtons();
-    animateActivityTimeline();
+// Update profile information in view mode
+function updateProfileView(data) {
+    const fullName = document.querySelector('#profile-view .info-value');
+    if (fullName) {
+        fullName.textContent = `${data.first_name} ${data.last_name}`;
+    }
+
+    const phone = document.querySelector('#profile-view .info-item:nth-child(3) .info-value');
+    if (phone) {
+        phone.textContent = data.phone || 'Not provided';
+    }
+
+    const gender = document.querySelector('#profile-view .info-item:nth-child(4) .info-value');
+    if (gender) {
+        let genderText = 'Not specified';
+        if (data.gender === 'M') genderText = 'Male';
+        else if (data.gender === 'F') genderText = 'Female';
+        else if (data.gender === 'O') genderText = 'Other';
+        gender.textContent = genderText;
+    }
+
+    // Update sidebar name if it exists
+    const sidebarName = document.querySelector('.profile-user-info h3');
+    if (sidebarName) {
+        sidebarName.textContent = `${data.first_name} ${data.last_name}`;
+    }
 }
 
-// Initialize when DOM is loaded
+// Handle form submission
 document.addEventListener('DOMContentLoaded', function() {
-    initializeDashboard();
-    
-    // Tab switching with smooth transitions
-    const tabLinks = document.querySelectorAll('.profile-nav li[data-tab]');
-    const tabs = document.querySelectorAll('.profile-tab');
-    
-    tabLinks.forEach(link => {
-        link.addEventListener('click', function() {
-            const tabId = this.dataset.tab;
+    const profileForm = document.getElementById('profile-form');
+    if (profileForm) {
+        profileForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
             
-            // Remove active classes
-            tabLinks.forEach(l => l.classList.remove('active'));
-            tabs.forEach(t => {
-                t.style.opacity = '0';
-                t.classList.remove('active');
-            });
-            
-            // Add active classes
-            this.classList.add('active');
-            const activeTab = document.getElementById(tabId);
-            activeTab.classList.add('active');
-            
-            // Animate new tab
-            setTimeout(() => {
-                activeTab.style.opacity = '1';
-                if (tabId === 'dashboard') {
-                    initializeDashboard();
+            if (!validateProfileForm()) {
+                return;
+            }
+
+            const formData = new FormData(this);
+            try {
+                const response = await fetch('/update-profile/', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': getCookie('csrftoken')
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.status === 'success') {
+                    showNotification('Profile updated successfully!', 'success');
+                    updateProfileView(data.data);
+                    toggleEditMode(); // Switch back to view mode
+                } else {
+                    showNotification(data.message || 'Failed to update profile', 'error');
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(field => {
+                            showValidationError(field, data.errors[field][0]);
+                        });
+                    }
                 }
-            }, 50);
-            
-            // Update URL without page reload
-            history.pushState(null, '', `?tab=${tabId}`);
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('An error occurred while updating profile', 'error');
+            }
         });
-    });
-    
-    // Handle browser back/forward
-    window.addEventListener('popstate', function() {
-        const tabId = new URLSearchParams(window.location.search).get('tab') || 'dashboard';
-        switchTab(tabId);
-    });
+    }
+
+    // Handle profile image upload
+    const profileImageUpload = document.getElementById('profile-image-upload');
+    if (profileImageUpload) {
+        profileImageUpload.addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('profile_image', file);
+                
+                try {
+                    const response = await fetch('/update-profile-image/', {
+                        method: 'POST',
+                        body: formData,
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        }
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (response.ok && data.success) {
+                        // Update profile image in both sidebar and view mode
+                        const profileImages = document.querySelectorAll('.profile-avatar img');
+                        profileImages.forEach(img => {
+                            img.src = data.image_url;
+                        });
+                        showNotification('Profile image updated successfully!', 'success');
+                    } else {
+                        showNotification(data.message || 'Failed to update profile image', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showNotification('An error occurred while updating profile image', 'error');
+                }
+            }
+        });
+    }
 });

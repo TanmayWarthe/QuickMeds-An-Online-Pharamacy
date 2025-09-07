@@ -7,6 +7,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
 <link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
 <link rel="stylesheet" href="{% static 'css/shop.css' %}">
+<style>
+    .product-image {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
+        background: #f8f9fa;
+        border-radius: 8px;
+        transition: opacity 0.3s ease;
+    }
+    .product-image.error {
+        object-fit: contain;
+        padding: 20px;
+        opacity: 0.7;
+    }
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        height: 200px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    .image-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+</style>
 {% endblock %} 
 
 {% block content %}
@@ -89,10 +119,6 @@
         <a href="{% url 'product' %}" class="nav-item active">
             <i class="fas fa-prescription-bottle-alt"></i>
             <span>Products</span>
-        </a>
-        <a href="{% url 'purchase' %}" class="nav-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Purchase</span>
         </a>
         <a href="{% url 'contact' %}" class="nav-item">
             <i class="fas fa-phone"></i>
@@ -190,11 +216,10 @@
                 {% for product in category.products.all %}
                 <div class="product-slide">
                     <div class="product-card" data-product-id="{{ product.id }}" onclick="navigateToProduct('{{ product.id }}', event)">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" />
-                        {% else %}
-                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" loading="lazy" />
-                        {% endif %}
+                        <div class="product-image-container">
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                            <div class="image-loading">Loading...</div>
+                        </div>
                         <div class="product-info">
                             <span class="category">{{ product.category.name }}</span>
                             <h3>{{ product.name }}</h3>
@@ -282,4 +307,35 @@
 {% block extra_js %}
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script src="{% static 'js/product.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handle image loading
+    document.querySelectorAll('.product-image').forEach(img => {
+        const container = img.closest('.product-image-container');
+        const loader = container.querySelector('.image-loading');
+        
+        // Show loader while image is loading
+        if (loader) {
+            loader.style.display = 'block';
+            img.style.opacity = '0';
+        }
+        
+        img.onload = function() {
+            if (loader) {
+                loader.style.display = 'none';
+            }
+            img.style.opacity = '1';
+        };
+        
+        img.onerror = function() {
+            if (loader) {
+                loader.style.display = 'none';
+            }
+            this.src = "{% static 'img/medicines-icon.png' %}";
+            this.classList.add('error');
+            img.style.opacity = '1';
+        };
+    });
+});
+</script>
 {% endblock %}

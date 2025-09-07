@@ -7,14 +7,21 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    {% csrf_token %}
     <title>{% block title %}QuickMeds - Online Pharmacy{% endblock %}</title>
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{% static 'img/medicines-icon.png' %}">
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/medicines-icon.png' %}">
-    <link rel="apple-touch-icon" href="{% static 'img/medicines-icon.png' %}">
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/medicines-icon.png' %}">
+    <link rel="manifest" href="{% static 'site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'img/medicines-icon.png' %}" color="#5bbad5">
+    <meta name="msapplication-TileImage" content="{% static 'img/medicines-icon.png' %}">
+    <meta name="msapplication-TileColor" content="#2196F3">
+    <meta name="theme-color" content="#2196F3">
     {% block extra_css %}
     <style>
-
       @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
       
       * {
@@ -23,8 +30,37 @@
           box-sizing: border-box;
           font-family: 'Poppins', sans-serif;
       }
-    </style>
 
+      /* Cart Icon Styles */
+      .cart-icon {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+      }
+
+      .cart-icon .badge {
+          position: absolute;
+          top: -8px;
+          right: -8px;
+          background: #e74c3c;
+          color: white;
+          border-radius: 50%;
+          min-width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 0.7rem;
+          font-weight: 600;
+          padding: 0 4px;
+          display: none;
+      }
+
+      .cart-icon .badge:empty {
+          display: none;
+      }
+    </style>
     {% endblock %}
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -35,8 +71,6 @@
     <!-- Custom CSS -->
   </head>
   <body>
-
-
     {% block content %}
     {% endblock %}
 
@@ -47,9 +81,6 @@
     <!-- Product JS -->
     <script src="{% static 'js/product.js' %}"></script>
 
-
     {% block extra_js %}{% endblock %}
-
-
   </body>
 </html>

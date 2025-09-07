@@ -1436,3 +1436,42 @@ footer .social-links a:hover {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.2); }
 }
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .navbar {
+        flex-direction: column; /* Stack navbar items vertically */
+    }
+
+    .category-section {
+        padding: 20px; /* Reduce padding */
+    }
+
+    .category-grid {
+        grid-template-columns: 1fr; /* Stack categories vertically */
+    }
+
+    .product-card {
+        width: 100%; /* Full width for product cards */
+        margin-bottom: 20px; /* Space between cards */
+    }
+
+    .product-header {
+        flex-direction: column; /* Stack header elements */
+        align-items: flex-start; /* Align items to the start */
+    }
+
+    .slider-controls {
+        margin-top: 10px; /* Add space above controls */
+    }
+
+    .notification {
+        width: 90%; /* Make notification width responsive */
+        padding: 10px; /* Adjust padding */
+    }
+
+    .scroll-top-btn {
+        bottom: 1rem; /* Adjust position */
+        right: 1rem; /* Adjust position */
+    }
+}

@@ -9,6 +9,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 <style>
     body {
         font-family: 'Poppins', sans-serif;
@@ -17,114 +18,96 @@
 
     /* Modern Header & Navbar Styles */
     .header {
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+        background: #ffffff;
         position: relative;
         z-index: 100;
         border-bottom: 1px solid rgba(52, 152, 219, 0.1);
     }
 
+    .header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #3498db, #2ecc71, #3498db);
+        background-size: 200% 100%;
+        animation: gradientMove 5s linear infinite;
+    }
+
+    @keyframes gradientMove {
+        0% { background-position: 100% 0; }
+        100% { background-position: -100% 0; }
+    }
+
     .main-header {
-        padding: 1.2rem 0;
+        padding: 0.6rem 1rem;
         display: flex;
         align-items: center;
         justify-content: space-between;
         position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
     }
 
     /* Logo Styles */
     .logo-container {
         display: flex;
         align-items: center;
-        gap: 15px;
-        padding: 0.8rem;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.9);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 8px;
+        position: relative;
+        padding: 6px 12px;
+        border-radius: 12px;
+        transition: all 0.3s ease;
     }
 
-    .logo-container:hover {
-        transform: translateY(-2px) scale(1.02);
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
+    .logo-container::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 50%;
+        width: 0;
+        height: 2px;
+        background: #3498db;
+        transition: all 0.3s ease;
+        transform: translateX(-50%);
+    }
+
+    .logo-container:hover::after {
+        width: 80%;
     }
 
     .logo-container img {
-        height: 48px;
-        filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-        transition: all 0.4s ease;
+        height: 35px;
+        width: auto;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        transition: transform 0.3s ease;
     }
 
     .logo-container:hover img {
-        transform: rotate(8deg) scale(1.1);
+        transform: scale(1.05);
     }
 
     .logo-container h1 {
         margin: 0;
-        font-size: 30px;
-        font-weight: 700;
-        background: linear-gradient(45deg, #2c3e50, #3498db, #2980b9, #3498db);
+        font-size: 24px;
+        font-weight: 600;
+        background: linear-gradient(45deg, #2c3e50, #3498db);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        background-size: 300% 300%;
-        animation: gradientText 6s ease infinite;
-    }
-
-    @keyframes gradientText {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-    }
-
-    /* Search Bar Styles */
-    .search-container {
-        flex: 1;
-        max-width: 550px;
-        margin: 0 2.5rem;
         position: relative;
-    }
-
-    .search-box {
-        width: 100%;
-        padding: 1.2rem 3.5rem;
-        border: 2px solid transparent;
-        border-radius: 20px;
-        outline: none;
-        font-size: 1rem;
-        background: #ffffff;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .search-box:focus {
-        border-color: #3498db;
-        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.15);
-        transform: scale(1.02);
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #3498db;
-        font-size: 1.2rem;
-        transition: all 0.4s ease;
-    }
-
-    .search-box:focus + .search-icon {
-        color: #2c3e50;
-        transform: translateY(-50%) scale(1.2);
     }
 
     /* Navigation Links */
     .nav-links {
         display: flex;
         align-items: center;
-        gap: 15px;
-        background: rgba(255, 255, 255, 0.9);
-        padding: 0.5rem;
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        gap: 2px;
+        background: rgba(248, 249, 250, 0.95);
+        padding: 3px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
     }
 
     .nav-link {
@@ -132,11 +115,12 @@
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 8px;
-        padding: 0.8rem 1.2rem;
-        border-radius: 12px;
-        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        gap: 4px;
+        padding: 6px 12px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
         font-weight: 500;
+        font-size: 0.95rem;
         position: relative;
         overflow: hidden;
     }
@@ -148,119 +132,96 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, #3498db, #2980b9);
-        opacity: 0;
+        background: linear-gradient(45deg, #3498db20, #2ecc7120);
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
         z-index: -1;
-        transition: all 0.4s ease;
-        transform: translateX(-100%) skewX(-15deg);
     }
 
     .nav-link:hover::before {
-        opacity: 1;
-        transform: translateX(0) skewX(-15deg);
+        transform: translateX(0);
     }
 
     .nav-link:hover {
-        color: #ffffff;
-        transform: translateY(-2px);
+        color: #3498db;
     }
 
     .nav-link i {
-        font-size: 1.3rem;
-        transition: all 0.4s ease;
+        font-size: 1.1rem;
+        transition: transform 0.3s ease;
     }
 
     .nav-link:hover i {
-        transform: scale(1.2) rotate(5deg);
+        transform: translateY(-2px);
     }
 
     /* Tagline Bar */
     .tagline-bar {
         background: linear-gradient(135deg, #2c3e50, #3498db);
-        padding: 1.2rem 0;
+        padding: 0.6rem 0;
         position: relative;
         overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .tagline-bar::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+        animation: rotate 20s linear infinite;
+    }
+
+    @keyframes rotate {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
     }
 
     .tagline-content {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 2rem;
+        gap: 1rem;
         color: #ffffff;
         position: relative;
-        z-index: 2;
     }
 
     .tagline-icon {
-        font-size: 1.8rem;
+        font-size: 1.2rem;
         opacity: 0.9;
-        animation: pulse 2s ease-in-out infinite;
+        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
     }
 
     .tagline-text {
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        font-size: 1rem;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
     .tagline-highlight {
         color: #ffd700;
-        font-weight: 700;
+        font-weight: 600;
         position: relative;
-        display: inline-block;
         padding: 0 5px;
     }
 
-    .tagline-highlight::before {
+    .tagline-highlight::after {
         content: '';
         position: absolute;
-        bottom: 0;
+        bottom: -2px;
         left: 0;
         width: 100%;
-        height: 4px;
+        height: 2px;
         background: #ffd700;
         transform: scaleX(0);
-        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: transform 0.3s ease;
     }
 
-    .tagline-highlight:hover::before {
+    .tagline-highlight:hover::after {
         transform: scaleX(1);
-    }
-
-    @keyframes pulse {
-        0%, 100% { transform: scale(1); opacity: 0.9; }
-        50% { transform: scale(1.2); opacity: 1; }
-    }
-
-    .tagline-bar::before,
-    .tagline-bar::after {
-        content: '';
-        position: absolute;
-        width: 250px;
-        height: 250px;
-        background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), transparent);
-        border-radius: 50%;
-        animation: rotate 20s linear infinite;
-    }
-
-    .tagline-bar::before {
-        top: -125px;
-        left: -125px;
-    }
-
-    .tagline-bar::after {
-        bottom: -125px;
-        right: -125px;
-        animation-delay: -10s;
-    }
-
-    @keyframes rotate {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
     }
 
     /* Modern Profile Container Styles */
@@ -408,43 +369,6 @@
 
     .profile-tab h2 i {
         color: #3498db;
-    }
-
-    /* Dashboard Stats Cards */
-    .dashboard-stats {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 2rem;
-        margin-bottom: 2.5rem;
-    }
-
-    .stat-card {
-        background: linear-gradient(135deg, #ffffff, #f8f9fa);
-        border-radius: 15px;
-        padding: 1.8rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-    }
-
-    .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    }
-
-    .stat-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
-        background: linear-gradient(45deg, #3498db, #2c3e50);
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.8rem;
-        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
     }
 
     /* Form Styles */
@@ -740,46 +664,419 @@
             justify-content: center;
         }
     }
+
+    .btn-cancel-order {
+        background: #f8f9fa;
+        color: #e74c3c;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel-order:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete-order {
+        background: #f8f9fa;
+        color: #dc3545;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete-order:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .order-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .order-status.cancelled {
+        background-color: #ffebee;
+        color: #e53935;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-status.cancelled .delete-icon {
+        margin-left: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        padding: 4px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .order-status.cancelled .delete-icon:hover {
+        background: rgba(220, 53, 69, 0.1);
+        transform: scale(1.1);
+    }
+
+    .order-status.cancelled .delete-icon i {
+        color: #dc3545;
+        font-size: 0.9rem;
+    }
+
+    .order-status.pending {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .order-status.processing {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .order-status.delivered {
+        background-color: #e8f5e9;
+        color: #43a047;
+    }
+
+    .order-status i {
+        font-size: 0.8rem;
+    }
+
+    .order-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        border: 1px solid #eee;
+    }
+
+    .order-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .order-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        width: 100%;
+    }
+
+    .order-id-date {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+    }
+
+    .order-id {
+        font-weight: 600;
+        color: #2c3e50;
+    }
+
+    .order-date {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .order-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .btn-view-details {
+        background: #f8f9fa;
+        color: #3498db;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .btn-view-details:hover {
+        background: #3498db;
+        color: white;
+    }
+
+    .btn-cancel-order {
+        background: #f8f9fa;
+        color: #e74c3c;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-cancel-order:hover {
+        background: #e74c3c;
+        color: white;
+    }
+
+    .btn-delete-order {
+        background: #f8f9fa;
+        color: #dc3545;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-delete-order:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .personal-info-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .section-header h2 {
+        color: #2c3e50;
+        font-size: 1.8rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 1rem;
+    }
+
+    .section-header h2 i {
+        color: #3498db;
+        font-size: 1.6rem;
+    }
+
+    .info-card {
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        padding: 2rem;
+    }
+
+    .info-section {
+        position: relative;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .section-title i {
+        font-size: 1.4rem;
+        color: #3498db;
+        background: rgba(52, 152, 219, 0.1);
+        padding: 0.8rem;
+        border-radius: 12px;
+    }
+
+    .section-title h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .info-list {
+        display: flex;
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .info-item:hover {
+        background: #ffffff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        transform: translateX(5px);
+    }
+
+    .info-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+        background: #3498db;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.2rem;
+    }
+
+    .info-content {
+        flex: 1;
+    }
+
+    .info-label {
+        display: block;
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .info-value {
+        display: block;
+        color: #2c3e50;
+        font-size: 1.1rem;
+        font-weight: 500;
+    }
+
+    .edit-profile-action {
+        text-align: center;
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 2px solid #f0f0f0;
+    }
+
+    .btn-edit-profile {
+        background: linear-gradient(45deg, #3498db, #2980b9);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.8rem;
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit-profile:hover {
+        background: linear-gradient(45deg, #2980b9, #2c3e50);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-edit-profile i {
+        font-size: 1.2rem;
+    }
+
+    @media (max-width: 768px) {
+        .info-card {
+            padding: 1.5rem;
+        }
+
+        .info-item {
+            padding: 0.8rem;
+            gap: 1rem;
+        }
+
+        .info-icon {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            font-size: 1rem;
+        }
+
+        .info-value {
+            font-size: 1rem;
+        }
+
+        .btn-edit-profile {
+            width: 100%;
+            justify-content: center;
+            padding: 0.8rem 1.5rem;
+        }
+    }
+
+    .container {
+        padding-left: 0.5rem;
+        padding-right: 0.5rem;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Header -->
 <header class="header">
-    <!-- Main Header -->
     <div class="container">
         <div class="main-header">
-            <!-- Logo -->
-            <div class="logo-container">
+            <a href="{% url 'home' %}" class="logo-container">
                 <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds Logo">
                 <h1>QuickMeds</h1>
-            </div>
+            </a>
 
-            <!-- Search Bar -->
-            <div class="search-container">
-                <input type="text" class="search-box" placeholder="Search medicines, health products, and more...">
-                <i class="fas fa-search search-icon"></i>
-            </div>
-
-            <!-- Navigation Links -->
             <div class="nav-links">
                 <a href="{% url 'home' %}" class="nav-link">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>
+                    Home
+                </a>
+                <a href="{% url 'product' %}" class="nav-link">
+                    <i class="fas fa-prescription-bottle-alt"></i>
+                    Products
                 </a>
                 <a href="{% url 'cart' %}" class="nav-link">
                     <i class="fas fa-shopping-cart"></i>
-                    <span>Cart</span>
+                    Cart
                 </a>
-                <a href="{% url 'profile' %}" class="nav-link">
-                    <i class="fas fa-user"></i>
-                    <span>Profile</span>
-                </a>
+            
             </div>
         </div>
     </div>
 
-    <!-- Tagline Bar -->
     <div class="tagline-bar">
         <div class="container">
             <div class="tagline-content">
@@ -823,10 +1120,7 @@
         </div>
         
         <ul class="profile-nav">
-            <li class="active" data-tab="dashboard">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
-            </li>
-            <li data-tab="personal-info">
+            <li class="active" data-tab="personal-info">
                 <i class="fas fa-user-edit"></i> Personal Info
             </li>
             <li data-tab="orders">
@@ -872,10 +1166,7 @@
                     <i class="fas fa-prescription-bottle-alt"></i>
                     <span>Products</span>
                 </a>
-                <a href="{% url 'purchase' %}" class="nav-item">
-                    <i class="fas fa-shopping-cart"></i>
-                    <span>Purchase</span>
-                </a>
+                {# <a href="{% url 'purchase' %}">Purchase</a> #}
                 <a href="{% url 'contact' %}" class="nav-item">
                     <i class="fas fa-phone"></i>
                     <span>Contact</span>
@@ -896,148 +1187,185 @@
                 </div>
             </div>
         </div>
-        <!-- Dashboard Tab -->
-        <div class="profile-tab active" id="dashboard">
-            <div class="dashboard-header">
-                <h2>Welcome back, {{ user.get_full_name|default:user.username }}!</h2>
-            </div>
-            
-            <div class="dashboard-stats">
-                <div class="stat-card orders">
-                    <div class="stat-icon">
-                        <i class="fas fa-shopping-bag"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ orders_count|default:"1" }}</h3>
-                        <p>Total Orders Placed</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card savings">
-                    <div class="stat-icon">
-                        <i class="fas fa-coins"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>₹{{ total_savings|default:"0" }}</h3>
-                        <p>Total Savings</p>
-                    </div>
-                </div>
-                
-                <div class="stat-card addresses">
-                    <div class="stat-icon">
-                        <i class="fas fa-map-marker-alt"></i>
-                    </div>
-                    <div class="stat-info">
-                        <h3>{{ addresses_count|default:"1" }}</h3>
-                        <p>Saved Addresses</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="quick-actions">
-                <h3>Quick Actions</h3>
-                <div class="action-buttons">
-                    <a href="{% url 'product' %}" class="action-btn">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Shop Now</span>
-                    </a>
-                    <button class="action-btn" onclick="showAddressForm()">
-                        <i class="fas fa-plus"></i>
-                        <span>Add Address</span>
-                    </button>
-                    <a href="{% url 'orders' %}" class="action-btn">
-                        <i class="fas fa-history"></i>
-                        <span>Order History</span>
-                    </a>
-                </div>
-            </div>
-
-            <div class="recent-activity">
-                <h3>Recent Activity</h3>
-                {% if recent_orders %}
-                <div class="activity-timeline">
-                    {% for activity in recent_activities %}
-                    <div class="activity-item">
-                        <div class="activity-icon">
-                            <i class="{{ activity.icon }}"></i>
-                        </div>
-                        <div class="activity-content">
-                            <h4>{{ activity.title }}</h4>
-                            <p>{{ activity.description }}</p>
-                            <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-                {% else %}
-                <div class="activity-empty">
-                    <i class="fas fa-history"></i>
-                    <p>No recent activity</p>
-                    <a href="{% url 'product' %}" class="btn-primary">Start Shopping</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
         <!-- Personal Info Tab -->
-        <div class="profile-tab" id="personal-info">
-            <h2><i class="fas fa-user-edit"></i> Personal Information</h2>
-            <form id="profile-form" class="profile-edit-form">
-                {% csrf_token %}
-                <div class="form-sections">
-                    <div class="form-section">
-                        <h3>Basic Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="email">Email Address</label>
-                                <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
-                                <small class="form-text text-muted">Email cannot be changed</small>
-                            </div>
-                            <div class="form-group">
-                                <label for="phone">Phone Number</label>
-                                <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required pattern="[0-9]{10}">
-                                <div class="invalid-feedback"></div>
-                            </div>
-                        </div>
+        <div class="profile-tab active" id="personal-info">
+            <div class="personal-info-container">
+                <!-- View Mode -->
+                <div id="profile-view" class="profile-view-mode">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-circle"></i> Personal Information</h2>
                     </div>
 
-                    <div class="form-section">
-                        <h3>Additional Information</h3>
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="gender">Gender</label>
-                                <select id="gender" name="gender" class="form-control">
-                                    <option value="">Select Gender</option>
-                                    <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
-                                    <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
-                                    <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
-                                </select>
+                    <div class="info-card">
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-id-card-alt"></i>
+                                <h3>Basic Information</h3>
                             </div>
-                            <div class="form-group">
-                                <label for="dob">Date of Birth</label>
-                                <input type="date" id="dob" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Full Name</span>
+                                        <span class="info-value">{{ user.get_full_name }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Email</span>
+                                        <span class="info-value">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Phone</span>
+                                        <span class="info-value">{{ user.userprofile.phone|default:"Not provided" }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Gender</span>
+                                        <span class="info-value">
+                                            {% if user.userprofile.gender == 'M' %}Male
+                                            {% elif user.userprofile.gender == 'F' %}Female
+                                            {% elif user.userprofile.gender == 'O' %}Other
+                                            {% else %}Not specified{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Date of Birth</span>
+                                        <span class="info-value">
+                                            {{ user.userprofile.dob|date:"F d, Y"|default:"Not provided" }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Member Since</span>
+                                        <span class="info-value">{{ user.date_joined|date:"F Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-profile-action">
+                                <button class="btn btn-edit-profile" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="btn-group">
-                    <button type="button" class="btn btn-secondary" id="cancel">Cancel</button>
-                    <button type="submit" class="btn btn-save" id="saveChanges">Save Changes</button>
+
+                <!-- Edit Mode (Hidden by default) -->
+                <div id="profile-edit" class="profile-edit-mode" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                        <button class="btn btn-cancel-edit" onclick="toggleEditMode()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+
+                    <form id="profile-form" class="profile-edit-form">
+                        {% csrf_token %}
+                        <div class="form-card">
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-id-card"></i>
+                                    <h3>Basic Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="first_name">First Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="last_name">Last Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="email">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
+                                        </div>
+                                        <small class="form-text text-muted"><i class="fas fa-info-circle"></i> Email cannot be changed</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="phone">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            <input type="tel" id="phone" name="phone" value="{{ user.userprofile.phone|default:'' }}" class="form-control" required pattern="[0-9]{10}">
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h3>Additional Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="gender">Gender</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                            <select id="gender" name="gender" class="form-control">
+                                                <option value="">Select Gender</option>
+                                                <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
+                                                <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
+                                                <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="dob">Date of Birth</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                            <input type="date" id="dob" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-save" id="saveChanges">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
+            </div>
         </div>
 
         <!-- Orders Tab -->
@@ -1046,7 +1374,7 @@
             {% if orders %}
             <div class="orders-list">
                 {% for order in orders %}
-                <div class="order-card">
+                <div class="order-card" data-order-id="{{ order.id }}">
                     <div class="order-header">
                         <div class="order-info">
                             <div class="order-id-date">
@@ -1058,10 +1386,17 @@
                                 {{ order.order_status }}
                             </span>
                         </div>
-                        <div class="order-payment">
-                            <span class="payment-method">{{ order.payment_method }}</span>
-                            <span class="payment-status {{ order.payment_status|lower }}">{{ order.payment_status }}</span>
+                    </div>
+                    <div class="order-details">
+                        {% for item in order.items.all %}
+                        <div class="order-item">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                            <div class="item-details">
+                                <h4>{{ item.product.name }}</h4>
+                                <p>Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+                            </div>
                         </div>
+                        {% endfor %}
                     </div>
                     <div class="order-footer">
                         <div class="order-summary">
@@ -1075,8 +1410,12 @@
                                 <i class="fas fa-eye"></i> View Details
                             </a>
                             {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
-                            <button class="btn-cancel-order" onclick="cancelOrder({{ order.id }})">
-                                <i class="fas fa-times"></i> Cancel
+                            <button class="btn-cancel-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-times"></i> Cancel Order
+                            </button>
+                            {% elif order.order_status == 'CANCELLED' %}
+                            <button class="btn-delete-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-trash-alt"></i> Delete Order
                             </button>
                             {% endif %}
                         </div>
@@ -1240,9 +1579,15 @@
                         <div class="card-body">
                             <form id="password-form" class="needs-validation" novalidate>
                                 <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                                
+                                <div class="mb-3">
                                     <label for="current-password" class="form-label">Current Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="current-password" required>
+                                        <input type="password" class="form-control password-field" id="current-password" name="current-password" required autocomplete="current-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('current-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -1253,7 +1598,7 @@
                                 <div class="mb-3">
                                     <label for="new-password" class="form-label">New Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="new-password" required>
+                                        <input type="password" class="form-control password-field" id="new-password" name="new-password" required autocomplete="new-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('new-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -1265,7 +1610,7 @@
                                 <div class="mb-3">
                                     <label for="confirm-password" class="form-label">Confirm New Password</label>
                                     <div class="input-group">
-                                        <input type="password" class="form-control password-field" id="confirm-password" required>
+                                        <input type="password" class="form-control password-field" id="confirm-password" name="confirm-password" required autocomplete="new-password">
                                         <button class="btn btn-outline-secondary" type="button" onclick="togglePassword('confirm-password')">
                                             <i class="fas fa-eye"></i>
                                         </button>
@@ -1346,6 +1691,7 @@
 {% block extra_js %}
 <script src="{% static 'js/Homepage.js' %}"></script>
 <script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile_search.js' %}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1382,7 +1728,7 @@
     });
 
     function cancelOrder(orderId) {
-        if (confirm('Are you sure you want to cancel this order?')) {
+        if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
             fetch(`/orders/${orderId}/cancel/`, {
                 method: 'POST',
                 headers: {
@@ -1392,14 +1738,35 @@
             })
             .then(response => response.json())
             .then(data => {
-                if (data.status === 'success') {
-                    window.location.reload();
+                if (data.success) {
+                    // Get the order card
+                    const orderCard = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+                    if (orderCard) {
+                        // Update status
+                        const statusElement = orderCard.querySelector('.order-status');
+                        statusElement.className = 'order-status cancelled';
+                        statusElement.innerHTML = '<i class="fas fa-circle"></i> CANCELLED';
+                        
+                        // Replace cancel button with delete button
+                        const actionsContainer = orderCard.querySelector('.order-actions');
+                        const cancelButton = actionsContainer.querySelector('.btn-cancel-order');
+                        if (cancelButton) {
+                            const deleteButton = document.createElement('button');
+                            deleteButton.className = 'btn-delete-order';
+                            deleteButton.setAttribute('data-order-id', orderId);
+                            deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Order';
+                            deleteButton.addEventListener('click', () => deleteOrder(orderId));
+                            cancelButton.replaceWith(deleteButton);
+                        }
+                    }
+                    showNotification('Order cancelled successfully', 'success');
                 } else {
-                    alert(data.message || 'Failed to cancel order');
+                    showNotification(data.message || 'Failed to cancel order', 'error');
                 }
             })
             .catch(error => {
-                alert('Failed to cancel order. Please try again.');
+                console.error('Error:', error);
+                showNotification('Failed to cancel order', 'error');
             });
         }
     }
@@ -1453,6 +1820,73 @@
             .catch(error => {
                 showNotification('An error occurred while deleting account', 'error');
             });
+        }
+    }
+
+    function deleteOrder(orderId) {
+        if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+            fetch(`/orders/${orderId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Remove the order card from the DOM
+                    const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+                    if (orderCard) {
+                        orderCard.remove();
+                    }
+                    showNotification('Order deleted successfully', 'success');
+                } else {
+                    showNotification(data.message || 'Failed to delete order', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to delete order', 'error');
+            });
+        }
+    }
+
+    // Add event listeners for cancel and delete buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        // Cancel order buttons
+        document.querySelectorAll('.btn-cancel-order').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                cancelOrder(orderId);
+            });
+        });
+
+        // Delete order buttons
+        document.querySelectorAll('.btn-delete-order').forEach(button => {
+            button.addEventListener('click', function() {
+                const orderId = this.dataset.orderId;
+                deleteOrder(orderId);
+            });
+        });
+    });
+
+    function toggleEditMode() {
+        const viewMode = document.getElementById('profile-view');
+        const editMode = document.getElementById('profile-edit');
+        
+        if (viewMode.style.display !== 'none') {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            // Smooth scroll to edit form
+            editMode.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            editMode.style.display = 'none';
+            viewMode.style.display = 'block';
+            // Reset form when canceling
+            document.getElementById('profile-form').reset();
+            // Remove any validation states
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
         }
     }
 </script>
