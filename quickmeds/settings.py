@@ -39,12 +39,20 @@ else:
         '127.0.0.1'
     ]
 
-# For production, enable this
-SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-SECURE_BROWSER_XSS_FILTER = True
-SECURE_CONTENT_TYPE_NOSNIFF = True
+# Security settings for production
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+else:
+    SECURE_SSL_REDIRECT = False
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
 
 # Application definition
 
@@ -98,12 +106,22 @@ WSGI_APPLICATION = 'quickmeds.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use PostgreSQL for production, SQLite for development
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    # Production database configuration
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(
+            config('DATABASE_URL', default='sqlite:///db.sqlite3')
+        )
+    }
 
 
 # Password validation
@@ -178,9 +196,9 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 465  # Use SSL
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
-EMAIL_HOST_USER = 'tanmaywarthe09@gmail.com'
-EMAIL_HOST_PASSWORD = 'wjlc iris covi oune'
-DEFAULT_FROM_EMAIL = 'tanmaywarthe09@gmail.com'
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='tanmaywarthe09@gmail.com')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='wjlc iris covi oune')
+DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='tanmaywarthe09@gmail.com')
 EMAIL_TIMEOUT = 60
 
 # Cache Configuration
@@ -214,5 +232,5 @@ LOGGING = {
 }
 
 # Razorpay Configuration
-RAZORPAY_KEY_ID = 'rzp_test_tPcdMpc0pKpdgJ'  # Replace with your actual test key
-RAZORPAY_KEY_SECRET = 'yRZXwAiQtCyBKLve67k6llus'  # Replace with your actual secret key 
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='rzp_test_tPcdMpc0pKpdgJ')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='yRZXwAiQtCyBKLve67k6llus') 
