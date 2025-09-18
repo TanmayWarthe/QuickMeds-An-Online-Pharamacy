@@ -38,5 +38,4 @@ services:
 
   - type: pserv
     name: dawai-ki-dukan-db
-    env: postgresql
     plan: free
