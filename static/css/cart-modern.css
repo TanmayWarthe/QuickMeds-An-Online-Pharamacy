@@ -1,0 +1,63 @@
+/* QuickMeds Modern Cart Page Styles */
+/* Uses global variables from theme.css and layout.css */
+
+.cart-page-wrapper {max-width:1280px; margin:2rem auto; padding:0 1.5rem;}
+.cart-container {background:#fff; border:1px solid var(--border); border-radius:16px; padding:2rem; box-shadow:0 6px 18px rgba(0,0,0,.05);}
+.cart-header {display:flex; justify-content:space-between; align-items:center; margin-bottom:1.75rem; padding-bottom:1rem; border-bottom:2px solid var(--border);} 
+.cart-header h1 {font-size:1.75rem; font-weight:700; display:flex; align-items:center; gap:.75rem; margin:0; color:var(--dark);} 
+.cart-header h1 i {color:var(--primary);} 
+.items-count {font-size:.9rem; font-weight:600; color:var(--muted); background:var(--light); padding:.4rem .85rem; border-radius:20px;}
+
+.cart-content {display:grid; grid-template-columns:1.2fr .8fr; gap:2rem;}
+.cart-items {display:flex; flex-direction:column; gap:1rem;}
+.cart-item {display:grid; grid-template-columns:100px 1fr auto auto auto; gap:1rem; background:var(--light); border:1px solid var(--border); border-radius:14px; padding:1rem 1.25rem; position:relative; transition:.25s ease;}
+.cart-item:hover {background:#fff; box-shadow:0 4px 12px rgba(0,0,0,.06); transform:translateY(-2px);} 
+.item-image {width:100px; height:100px; object-fit:contain; background:#fff; border:1px solid var(--border); border-radius:12px; padding:.5rem;}
+.item-details {display:flex; flex-direction:column; justify-content:center; gap:.35rem;} 
+.item-details h3 {font-size:1rem; font-weight:600; margin:0; color:var(--dark);} 
+.item-category {font-size:.65rem; letter-spacing:.5px; text-transform:uppercase; font-weight:600; color:var(--primary);}
+.price-info {display:flex; align-items:center; gap:.5rem;} 
+.item-price {color:var(--primary); font-weight:600; font-size:.95rem;} 
+.original-price {text-decoration:line-through; color:var(--muted); font-size:.75rem;} 
+
+.quantity-controls {display:flex; align-items:center; gap:.5rem;} 
+.quantity-btn {width:34px; height:34px; border:none; border-radius:50%; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.85rem; transition:.25s ease;} 
+.quantity-btn:hover {box-shadow:0 4px 10px rgba(52,152,219,.35); transform:translateY(-2px);} 
+.quantity-input {width:52px; height:34px; text-align:center; border:1px solid var(--border); border-radius:10px; font-weight:600; font-size:.85rem; background:#fff;}
+
+.item-total {display:flex; align-items:center; font-weight:700; color:var(--primary-dark); font-size:.95rem;}
+.remove-btn {background:none; border:none; color:var(--danger); width:34px; height:34px; display:flex; align-items:center; justify-content:center; border-radius:50%; cursor:pointer; transition:.25s ease;} 
+.remove-btn:hover {background:rgba(231,76,60,.1);}
+
+.cart-summary {background:#fff; border:1px solid var(--border); border-radius:16px; padding:1.75rem 1.5rem; height:fit-content; box-shadow:0 4px 14px rgba(0,0,0,.05);} 
+.summary-header {display:flex; align-items:center; gap:.65rem; margin-bottom:1.25rem;} 
+.summary-header i {color:var(--primary); font-size:1.2rem;} 
+.summary-header h2 {margin:0; font-size:1.2rem; font-weight:700; color:var(--dark);} 
+.summary-content {display:flex; flex-direction:column; gap:.75rem; margin-bottom:1rem;} 
+.summary-row {display:flex; justify-content:space-between; font-size:.85rem; color:var(--dark);} 
+.summary-row.total {font-size:1rem; font-weight:700; border-top:1px solid var(--border); padding-top:.75rem;} 
+.cart-subtotal,.cart-total {font-weight:600; color:var(--primary);} 
+
+.cart-actions {display:flex; gap:.75rem; margin-top:.5rem;} 
+.continue-shopping,.proceed-checkout {flex:1; padding:.85rem 1.1rem; border:none; border-radius:12px; font-weight:600; font-size:.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:.5rem; transition:.25s ease; text-decoration:none;} 
+.continue-shopping {background:#fff; color:var(--primary); border:2px solid var(--primary);} 
+.continue-shopping:hover {background:var(--light);} 
+.proceed-checkout {background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff;} 
+.proceed-checkout:hover {box-shadow:0 6px 16px rgba(52,152,219,.35); transform:translateY(-2px);} 
+
+.empty-cart {text-align:center; background:#fff; border:2px dashed var(--border); padding:3rem 2rem; border-radius:16px; margin:2rem 0;}
+.empty-cart i {font-size:3rem; color:var(--primary); margin-bottom:1rem;} 
+.empty-cart p {color:var(--muted); margin:0 0 1rem; font-weight:500;} 
+.shop-now-btn {display:inline-flex; align-items:center; gap:.5rem; background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; padding:.75rem 1.25rem; border-radius:12px; text-decoration:none; font-weight:600; font-size:.85rem; transition:.25s ease;} 
+.shop-now-btn:hover {box-shadow:0 8px 18px rgba(52,152,219,.35); transform:translateY(-2px);} 
+.empty-cart-help {margin-top:1.25rem; font-size:.75rem;} 
+.empty-cart-help a {color:var(--primary); text-decoration:none; font-weight:600;} 
+.empty-cart-help a:hover {text-decoration:underline;}
+
+/* Notifications */
+.notification {position:fixed; top:1.25rem; right:1.25rem; background:var(--success); color:#fff; padding:.85rem 1.25rem; border-radius:12px; box-shadow:0 4px 14px rgba(0,0,0,.15); display:flex; align-items:center; gap:.5rem; font-size:.85rem; font-weight:600; z-index:1100; opacity:0; transform:translateY(-10px); pointer-events:none; transition:.3s ease;} 
+.notification.show {opacity:1; transform:translateY(0); pointer-events:auto;} 
+.notification.error {background:var(--danger);} 
+
+@media (max-width:1100px){.cart-content{grid-template-columns:1fr;} .cart-summary{order:-1;} }
+@media (max-width:768px){.cart-container{padding:1.25rem;} .cart-item{grid-template-columns:70px 1fr auto; grid-template-rows:auto auto; gap:.75rem;} .quantity-controls{order:3; justify-self:start;} .item-total{order:2;} .remove-btn{order:4;} .cart-actions{flex-direction:column;} }
