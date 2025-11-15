@@ -1,135 +1,45 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}QuickMeds - Online Pharmacy{% endblock %}
+{% block title %}QuickMeds - Your Trusted Online Pharmacy{% endblock %}
 
 {% block extra_css %}
-
-<link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/home-modern.css' %}">
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Initialize product sliders
-        if (typeof initializeProductSliders === 'function') {
-            initializeProductSliders();
-        }
-
-        // Add cart button animation
-        const cartButtons = document.querySelectorAll('.cart-button');
-        cartButtons.forEach(button => {
-            button.addEventListener('click', function(e) {
-                let button = this;
-                button.classList.add('clicked');
-                setTimeout(() => {
-                    button.classList.remove('clicked');
-                }, 2000);
-            });
-        });
-
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            const messageSpan = document.getElementById('notification-message');
-            
-            notification.style.display = 'flex';
-            notification.className = 'notification ' + type;
-            messageSpan.textContent = message;
-            
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => {
-                    notification.style.display = 'none';
-                }, 300);
-            }, 3000);
-        }
-
-        window.addToCart = function(productId) {
-            const button = document.querySelector(`.cart-button[onclick="addToCart(${productId})"]`);
-            if (button) {
-                button.classList.add('clicked');
-                setTimeout(() => {
-                    button.classList.remove('clicked');
-                    showNotification('Added to cart successfully!');
-                }, 2000);
+// Immediate dropdown initialization
+document.addEventListener('DOMContentLoaded', function() {
+    const btn = document.querySelector('.user-menu-btn');
+    const menu = document.querySelector('.dropdown-menu');
+    
+    if (btn && menu) {
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            menu.classList.toggle('show');
+        };
+        
+        document.onclick = function(e) {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('show');
             }
-        }
-    });
+        };
+    }
+});
 </script>
-<script src="{% static 'js/cart-button.js' %}"></script>
 {% endblock %}
 
 {% block content %}
-    <!-- Add this right after the opening content block -->
-    <div class="notification" id="notification" style="display: none;">
-        <i class="fas fa-check-circle"></i>
-        <span id="notification-message"></span>
-    </div>
-
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg">
-        <div class="container-fluid px-4">
-            <div class="nav-start">
-                <div class="brand-section">
-                    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
-                        <span class="toggle-icon"></span>
-                        <span class="toggle-icon"></span>
-                        <span class="toggle-icon"></span>
-                    </button>
-                    <div class="logo-wrapper">
-                        <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
-                    </div>
-                    <a class="navbar-brand" href="#">QuickMeds</a>
-                </div>
-            </div>
-            
-            <div class="nav-actions">
-                <a href="{% url 'product' %}" class="quick-order-btn">
-                    <i class="fas fa-bolt"></i>
-                    <span>Quick Order</span>
-                </a>
-                {% if user.is_authenticated %}
-                <div class="nav-icons">
-                    <a href="{% url 'cart' %}" class="icon-btn cart-icon">
-                        <i class="fa fa-shopping-cart"></i>
-                        <span class="badge">{{ cart_count|default:0 }}</span>
-                    </a>
-                    <div class="dropdown">
-                        <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
-                            <i class="fa fa-user"></i>
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                        </ul>
-                    </div>
-                </div>
-                {% else %}
-                <div class="auth-buttons">
-                    <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
-                    <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
-
-    <!-- Sidebar Navigation -->
-    <div class="sidebar" id="sidebar">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-brand">
-                <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
+                <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds">
                 <span>QuickMeds</span>
             </div>
-            <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
+            <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -140,312 +50,343 @@
                 <span>Home</span>
             </a>
             <a href="{% url 'product' %}" class="nav-item">
-                <i class="fas fa-prescription-bottle-alt"></i>
-                <span>Products</span>
-            </a>
-            <a href="{% url 'contact' %}" class="nav-item">
-                <i class="fas fa-phone"></i>
-                <span>Contact</span>
+                <i class="fas fa-pills"></i>
+                <span>Shop Medicines</span>
             </a>
             <a href="{% url 'about' %}" class="nav-item">
-                <i class="fas fa-comment-dots"></i>
-                <span>About</span>
+                <i class="fas fa-info-circle"></i>
+                <span>About Us</span>
+            </a>
+            <a href="{% url 'contact' %}" class="nav-item">
+                <i class="fas fa-envelope"></i>
+                <span>Contact</span>
             </a>
         </nav>
         
         <div class="sidebar-footer">
-            <div class="support-info">
+            <div class="support-card">
                 <i class="fas fa-headset"></i>
-                <div class="support-text">
-                    <small>Need Help?</small>
-                    <p>1-234-567-890</p>
+                <div>
+                    <p class="support-label">24/7 Support</p>
+                    <p class="support-phone">1-234-567-890</p>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Sidebar Overlay -->
+    </aside>
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-    <!--  Tagline and menu -->
-    <div class="tagline">
-        <div class="centered-text-container">
-            <i class="fas fa-heartbeat tagline-icon"></i>
-            <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
-            <i class="fas fa-pills tagline-icon"></i>
-        </div>
-    </div>
-
-    <!-- Search Section -->
-    <div class="search-container container-fluid search-background">
-        <h3 class="text-dark">Search Medicines / General Products</h3>
-        <form action="{% url 'search_products' %}" method="GET" class="search-box-container">
-            <input type="text" name="q" class="search-box" placeholder="Search for... Medicines" required>
-            <button type="submit" class="search-btn">
-                <i class="fas fa-search"></i>
-            </button>
-        </form>
-    </div>
-
-    <div class="hero-section container-fluid">
-        <div class="hero-overlay"></div>
-        <div class="content">
-            <span class="badge bg-danger mb-2">Special Offer</span>
-            <h1 class="display-4 fw-bold text-white mb-3">Top Deals on Medicines</h1>
-            <h2 class="h3 text-white mb-4">Your Trusted Online Pharmacy</h2>
-            <p class="lead text-light mb-4">
-                Get up to 30% off on prescribed medicines and healthcare products.
-                Free delivery on orders above ₹500.
-            </p>
-            <div class="cta-buttons">
-                <a href="{% url 'product' %}" class="btn btn-primary btn-lg me-3">Shop Now</a>
-            </div>
-            <div class="contact mt-4 p-3 bg-white bg-opacity-10 rounded-3 d-inline-flex">
-                <i class="fas fa-headset text-primary fs-4 me-3"></i>
-                <div class="text-start">
-                    <div class="text-light small">24/7 Customer Support</div>
-                    <div class="text-white fw-bold">1-234-567-890</div>
+    <!-- Hero Section -->
+    <section class="hero-modern">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <div class="hero-badge">
+                        <i class="fas fa-certificate"></i>
+                        <span>Certified & Trusted</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Your Health,<br>
+                        <span class="gradient-text">Delivered Fast</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Get genuine medicines at your doorstep. Fast delivery, great prices, and 24/7 support.
+                    </p>
+                    
+                    <!-- Search Bar -->
+                    <form action="{% url 'search_products' %}" method="GET" class="hero-search">
+                        <div class="search-wrapper">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" name="q" class="search-input" placeholder="Search for medicines, vitamins, health products..." required>
+                            <button type="submit" class="search-submit">Search</button>
+                        </div>
+                    </form>
+                    
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <i class="fas fa-shipping-fast"></i>
+                            <span>Free Delivery on ₹500+</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>100% Genuine Products</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-tag"></i>
+                            <span>Up to 30% Off</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-visual">
+                    <div class="hero-card">
+                        <div class="card-glow"></div>
+                        <img src="{% static 'img/homepage.png' %}" alt="Healthcare" class="hero-image">
+                        <div class="floating-badge badge-1">
+                            <i class="fas fa-heart-pulse"></i>
+                            <span>5000+ Products</span>
+                        </div>
+                        <div class="floating-badge badge-2">
+                            <i class="fas fa-users"></i>
+                            <span>50K+ Customers</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 
-    <!-- Product catalog -->
-    <div class="container py-5">
-        <div class="section-header">
-            <h2 class="section-title">Featured Products</h2>
-            <div class="section-underline" style="width: 120px;"></div>
-            <p class="section-description">"Your wellness, our priority – shop with ease!"</p>
-        </div>
-        <div class="product-slider-wrapper">
-            <button class="slider-nav prev-btn" id="prevProduct" aria-label="Previous products">
-                <i class="fas fa-chevron-left"></i>
-            </button>
-            <div class="product-slider-container">
-                <div class="product-slider" id="productSlider">
-                    {% for product in random_products %}
-                    <div class="product-slide">
-                        <div class="product-card" data-product-id="{{ product.id }}">
-                            <a href="{% url 'shop_detail' product.id %}" class="product-link">
-                                <div class="image-container">
-                                    <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-                                    {% if product.discount_percentage %}
-                                    <div class="discount-badge">-{{ product.discount_percentage }}%</div>
-                                    {% endif %}
-                                </div>
-                            </a>
-                            <div class="card-content">
-                                <div class="product-info">
-                                    <h5 class="product-title">{{ product.name }}</h5>
-                                    <div class="product-price">
-                                        <span class="current-price">₹{{ product.price }}</span>
-                                        {% if product.original_price and product.price < product.original_price %}
-                                        <span class="original-price">₹{{ product.original_price }}</span>
+    <!-- Featured Products -->
+    <section class="products-section">
+        <div class="container">
+            <div class="section-head">
+                <div class="section-info">
+                    <h2 class="section-title">Featured Medicines</h2>
+                    <p class="section-subtitle">Top-rated products trusted by thousands</p>
+                </div>
+                <a href="{% url 'product' %}" class="view-all-btn">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            
+            <div class="products-slider-wrapper">
+                <button class="slider-btn prev-btn" id="prevProduct" aria-label="Previous" type="button">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                
+                <div class="products-slider-container">
+                    <div class="product-slider" id="productSlider">
+                        {% for product in random_products %}
+                        <div class="product-slide">
+                            <article class="product-card-modern" data-product-id="{{ product.id }}">
+                                <a href="{% url 'shop_detail' product.id %}" class="product-image-link">
+                                    <div class="product-image-wrapper">
+                                        {% if product.image %}
+                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
+                                        {% else %}
+                                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" loading="lazy" class="product-img">
+                                        {% endif %}
+                                        {% if product.discount_percentage %}
+                                        <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
                                         {% endif %}
                                     </div>
-                                </div>
-                                <div class="card-actions">
-                                    <button class="cart-button" onclick="cartClick(event, '{{ product.id }}')">
-                                        <span class="add-to-cart">Add to cart</span>
-                                        <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
-                                        <i class="fa-solid fa-cart-shopping"></i>
-                                        <i class="fas fa-box"></i>
+                                </a>
+                                
+                                <div class="product-details">
+                                    <h3 class="product-name">{{ product.name }}</h3>
+                                    <div class="product-pricing">
+                                        <span class="price-current">₹{{ product.price }}</span>
+                                        {% if product.original_price and product.price < product.original_price %}
+                                        <span class="price-original">₹{{ product.original_price }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <button class="add-cart-btn" onclick="addToCart('{{ product.id }}', event)" type="button" aria-label="Add to cart">
+                                        <i class="fas fa-shopping-bag"></i>
+                                        <span>Add to Cart</span>
                                     </button>
                                 </div>
+                            </article>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <button class="slider-btn next-btn" id="nextProduct" aria-label="Next" type="button">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" data-target="5000">0</h3>
+                        <p class="stat-label">Products Available</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" data-target="50000">0</h3>
+                        <p class="stat-label">Happy Customers</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-truck-fast"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" data-target="100000">0</h3>
+                        <p class="stat-label">Orders Delivered</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 class="stat-number" data-target="4.8">0</h3>
+                        <p class="stat-label">Average Rating</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-choose-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2 class="section-title">Why Choose QuickMeds?</h2>
+                <div class="section-underline mx-auto"></div>
+                <p class="section-subtitle mt-3">Your trusted partner for health and wellness</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
+                        <h5>Fast Delivery</h5>
+                        <p>Get your medicines delivered within hours. Free shipping on orders above ₹500</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-certificate"></i></div>
+                        <h5>100% Genuine</h5>
+                        <p>All products sourced from authorized distributors and manufacturers</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                        <h5>Secure Payment</h5>
+                        <p>Multiple payment options with 100% secure and encrypted checkout</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-box">
+                        <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                        <h5>24/7 Support</h5>
+                        <p>Our expert pharmacists are available round the clock for assistance</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials-section">
+        <div class="container">
+            <div class="section-header text-center">
+                <h2 class="section-title">What Our Customers Say</h2>
+                <div class="section-underline mx-auto"></div>
+                <p class="section-subtitle mt-3">Trusted by thousands of satisfied customers</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"QuickMeds has been a lifesaver! Fast delivery and genuine medicines. Highly recommended for anyone looking for reliable healthcare products."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Priya Sharma</h5>
+                                <p>Mumbai, Maharashtra</p>
                             </div>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
-            </div>
-            <button class="slider-nav next-btn" id="nextProduct" aria-label="Next products">
-                <i class="fas fa-chevron-right"></i>
-            </button>
-        </div>
-    </div>
-
-    <div class="scroll-to-top">
-        <a href="#top">
-            <div class="arrow-button"></div>
-        </a>
-    </div>
-
-    <!-- Footer -->
-    <footer class="bg-dark text-white py-5">
-        <div class="container-fluid">
-            <div class="row mx-5">
-                <!-- About Section -->
-                <div class="col-md-4 mb-4">
-                    <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
-                    <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Excellent service! The medicines are always genuine and the customer support team is very helpful. I've been using QuickMeds for over a year now."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Rajesh Kumar</h5>
+                                <p>Nagpur, Maharashtra</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Quick Links -->
-                <div class="col-md-4 mb-4">
-                    <h5 class="text-uppercase fw-bold">Quick Links</h5>
-                    <ul class="list-unstyled">
-                        <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
-                        <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
-                        <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
-                        <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
-                    </ul>
+                <div class="col-md-4">
+                    <div class="testimonial-card">
+                        <div class="testimonial-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <p class="testimonial-text">"Great prices and super fast delivery! I appreciate how they verify prescriptions properly. A trustworthy online pharmacy."</p>
+                        <div class="testimonial-author">
+                            <div class="author-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="author-info">
+                                <h5>Anjali Deshmukh</h5>
+                                <p>Pune, Maharashtra</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Contact Info -->
-                <div class="col-md-4 mb-4">
-                    <h5 class="text-uppercase fw-bold">Contact Us</h5>
-                    <ul class="list-unstyled">
-                        <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
-                        <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
-                        <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Social Links & Copyright -->
-            <div class="text-center border-top pt-4 mt-4">
-                <div class="mb-3">
-                    <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-                <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
             </div>
         </div>
-    </footer>
+    </section>
+
+    <!-- Newsletter -->
+    <section class="cta-banner">
+        <div class="container">
+            <div class="cta-content-wrapper">
+                <div class="cta-icon">
+                    <i class="fas fa-envelope-open"></i>
+                </div>
+                <div class="row align-items-center w-100">
+                    <div class="col-lg-7 mb-3 mb-lg-0">
+                        <h3>Stay Updated with Health Tips</h3>
+                        <p class="mb-0">Subscribe to our newsletter for exclusive deals, health tips, and medicine updates delivered to your inbox</p>
+                    </div>
+                    <div class="col-lg-5">
+                        <form class="newsletter-form" onsubmit="return false">
+                            <div class="input-group">
+                                <input type="email" class="form-control" placeholder="Enter your email address" required>
+                                <button class="btn" type="submit"><i class="fas fa-paper-plane me-2"></i>Subscribe</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scroll to Top -->
+    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+        <i class="fas fa-arrow-up"></i>
+    </button>
 {% endblock %}
 
-{% block extra_styles %}
-<style>
-    .search-background {
-        background-image: url("{% static 'img/searchbg.jpg' %}");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        padding: 40px 0;
-        position: relative;
-    }
-    
-    .search-background::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(255, 255, 255, 0.7);
-        z-index: 1;
-    }
-    
-    .search-container h3, 
-    .search-container form {
-        position: relative;
-        z-index: 2;
-    }
-    
-    .search-box-container {
-        max-width: 600px;
-        margin: 20px auto;
-        display: flex;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        border-radius: 50px;
-        overflow: hidden;
-    }
-    
-    .search-box {
-        flex: 1;
-        padding: 15px 25px;
-        border: none;
-        font-size: 16px;
-        outline: none;
-    }
-    
-    .search-btn {
-        background-color: #4CAF50;
-        color: white;
-        border: none;
-        padding: 0 30px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    
-    .search-btn:hover {
-        background-color: #45a049;
-    }
-    
-    .product-card {
-        transition: transform 0.3s ease;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border: none;
-        overflow: hidden;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .product-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
-    }
-
-    .product-card .card-img-top {
-        width: 100%;
-        height: 200px;
-        object-fit: contain;
-        border-radius: 4px;
-        margin-bottom: 16px;
-    }
-
-    .product-card .card-body {
-        display: flex;
-        flex-direction: column;
-        flex-grow: 1;
-        padding: 1rem;
-    }
-
-    .product-card .card-title {
-        font-size: 16px;
-        margin-bottom: 0.5rem;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        height: 2.4em;
-        line-height: 1.2;
-    }
-
-    .product-card .card-text {
-        font-size: 18px;
-        font-weight: 600;
-        color: #1a202c;
-        margin: 0;
-    }
-
-    .scroll-to-top {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        z-index: 1000;
-    }
-
-    .arrow-button {
-        width: 50px;
-        height: 50px;
-        background-color: #87CEEB; /* Light blue */
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .arrow-button::before {
-        content: '↑'; /* Up arrow */
-        font-size: 24px;
-        color: white;
-    }
-</style>
-{% endblock %}
+{% block extra_styles %}{% endblock %}
