@@ -459,7 +459,143 @@ document.addEventListener('DOMContentLoaded', function() {
     } else {
         console.warn('User menu button or dropdown menu not found');
     }
-
-    // Make addToCart function globally available
-    window.addToCart = addToCart;
 });
+
+// ============================================
+// Global Functions for Product Interactions
+// ============================================
+
+// Handle Add to Cart
+function handleAddToCart(productId, event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const button = event.currentTarget;
+    if (button.disabled || button.classList.contains('loading')) {
+        return;
+    }
+    
+    // Add loading state
+    button.classList.add('loading');
+    button.disabled = true;
+    const originalHTML = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Adding...</span>';
+    
+    fetch(`/add-to-cart/${productId}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin',
+        body: JSON.stringify({ quantity: 1 })
+    })
+    .then(response => {
+        if (response.status === 403 || response.redirected) {
+            window.location.href = '/login/';
+            return null;
+        }
+        if (!response.ok) throw new Error('Failed to add to cart');
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.success) {
+            // Update cart count
+            updateCartCount(data.cart_count);
+            
+            // Show success message
+            showNotification('Product added to cart successfully!', 'success');
+            
+            // Success animation
+            button.classList.add('success');
+            button.innerHTML = '<i class="fas fa-check"></i><span>Added!</span>';
+            
+            // Animate cart icon
+            animateCartIcon();
+            
+            // Reset button after delay
+            setTimeout(() => {
+                button.classList.remove('success', 'loading');
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            }, 2000);
+        } else {
+            throw new Error(data?.message || 'Failed to add to cart');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification(error.message || 'Failed to add item to cart', 'error');
+        
+        // Reset button
+        button.classList.remove('loading');
+        button.disabled = false;
+        button.innerHTML = originalHTML;
+    });
+}
+
+// Quick View Product
+function quickView(productId) {
+    window.open(`/product/${productId}/`, 'ProductDetail', 'width=900,height=700');
+}
+
+// Update Cart Count
+function updateCartCount(count) {
+    const badges = document.querySelectorAll('.cart-badge, .nav-cart .badge');
+    badges.forEach(badge => {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    });
+}
+
+// Show Notification
+function showNotification(message, type = 'info') {
+    // Remove existing notifications
+    const existingNotif = document.querySelector('.notification-toast');
+    if (existingNotif) existingNotif.remove();
+    
+    // Create notification
+    const notification = document.createElement('div');
+    notification.className = `notification-toast notification-${type}`;
+    notification.innerHTML = `
+        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => notification.classList.add('show'), 10);
+    
+    // Auto remove
+    setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Animate Cart Icon
+function animateCartIcon() {
+    const cartIcon = document.querySelector('.nav-cart');
+    if (cartIcon) {
+        cartIcon.classList.add('cart-bounce');
+        setTimeout(() => cartIcon.classList.remove('cart-bounce'), 600);
+    }
+}
+
+// Get CSRF Token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}

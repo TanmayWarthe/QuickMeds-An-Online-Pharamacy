@@ -89,7 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const productId = this.getAttribute('data-product-id');
             if (productId) {
-                navigateToProduct(productId, e);
+                // Open product in new tab
+                window.open(`/product/${productId}/`, '_blank');
             }
         });
     });

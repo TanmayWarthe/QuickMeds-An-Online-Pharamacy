@@ -1,254 +1,309 @@
-{% extends 'base.html' %} 
-{% load static %} {% load humanize %} 
-{% block title%}Products - QuickMeds{% endblock %} 
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Products - QuickMeds{% endblock %}
+
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product-modern.css' %}" />
-<link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
-<style>
-    .product-image {
-        width: 100%;
-        height: 200px;
-        object-fit: contain;
-        background: #f8f9fa;
-        border-radius: 8px;
-        transition: opacity 0.3s ease;
-    }
-    .product-image.error {
-        object-fit: contain;
-        padding: 20px;
-        opacity: 0.7;
-    }
-    .product-image-container {
-        position: relative;
-        width: 100%;
-        height: 200px;
-        background: #f8f9fa;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .image-loading {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        display: none;
-    }
-</style>
-{% endblock %} 
+<link rel="stylesheet" href="{% static 'css/product-catalog.css' %}">
+{% endblock %}
 
 {% block content %}
-<!-- Notification Container -->
-<div class="notification" id="notification" style="display: none;">
-    <i class="fas fa-check-circle"></i>
-    <span id="notification-message"></span>
-</div>
-
-<div id="successMessage" style="display: none;"></div>
-<div id="errorMessage" style="display: none;"></div>
-
-<!-- Modern Product Page Layout -->
-<div class="product-page-container">
-    
-    <!-- Hero Banner -->
-    <div class="product-hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h1 class="hero-title">
-                        <i class="fas fa-pills"></i>
-                        Quality Medicines
-                    </h1>
-                    <p class="hero-subtitle">Browse our extensive collection of healthcare products and medicines</p>
-                </div>
-                <div class="hero-image">
-                    <img src="{% static 'img/basket-bg.png' %}" alt="Medicines" />
-                </div>
-            </div>
-        </div>
+<div class="catalog-container">
+    <!-- Page Header -->
+    <div class="catalog-header">
+        <h1 class="page-title">Our Products</h1>
+        <p class="page-subtitle">Browse our wide selection of quality medicines and healthcare products</p>
     </div>
 
-    <!-- Category Section -->
-    <div class="container py-5">
-        <div class="section-header mb-5">
-            <h2 class="section-title">Browse by Category</h2>
-            <p class="section-subtitle">Find exactly what you need</p>
+    <!-- Filters & Search Section -->
+    <div class="filter-section">
+        <div class="filter-left">
+            <div class="category-filter">
+                <label for="categorySelect">
+                    <i class="fas fa-filter"></i> Filter by Category:
+                </label>
+                <select id="categorySelect" class="category-select" onchange="filterByCategory(this.value)">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.name }}" {% if request.GET.category == category.name %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
         </div>
         
-        <div class="category-grid-modern">
-            {% for category in categories %} 
-            <div class="category-card-modern" data-category-id="{{ category.name|slugify }}">
-                <div class="category-icon">
-                    {% if category.name == 'Baby Care' %}
-                    <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
-                    {% elif category.name == 'Wellness & Nutrition' %}
-                    <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
-                    {% elif category.name == 'Personal Care & Hygiene' %}
-                    <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
-                    {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
-                    <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
-                    {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
-                    <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
-                    {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
-                    <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
-                    {% else %}
-                    <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
-                    {% endif %}
-                </div>
-                <h3 class="category-name">{{ category.name }}</h3>
+        <div class="filter-right">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search products..." value="{{ request.GET.search|default:'' }}" onkeyup="handleSearch(event)">
             </div>
-            {% empty %}
-            <div class="empty-state">
-                <i class="fas fa-box-open"></i>
-                <p>No categories available</p>
+            <div class="product-count">
+                <span id="productCount">{{ products.count }}</span> Products
             </div>
-            {% endfor %}
         </div>
     </div>
 
-    <!-- Product Sections -->
-    <div class="container product-sections-modern">
-        {% for category in categories %}
-        <div class="product-section-modern" id="{{ category.name|slugify }}" data-category="{{ category.name }}">
-            <div class="section-header-inline">
-                <h2 class="category-title">
-                    <i class="fas fa-prescription-bottle"></i>
-                    {{ category.name }}
-                </h2>
-                <div class="slider-controls">
-                    <button class="control-btn prev" onclick="moveSlider('productSlider{{ forloop.counter }}', -1)" aria-label="Previous">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="control-btn next" onclick="moveSlider('productSlider{{ forloop.counter }}', 1)" aria-label="Next">
-                        <i class="fas fa-chevron-right"></i>
-                    </button>
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+        {% for product in products %}
+        <div class="product-card" data-product-id="{{ product.id }}" onclick="openProductDetail({{ product.id }}, event)">
+            <!-- Product Image -->
+            <div class="product-image-wrapper">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                {% else %}
+                    <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                {% endif %}
+                
+                <!-- Badges -->
+                <div class="product-badges">
+                    {% if product.discount_percentage > 0 %}
+                        <span class="badge badge-sale">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                    {% endif %}
+                    {% if product.stock < 10 and product.stock > 0 %}
+                        <span class="badge badge-low">Low Stock</span>
+                    {% elif product.stock == 0 %}
+                        <span class="badge badge-out">Out of Stock</span>
+                    {% endif %}
                 </div>
             </div>
-            
-            <div class="product-slider-modern" id="productSlider{{ forloop.counter }}">
-                {% for product in category.products.all %}
-                <div class="product-slide">
-                    <div class="product-card-modern" data-product-id="{{ product.id }}" onclick="navigateToProduct('{{ product.id }}', event)">
-                        <div class="product-image-wrapper">
-                            {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img" loading="lazy">
-                            {% else %}
-                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-img" loading="lazy">
-                            {% endif %}
-                            {% if product.original_price %}
-                            <div class="discount-badge">SAVE</div>
-                            {% endif %}
-                        </div>
-                        <div class="product-details">
-                            <span class="product-category">{{ product.category.name }}</span>
-                            <h3 class="product-name">{{ product.name }}</h3>
-                            <div class="product-pricing">
-                                <span class="price-current">₹{{ product.price|intcomma }}</span>
-                                {% if product.original_price %}
-                                <span class="price-original">₹{{ product.original_price|intcomma }}</span>
-                                {% endif %}
-                            </div>
-                            <button class="btn-add-cart" onclick="cartClick(event, '{{ product.id }}')" {% if not product.in_stock %}disabled{% endif %}>
-                                <i class="fas fa-cart-plus"></i>
-                                <span>Add to Cart</span>
-                            </button>
-                        </div>
+
+            <!-- Product Info -->
+            <div class="product-info">
+                <div class="product-category">{{ product.category.name }}</div>
+                <h3 class="product-name">{{ product.name }}</h3>
+                
+                <!-- Rating (placeholder) -->
+                <div class="product-rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span class="rating-count">(4.5)</span>
+                </div>
+
+                <!-- Price -->
+                <div class="product-price-section">
+                    <div class="price-row">
+                        <span class="current-price">₹{{ product.price }}</span>
+                        {% if product.original_price and product.original_price > product.price %}
+                            <span class="original-price">₹{{ product.original_price }}</span>
+                        {% endif %}
                     </div>
                 </div>
-                {% empty %}
-                <div class="empty-state">
-                    <i class="fas fa-prescription-bottle-alt"></i>
-                    <p>No products available in this category</p>
+
+                <!-- Stock Status -->
+                <div class="stock-status">
+                    {% if product.stock > 0 %}
+                        <i class="fas fa-check-circle"></i>
+                        <span class="in-stock">In Stock</span>
+                    {% else %}
+                        <i class="fas fa-times-circle"></i>
+                        <span class="out-stock">Out of Stock</span>
+                    {% endif %}
                 </div>
-                {% endfor %}
+
+                <!-- Actions -->
+                <div class="product-actions">
+                    {% if product.stock > 0 %}
+                        <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Add to Cart</span>
+                        </button>
+                        <button class="btn-quick-view" onclick="openProductDetail({{ product.id }}, event)">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    {% else %}
+                        <button class="btn-notify" onclick="notifyMe(event, {{ product.id }})">
+                            <i class="fas fa-bell"></i>
+                            <span>Notify Me</span>
+                        </button>
+                    {% endif %}
+                </div>
             </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+            <i class="fas fa-box-open"></i>
+            <h3>No Products Found</h3>
+            <p>Try adjusting your filters or search terms</p>
         </div>
         {% endfor %}
     </div>
 </div>
 
-<!-- Replace the existing fab-container div with this -->
-<button class="scroll-top-btn" id="scrollTopBtn">
-    <i class="fas fa-arrow-up"></i>
-</button>
+<!-- Notification Toast -->
+<div id="notification" class="notification">
+    <i class="notification-icon"></i>
+    <span id="notification-message"></span>
+</div>
 
-<!-- Footer -->
-<footer class="bg-dark text-white py-5">
-    <div class="container-fluid">
-        <div class="row mx-5">
-            <!-- About Section -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
-                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
-                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
-                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
-                    <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">Contact Us</h5>
-                <ul class="list-unstyled">
-                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
-                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
-                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Social Links & Copyright -->
-        <div class="text-center border-top pt-4 mt-4">
-            <div class="mb-3">
-                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
-{% endblock %} 
+{% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/Homepage_updated.js' %}"></script>
-<script src="{% static 'js/product.js' %}"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Handle image loading
-    document.querySelectorAll('.product-image').forEach(img => {
-        const container = img.closest('.product-image-container');
-        const loader = container.querySelector('.image-loading');
-        
-        // Show loader while image is loading
-        if (loader) {
-            loader.style.display = 'block';
-            img.style.opacity = '0';
+    // Filter by category
+    function filterByCategory(category) {
+        const url = new URL(window.location.href);
+        if (category) {
+            url.searchParams.set('category', category);
+        } else {
+            url.searchParams.delete('category');
         }
-        
-        img.onload = function() {
-            if (loader) {
-                loader.style.display = 'none';
+        window.location.href = url.toString();
+    }
+
+    // Search functionality
+    function handleSearch(event) {
+        if (event.key === 'Enter') {
+            const searchValue = event.target.value.trim();
+            const url = new URL(window.location.href);
+            if (searchValue) {
+                url.searchParams.set('search', searchValue);
+            } else {
+                url.searchParams.delete('search');
             }
-            img.style.opacity = '1';
-        };
+            window.location.href = url.toString();
+        }
+    }
+
+    // Open product detail in new tab
+    function openProductDetail(productId, event) {
+        // Don't open if clicking on action buttons
+        if (event && (event.target.closest('.btn-add-cart') || event.target.closest('.btn-quick-view') || event.target.closest('.btn-notify'))) {
+            event.stopPropagation();
+            return;
+        }
+        // Open in new tab
+        window.open(`/product/${productId}/`, '_blank');
+    }
+
+    // Add to cart quick
+    function addToCartQuick(event, productId) {
+        event.stopPropagation();
+        event.preventDefault();
         
-        img.onerror = function() {
-            if (loader) {
-                loader.style.display = 'none';
+        const button = event.currentTarget;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        button.disabled = true;
+        
+        fetch(`/add-to-cart/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                'product_id': productId,
+                'quantity': 1
+            }),
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    showNotification('Please login to add items to cart', 'error');
+                    setTimeout(() => window.location.href = '/login/', 2000);
+                    throw new Error('Not authenticated');
+                }
+                throw new Error('Failed to add to cart');
             }
-            this.src = "{% static 'img/medicines-icon.png' %}";
-            this.classList.add('error');
-            img.style.opacity = '1';
-        };
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateCartCount();
+                showNotification('Added to cart successfully!', 'success');
+                button.innerHTML = '<i class="fas fa-check"></i> Added';
+                
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 2000);
+            } else {
+                throw new Error(data.message || 'Failed to add to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(error.message || 'Failed to add to cart', 'error');
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        });
+    }
+
+    // Notify me
+    function notifyMe(event, productId) {
+        event.stopPropagation();
+        showNotification('You will be notified when this product is back in stock', 'success');
+    }
+
+    // Update cart count
+    function updateCartCount() {
+        fetch('/get-cart-count/', {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            credentials: 'same-origin'
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const cartBadge = document.querySelector('.cart-badge');
+                if (cartBadge) {
+                    if (data.cart_count > 0) {
+                        cartBadge.textContent = data.cart_count;
+                        cartBadge.style.display = 'flex';
+                    } else {
+                        cartBadge.style.display = 'none';
+                    }
+                }
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    // Show notification
+    function showNotification(message, type = 'success') {
+        const notification = document.getElementById('notification');
+        const messageSpan = document.getElementById('notification-message');
+        
+        if (notification && messageSpan) {
+            notification.className = 'notification ' + type;
+            messageSpan.textContent = message;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+    }
+
+    // Get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    // Update product count on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        updateCartCount();
     });
-});
 </script>
 {% endblock %}

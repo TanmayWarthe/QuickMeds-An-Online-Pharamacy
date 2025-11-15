@@ -94,6 +94,7 @@ def home(request):
 
     context = {
         'random_products': random_products,
+        'products_count': Product.objects.filter(in_stock=True).count(),
         'cart_count': get_cart_count(request),
     }
     return render(request, 'home.html', context)
@@ -131,10 +132,50 @@ def product_detail_view(request, product_id):
             'cart_count': get_cart_count(request),
             'is_expiring_soon': product.is_expiring_soon() if product.expiry_date else False,
         }
-        return render(request, 'shop.html', context)
+        return render(request, 'product_detail.html', context)
     except Product.DoesNotExist:
         messages.error(request, 'Product not found')
         return redirect('product')
+
+def get_related_products(request, product_id):
+    """API endpoint to get related products from the same category"""
+    try:
+        product = Product.objects.get(id=product_id)
+        category_id = request.GET.get('category_id', product.category.id)
+        
+        # Get related products from the same category, excluding the current product
+        related_products = Product.objects.filter(
+            category_id=category_id,
+            in_stock=True
+        ).exclude(id=product_id).order_by('-created_at')[:8]
+        
+        products_data = []
+        for p in related_products:
+            products_data.append({
+                'id': p.id,
+                'name': p.name,
+                'price': float(p.price),
+                'original_price': float(p.original_price) if p.original_price else None,
+                'discount_percentage': p.discount_percentage,
+                'image_url': p.image.url if p.image else '/static/img/medicines-icon.png',
+                'stock': p.stock,
+                'category': p.category.name
+            })
+        
+        return JsonResponse({
+            'success': True,
+            'products': products_data
+        })
+    except Product.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'message': 'Product not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': str(e)
+        }, status=500)
 
 def login_view(request):
     if request.method == 'POST':
