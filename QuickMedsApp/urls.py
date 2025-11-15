@@ -40,6 +40,7 @@ urlpatterns = [
     path('change-password/', views.change_password, name='change_password'),
     path('delete-account/', views.delete_account, name='delete_account'),
     path('shop/<int:product_id>/', views.shop_view, name='shop_detail'),
+    path('api/related-products/<int:product_id>/', views.get_related_products, name='get_related_products'),
     path('address/add/', views.add_address, name='add_address'),
     path('address/<int:address_id>/', views.get_address, name='get_address'),
     path('address/<int:address_id>/update/', views.update_address, name='update_address'),

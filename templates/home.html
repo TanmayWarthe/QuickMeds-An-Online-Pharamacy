@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     </section>
 
     <!-- Featured Products -->
-    <section class="products-section">
+    <section class="products-section products-section--minimal">
         <div class="container">
             <div class="section-head">
                 <div class="section-info">
@@ -148,51 +148,83 @@ document.addEventListener('DOMContentLoaded', function() {
                 </a>
             </div>
             
-            <div class="products-slider-wrapper">
-                <button class="slider-btn prev-btn" id="prevProduct" aria-label="Previous" type="button">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
-                
-                <div class="products-slider-container">
-                    <div class="product-slider" id="productSlider">
-                        {% for product in random_products %}
-                        <div class="product-slide">
-                            <article class="product-card-modern" data-product-id="{{ product.id }}">
-                                <a href="{% url 'shop_detail' product.id %}" class="product-image-link">
-                                    <div class="product-image-wrapper">
-                                        {% if product.image %}
-                                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
-                                        {% else %}
-                                        <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" loading="lazy" class="product-img">
-                                        {% endif %}
-                                        {% if product.discount_percentage %}
-                                        <span class="discount-tag">{{ product.discount_percentage }}% OFF</span>
-                                        {% endif %}
-                                    </div>
-                                </a>
-                                
-                                <div class="product-details">
-                                    <h3 class="product-name">{{ product.name }}</h3>
-                                    <div class="product-pricing">
-                                        <span class="price-current">₹{{ product.price }}</span>
-                                        {% if product.original_price and product.price < product.original_price %}
-                                        <span class="price-original">₹{{ product.original_price }}</span>
-                                        {% endif %}
-                                    </div>
-                                    <button class="add-cart-btn" onclick="addToCart('{{ product.id }}', event)" type="button" aria-label="Add to cart">
-                                        <i class="fas fa-shopping-bag"></i>
-                                        <span>Add to Cart</span>
-                                    </button>
-                                </div>
-                            </article>
+            <div class="products-grid">
+                {% for product in random_products %}
+                <article class="product-card-modern" data-product-id="{{ product.id }}">
+                    <div class="product-image-wrapper">
+                        <a href="{% url 'product_detail' product.id %}" class="product-image-link">
+                            {% if product.image %}
+                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
+                            {% else %}
+                            <img src="{% static 'img/default.png' %}" alt="{{ product.name }}" loading="lazy" class="product-img">
+                            {% endif %}
+                        </a>
+                        
+                        <!-- Badges -->
+                        <div class="product-badges">
+                            {% if product.discount_percentage %}
+                            <span class="badge badge-discount">-{{ product.discount_percentage }}%</span>
+                            {% endif %}
+                            {% if product.stock < 10 and product.stock > 0 %}
+                            <span class="badge badge-low-stock">Only {{ product.stock }} left</span>
+                            {% elif not product.in_stock or product.stock == 0 %}
+                            <span class="badge badge-out-stock">Out of Stock</span>
+                            {% endif %}
                         </div>
-                        {% endfor %}
+                        
+                        <!-- Quick Actions -->
+                        <div class="product-quick-actions">
+                            <button class="quick-action-btn" onclick="quickView({{ product.id }})" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
                     </div>
+                    
+                    <div class="product-details">
+                        <span class="product-category">{{ product.category.name }}</span>
+                        <a href="{% url 'product_detail' product.id %}" class="product-name-link">
+                            <h3 class="product-name">{{ product.name|truncatewords:6 }}</h3>
+                        </a>
+                        
+                        <div class="product-pricing">
+                            <span class="price-current">₹{{ product.price|floatformat:2 }}</span>
+                            {% if product.original_price and product.price < product.original_price %}
+                            <span class="price-original">₹{{ product.original_price|floatformat:2 }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Stock Indicator -->
+                        {% if product.in_stock and product.stock > 0 %}
+                        <div class="stock-indicator">
+                            <div class="stock-bar">
+                                <div class="stock-fill" style="width: {% if product.stock >= 50 %}100{% elif product.stock >= 20 %}60{% else %}30{% endif %}%"></div>
+                            </div>
+                            <span class="stock-text {% if product.stock < 10 %}text-danger{% endif %}">
+                                {% if product.stock >= 50 %}In Stock{% elif product.stock >= 10 %}Limited Stock{% else %}Low Stock{% endif %}
+                            </span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if product.in_stock and product.stock > 0 %}
+                        <button class="add-cart-btn" data-product-id="{{ product.id }}" onclick="handleAddToCart({{ product.id }}, event)" type="button">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span>Add to Cart</span>
+                        </button>
+                        {% else %}
+                        <button class="add-cart-btn out-of-stock" disabled type="button">
+                            <i class="fas fa-ban"></i>
+                            <span>Out of Stock</span>
+                        </button>
+                        {% endif %}
+                    </div>
+                </article>
+                {% empty %}
+                <div class="no-products">
+                    <i class="fas fa-box-open"></i>
+                    <p>No products available at the moment</p>
+                    <a href="{% url 'contact' %}" class="btn-primary">Contact Us</a>
                 </div>
-                
-                <button class="slider-btn next-btn" id="nextProduct" aria-label="Next" type="button">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                {% endfor %}
             </div>
         </div>
     </section>
@@ -203,20 +235,20 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-pills"></i>
+                        <i class="fas fa-capsules"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number" data-target="5000">0</h3>
-                        <p class="stat-label">Products Available</p>
+                        <h3 class="stat-number" data-target="{{ products_count }}">0</h3>
+                        <p class="stat-label">Medicines Available</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-users"></i>
+                        <i class="fas fa-shield-check"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number" data-target="50000">0</h3>
-                        <p class="stat-label">Happy Customers</p>
+                        <h3 class="stat-number" data-target="100">0</h3>
+                        <p class="stat-label">% Genuine Products</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -224,17 +256,17 @@ document.addEventListener('DOMContentLoaded', function() {
                         <i class="fas fa-truck-fast"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number" data-target="100000">0</h3>
-                        <p class="stat-label">Orders Delivered</p>
+                        <h3 class="stat-number" data-target="24">0</h3>
+                        <p class="stat-label">Hour Delivery Available</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon">
-                        <i class="fas fa-star"></i>
+                        <i class="fas fa-headset"></i>
                     </div>
                     <div class="stat-content">
-                        <h3 class="stat-number" data-target="4.8">0</h3>
-                        <p class="stat-label">Average Rating</p>
+                        <h3 class="stat-number" data-target="7">0</h3>
+                        <p class="stat-label">Days Customer Support</p>
                     </div>
                 </div>
             </div>
@@ -282,7 +314,7 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </section>
 
-  
+
     <!-- Newsletter -->
     <section class="cta-banner">
         <div class="container">
