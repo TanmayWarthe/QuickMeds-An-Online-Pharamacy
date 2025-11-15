@@ -4,10 +4,7 @@
 {% block title %}About Us - QuickMeds{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/about.css' %}">
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/about-modern.css' %}">
 {% endblock %}
 
 {% block extra_js %}
@@ -16,149 +13,119 @@
 
 {% block content %}
 
-
- <!-- Navbar -->
- <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid px-4">
-        <div class="nav-start">
-            <div class="brand-section">
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                </button>
-                <div class="logo-wrapper">
-                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
-                </div>
-                <a class="navbar-brand" href="#">QuickMeds</a>
-            </div>
-        </div>
-        
-        <div class="nav-actions">
-            <a href="{% url 'product' %}" class="quick-order-btn">
-                <i class="fas fa-bolt"></i>
-                <span>Quick Order</span>
-            </a>
-            {% if user.is_authenticated %}
-            <div class="nav-icons">
-                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                    <span class="badge">{{ cart_count|default:0 }}</span>
-                </a>
-                <div class="dropdown">
-                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
-                        <i class="fa fa-user"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% else %}
-            <div class="auth-buttons">
-                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
-                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</nav>
-
-<!-- Sidebar Navigation -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-            <span>QuickMeds</span>
-        </div>
-        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    
-    <nav class="sidebar-nav">
-        <a href="{% url 'home' %}" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'product' %}" class="nav-item">
-            <i class="fas fa-prescription-bottle-alt"></i>
-            <span>Products</span>
-        </a>
-        {# <a href="{% url 'purchase' %}">Purchase</a> #}
-        <a href="{% url 'contact' %}" class="nav-item">
-            <i class="fas fa-phone"></i>
-            <span>Contact</span>
-        </a>
-        <a href="{% url 'about' %}" class="nav-item active">
-            <i class="fas fa-comment-dots"></i>
-            <span>About</span>
-        </a>
-    </nav>
-    
-    <div class="sidebar-footer">
-        <div class="support-info">
-            <i class="fas fa-headset"></i>
-            <div class="support-text">
-                <small>Need Help?</small>
-                <p>1-234-567-890</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-
-    <!--  Tagline and menu -->
-    <div class="tagline">
-        <div class="centered-text-container">
-            <i class="fas fa-heartbeat tagline-icon"></i>
-            <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
-            <i class="fas fa-pills tagline-icon"></i>
-        </div>
-    </div>
-
 <!-- About Hero Section -->
-<div class="container about-hero py-5">
-    <div class="row align-items-center">
-        <div class="col-md-6">
-            <h1 class="display-4 fw-bold mb-4">The Future of Medicine Delivery</h1>
-            <p class="lead mb-4">
-                At QuickMeds, we're revolutionizing healthcare accessibility by ensuring easy access to essential medicines.
-            </p>
-            <a href="{% url 'product' %}" class="btn btn-primary btn-lg">Explore Our Products</a>
-        </div>
-        <div class="col-md-6">
-            <img src="{% static 'img/about1.png' %}" alt="About QuickMeds" class="img-fluid rounded shadow floating-animation">
+<section class="about-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <span class="hero-label">About QuickMeds</span>
+                <h1>The Future of Medicine Delivery</h1>
+                <p class="hero-description">
+                    At QuickMeds, we're revolutionizing healthcare accessibility by ensuring easy access to essential medicines. 
+                    Your health is our priority, and we're here 24/7 to serve you.
+                </p>
+                <div class="hero-actions">
+                    <a href="{% url 'product' %}" class="btn-primary-hero">
+                        <i class="fas fa-pills"></i>
+                        Explore Our Products
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn-secondary-hero">
+                        <i class="fas fa-envelope"></i>
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+            <div class="hero-image">
+                <div class="image-wrapper">
+                    <img src="{% static 'img/about1.png' %}" alt="About QuickMeds">
+                    <div class="image-decoration"></div>
+                </div>
+            </div>
         </div>
     </div>
-</div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="fas fa-users"></i>
+                <h3>50,000+</h3>
+                <p>Happy Customers</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-box"></i>
+                <h3>100,000+</h3>
+                <p>Orders Delivered</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-pills"></i>
+                <h3>5,000+</h3>
+                <p>Medicines Available</p>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-clock"></i>
+                <h3>24/7</h3>
+                <p>Customer Support</p>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Features Section -->
-<div class="container py-5">
-    <h2 class="text-center mb-5">Why Choose QuickMeds?</h2>
-    <div class="row g-4">
-        <div class="col-md-4 text-center">
-            <i class="fas fa-shipping-fast fa-3x text-primary mb-3"></i>
-            <h3>Fast Delivery</h3>
-            <p>Get medicines delivered to your doorstep within hours.</p>
+<section class="features-section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Why Choose QuickMeds?</h2>
+            <p>Your trusted partner for all healthcare needs</p>
         </div>
-        <div class="col-md-4 text-center">
-            <i class="fas fa-certificate fa-3x text-primary mb-3"></i>
-            <h3>Genuine Products</h3>
-            <p>100% authentic medicines from licensed pharmacies.</p>
-        </div>
-        <div class="col-md-4 text-center">
-            <i class="fas fa-headset fa-3x text-primary mb-3"></i>
-            <h3>24/7 Support</h3>
-            <p>Round-the-clock customer support for your needs.</p>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shipping-fast"></i>
+                </div>
+                <h3>Fast Delivery</h3>
+                <p>Get medicines delivered to your doorstep within hours. Quick, reliable, and safe delivery service.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <h3>Genuine Products</h3>
+                <p>100% authentic medicines from licensed pharmacies. Quality guaranteed, always.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3>24/7 Support</h3>
+                <p>Round-the-clock customer support for your needs. We're always here to help.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Secure Payment</h3>
+                <p>Safe and encrypted payment gateway. Your transactions are protected.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-percent"></i>
+                </div>
+                <h3>Best Prices</h3>
+                <p>Competitive pricing with regular discounts and offers for our customers.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-prescription"></i>
+                </div>
+                <h3>Easy Prescription</h3>
+                <p>Upload prescriptions easily and get medicines delivered hassle-free.</p>
+            </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- Mission Section -->
 <div class="container py-5">
@@ -202,56 +169,7 @@
         </div>
     </div>
 </div>
-<!-- Replace the existing fab-container div with this -->
-<button class="scroll-top-btn" id="scrollTopBtn">
-    <i class="fas fa-arrow-up"></i>
-</button>
 
-<!-- Footer -->
-<footer class="bg-dark text-white py-5">
-    <div class="container-fluid">
-        <div class="row mx-5">
-            <!-- About Section -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">About QuickMeds</h5>
-                <p>Your trusted online pharmacy for all your medical needs. Quality medicines delivered to your doorstep.</p>
-            </div>
-
-            <!-- Quick Links -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">Quick Links</h5>
-                <ul class="list-unstyled">
-                    <li><a href="{% url 'home' %}" class="text-white text-decoration-none">Home</a></li>
-                    <li><a href="{% url 'product' %}" class="text-white text-decoration-none">Products</a></li>
-                    <li><a href="{% url 'about' %}" class="text-white text-decoration-none">About Us</a></li>
-                    <li><a href="#contact" class="text-white text-decoration-none">Contact</a></li>
-                </ul>
-            </div>
-
-            <!-- Contact Info -->
-            <div class="col-md-4 mb-4">
-                <h5 class="text-uppercase fw-bold">Contact Us</h5>
-                <ul class="list-unstyled">
-                    <li><i class="fas fa-user me-2"></i>Mahajan Gumte</li>
-                    <li><i class="fas fa-map-marker-alt me-2"></i>Nagpur, Maharashtra, India</li>
-                    <li><i class="fas fa-phone me-2"></i>+91 123-456-7890</li>
-                    <li><i class="fas fa-envelope me-2"></i>info@quickmeds.com</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Social Links & Copyright -->
-        <div class="text-center border-top pt-4 mt-4">
-            <div class="mb-3">
-                <a href="#" class="text-white mx-2"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-twitter"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-white mx-2"><i class="fab fa-linkedin-in"></i></a>
-            </div>
-            <p class="mb-0">&copy; 2025 QuickMeds. All rights reserved.</p>
-        </div>
-    </div>
-</footer>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
         // Animate mission list items

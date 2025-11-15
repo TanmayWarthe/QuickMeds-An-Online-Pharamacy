@@ -2,11 +2,8 @@
 {% load static %} {% load humanize %} 
 {% block title%}Products - QuickMeds{% endblock %} 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/product.css' %}" />
-<link rel="stylesheet" href="{% static 'css/home.css' %}" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<link rel="stylesheet" href="{% static 'css/product-modern.css' %}" />
 <link rel="stylesheet" href="{% static 'css/cart-animation.css' %}">
-<link rel="stylesheet" href="{% static 'css/shop.css' %}">
 <style>
     .product-image {
         width: 100%;
@@ -40,154 +37,68 @@
 {% endblock %} 
 
 {% block content %}
-<!-- Notification Container - Matching Homepage -->
+<!-- Notification Container -->
 <div class="notification" id="notification" style="display: none;">
     <i class="fas fa-check-circle"></i>
     <span id="notification-message"></span>
 </div>
 
-<!-- Remove old notification elements -->
 <div id="successMessage" style="display: none;"></div>
 <div id="errorMessage" style="display: none;"></div>
 
- <!-- Navbar -->
- <nav class="navbar navbar-expand-lg">
-    <div class="container-fluid px-4">
-        <div class="nav-start">
-            <div class="brand-section">
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                </button>
-                <div class="logo-wrapper">
-                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
+<!-- Modern Product Page Layout -->
+<div class="product-page-container">
+    
+    <!-- Hero Banner -->
+    <div class="product-hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">
+                        <i class="fas fa-pills"></i>
+                        Quality Medicines
+                    </h1>
+                    <p class="hero-subtitle">Browse our extensive collection of healthcare products and medicines</p>
                 </div>
-                <a class="navbar-brand" href="#">QuickMeds</a>
+                <div class="hero-image">
+                    <img src="{% static 'img/basket-bg.png' %}" alt="Medicines" />
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Category Section -->
+    <div class="container py-5">
+        <div class="section-header mb-5">
+            <h2 class="section-title">Browse by Category</h2>
+            <p class="section-subtitle">Find exactly what you need</p>
         </div>
         
-        <div class="nav-actions">
-            <a href="{% url 'product' %}" class="quick-order-btn">
-                <i class="fas fa-bolt"></i>
-                <span>Quick Order</span>
-            </a>
-            {% if user.is_authenticated %}
-            <div class="nav-icons">
-                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                    <span class="badge">{{ cart_count|default:0 }}</span>
-                </a>
-                <div class="dropdown">
-                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
-                        <i class="fa fa-user"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% else %}
-            <div class="auth-buttons">
-                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
-                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</nav>
-
-<!-- Sidebar Navigation -->
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <div class="sidebar-brand">
-            <img src="{% static 'img/medicines-icon.png' %}" alt="Logo" class="sidebar-logo">
-            <span>QuickMeds</span>
-        </div>
-        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close sidebar">
-            <i class="fas fa-times"></i>
-        </button>
-    </div>
-    
-    <nav class="sidebar-nav">
-        <a href="{% url 'home' %}" class="nav-item">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
-        </a>
-        <a href="{% url 'product' %}" class="nav-item active">
-            <i class="fas fa-prescription-bottle-alt"></i>
-            <span>Products</span>
-        </a>
-        <a href="{% url 'contact' %}" class="nav-item">
-            <i class="fas fa-phone"></i>
-            <span>Contact</span>
-        </a>
-        <a href="{% url 'about' %}" class="nav-item">
-            <i class="fas fa-comment-dots"></i>
-            <span>About</span>
-        </a>
-    </nav>
-    
-    <div class="sidebar-footer">
-        <div class="support-info">
-            <i class="fas fa-headset"></i>
-            <div class="support-text">
-                <small>Need Help?</small>
-                <p>1-234-567-890</p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Sidebar Overlay -->
-<div class="sidebar-overlay" id="sidebarOverlay"></div>
-
-<!-- Header with tagline and menu -->
-<div class="tagline">
-    <div class="centered-text-container">
-        <i class="fas fa-heartbeat tagline-icon"></i>
-        <span class="text-center">SMARTER <span class="healthcare">HEALTH</span> CHOICES AT YOUR FINGERTIPS</span>
-        <i class="fas fa-pills tagline-icon"></i>
-    </div>
-</div>
-
-<!-- Main Content -->
-<div class="container main-content">
-    <div class="banner">
-        <img src="{% static 'img/basket-bg.png' %}" alt="FreshCart Logo" />
-        <div class="banner-content">
-            <h2>Welcome to QuickMeds</h2>
-            <p>Your trusted online pharmacy for all your medical needs.</p>
-        </div>
-    </div>
-
-    <!-- Category Grid -->
-    <div class="category-section">
-        <h2 class="category-grid-heading">Browse Our Categories</h2>
-        <div class="category-grid">
+        <div class="category-grid-modern">
             {% for category in categories %} 
-            <div class="category-card" data-category-id="{{ category.name|slugify }}">
-                {% if category.name == 'Baby Care' %}
-                <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
-                {% elif category.name == 'Wellness & Nutrition' %}
-                <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
-                {% elif category.name == 'Personal Care & Hygiene' %}
-                <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
-                {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
-                <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
-                {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
-                <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
-                {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
-                <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
-                {% else %}
-                <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
-                {% endif %}
-                <p>{{ category.name }}</p>
+            <div class="category-card-modern" data-category-id="{{ category.name|slugify }}">
+                <div class="category-icon">
+                    {% if category.name == 'Baby Care' %}
+                    <img src="{% static 'img/productCatlog/category/babyCare.png' %}" alt="{{ category.name }}" />
+                    {% elif category.name == 'Wellness & Nutrition' %}
+                    <img src="{% static 'img/productCatlog/category/wellness.png' %}" alt="{{ category.name }}" />
+                    {% elif category.name == 'Personal Care & Hygiene' %}
+                    <img src="{% static 'img/productCatlog/category/personalCare.png' %}" alt="{{ category.name }}" />
+                    {% elif category.name == 'Pain Reliever' or category.name == 'Pain Relief' %}
+                    <img src="{% static 'img/painReliever.jpeg' %}" alt="{{ category.name }}" />
+                    {% elif category.name == 'Healthcare & First Aid' or category.name == 'First Aid' %}
+                    <img src="{% static 'img/productCatlog/category/FirstAid.jpeg' %}" alt="{{ category.name }}" />
+                    {% elif category.name == 'OTC Medicines' or category.name == 'OTC' %}
+                    <img src="{% static 'img\otc.jpeg' %}" alt="{{ category.name }}" />
+                    {% else %}
+                    <img src="{% static 'img/default.png' %}" alt="{{ category.name }}" />
+                    {% endif %}
+                </div>
+                <h3 class="category-name">{{ category.name }}</h3>
             </div>
             {% empty %}
-            <div class="no-categories">
+            <div class="empty-state">
+                <i class="fas fa-box-open"></i>
                 <p>No categories available</p>
             </div>
             {% endfor %}
@@ -195,55 +106,57 @@
     </div>
 
     <!-- Product Sections -->
-    <div class="product-sections">
+    <div class="container product-sections-modern">
         {% for category in categories %}
-        <div class="product-section" id="{{ category.name|slugify }}" data-category="{{ category.name }}">
-            <div class="spotlight"></div>
-            <div class="product-header">
-                <div>
-                    <h2>{{ category.name }}</h2>
-                </div>
+        <div class="product-section-modern" id="{{ category.name|slugify }}" data-category="{{ category.name }}">
+            <div class="section-header-inline">
+                <h2 class="category-title">
+                    <i class="fas fa-prescription-bottle"></i>
+                    {{ category.name }}
+                </h2>
                 <div class="slider-controls">
-                    <button class="control-btn prev" onclick="moveSlider('productSlider{{ forloop.counter }}', -1)">
+                    <button class="control-btn prev" onclick="moveSlider('productSlider{{ forloop.counter }}', -1)" aria-label="Previous">
                         <i class="fas fa-chevron-left"></i>
                     </button>
-                    <button class="control-btn next" onclick="moveSlider('productSlider{{ forloop.counter }}', 1)">
+                    <button class="control-btn next" onclick="moveSlider('productSlider{{ forloop.counter }}', 1)" aria-label="Next">
                         <i class="fas fa-chevron-right"></i>
                     </button>
                 </div>
             </div>
-            <div class="product-slider" id="productSlider{{ forloop.counter }}">
+            
+            <div class="product-slider-modern" id="productSlider{{ forloop.counter }}">
                 {% for product in category.products.all %}
                 <div class="product-slide">
-                    <div class="product-card" data-product-id="{{ product.id }}" onclick="navigateToProduct('{{ product.id }}', event)">
-                        <div class="product-image-container">
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                            <div class="image-loading">Loading...</div>
+                    <div class="product-card-modern" data-product-id="{{ product.id }}" onclick="navigateToProduct('{{ product.id }}', event)">
+                        <div class="product-image-wrapper">
+                            {% if product.image %}
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img" loading="lazy">
+                            {% else %}
+                                <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-img" loading="lazy">
+                            {% endif %}
+                            {% if product.original_price %}
+                            <div class="discount-badge">SAVE</div>
+                            {% endif %}
                         </div>
-                        <div class="product-info">
-                            <span class="category">{{ product.category.name }}</span>
-                            <h3>{{ product.name }}</h3>
-                            <div class="price-row">
-                                <div class="price">
-                                    <span class="current">₹{{ product.price|intcomma }}</span>
-                                    {% if product.original_price %}
-                                    <span class="original">₹{{ product.original_price|intcomma }}</span>
-                                    {% endif %}
-                                </div>
+                        <div class="product-details">
+                            <span class="product-category">{{ product.category.name }}</span>
+                            <h3 class="product-name">{{ product.name }}</h3>
+                            <div class="product-pricing">
+                                <span class="price-current">₹{{ product.price|intcomma }}</span>
+                                {% if product.original_price %}
+                                <span class="price-original">₹{{ product.original_price|intcomma }}</span>
+                                {% endif %}
                             </div>
-                            <div class="product-actions">
-                                <button class="cart-button" onclick="cartClick(event, '{{ product.id }}')" {% if not product.in_stock %}disabled="disabled"{% endif %}>
-                                    <span class="add-to-cart">Add to cart</span>
-                                    <span class="added"><i class="fa-solid fa-circle-check"></i> Done</span>
-                                    <i class="fa-solid fa-cart-shopping"></i>
-                                    <i class="fas fa-box"></i>
-                                </button>
-                            </div>
+                            <button class="btn-add-cart" onclick="cartClick(event, '{{ product.id }}')" {% if not product.in_stock %}disabled{% endif %}>
+                                <i class="fas fa-cart-plus"></i>
+                                <span>Add to Cart</span>
+                            </button>
                         </div>
                     </div>
                 </div>
                 {% empty %}
-                <div class="no-products">
+                <div class="empty-state">
+                    <i class="fas fa-prescription-bottle-alt"></i>
                     <p>No products available in this category</p>
                 </div>
                 {% endfor %}
