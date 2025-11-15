@@ -11,36 +11,100 @@
 <div class="catalog-container">
     <!-- Page Header -->
     <div class="catalog-header">
-        <h1 class="page-title">Our Products</h1>
-        <p class="page-subtitle">Browse our wide selection of quality medicines and healthcare products</p>
+        <div class="medical-particles">
+            <i class="fas fa-pills particle p-1"></i>
+            <i class="fas fa-capsules particle p-2"></i>
+            <i class="fas fa-heartbeat particle p-3"></i>
+            <i class="fas fa-stethoscope particle p-4"></i>
+            <i class="fas fa-syringe particle p-5"></i>
+            <i class="fas fa-prescription-bottle particle p-6"></i>
+            <i class="fas fa-first-aid particle p-7"></i>
+            <i class="fas fa-tablets particle p-8"></i>
+        </div>
+        <div class="header-content">
+            <h1 class="tagline">
+                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+                Your Health, Our Priority
+            </h1>
+        </div>
     </div>
 
-    <!-- Filters & Search Section -->
-    <div class="filter-section">
-        <div class="filter-left">
-            <div class="category-filter">
-                <label for="categorySelect">
-                    <i class="fas fa-filter"></i> Filter by Category:
-                </label>
-                <select id="categorySelect" class="category-select" onchange="filterByCategory(this.value)">
-                    <option value="">All Categories</option>
-                    {% for category in categories %}
-                        <option value="{{ category.name }}" {% if request.GET.category == category.name %}selected{% endif %}>
-                            {{ category.name }}
-                        </option>
-                    {% endfor %}
-                </select>
+    {% comment %} <!-- Search Section -->
+    <div class="search-section">`
+        <div class="search-container">
+            <div class="search-box-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" id="searchInput" class="search-input" placeholder="Search for medicines, vitamins, supplements..." value="{{ request.GET.search|default:'' }}" onkeyup="handleSearch(event)">
+                <button class="search-clear-btn" onclick="clearSearch()" style="display: none;">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <button class="search-submit-btn" onclick="performSearch()">
+                <i class="fas fa-search"></i>
+                <span>Search</span>
+            </button>
+        </div>
+        <div class="results-info">
+            <div class="product-count-badge">
+                <i class="fas fa-box-open"></i>
+                <span><strong id="productCount">{{ products.count }}</strong> Products Available</span>
             </div>
         </div>
-        
-        <div class="filter-right">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search products..." value="{{ request.GET.search|default:'' }}" onkeyup="handleSearch(event)">
-            </div>
-            <div class="product-count">
-                <span id="productCount">{{ products.count }}</span> Products
-            </div>
+    </div> {% endcomment %}
+
+    <!-- Category Pills -->
+    <div class="category-section">
+        <h2 class="category-title">
+            <i class="fas fa-layer-group"></i>
+            Shop by Category
+        </h2>
+        <div class="category-pills">
+            <button class="category-pill {% if not request.GET.category %}active{% endif %}" onclick="filterByCategory('')">
+                <div class="category-icon-wrapper all-products">
+                    <i class="fas fa-th-large"></i>
+                </div>
+                <div class="category-info">
+                    <span class="category-name">All Products</span>
+                    <span class="category-desc">View Everything</span>
+                </div>
+            </button>
+            {% for category in categories %}
+            <button class="category-pill {% if request.GET.category == category.name %}active{% endif %}" onclick="filterByCategory('{{ category.name }}')">
+                <div class="category-icon-wrapper">
+                    {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
+                        <i class="fas fa-pills"></i>
+                    {% elif 'Pain' in category.name or 'Relief' in category.name %}
+                        <i class="fas fa-head-side-cough"></i>
+                    {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
+                        <i class="fas fa-leaf"></i>
+                    {% elif 'First Aid' in category.name or 'Band' in category.name %}
+                        <i class="fas fa-first-aid"></i>
+                    {% elif 'Baby' in category.name or 'Child' in category.name %}
+                        <i class="fas fa-baby"></i>
+                    {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
+                        <i class="fas fa-spray-can"></i>
+                    {% elif 'Skin' in category.name or 'Beauty' in category.name %}
+                        <i class="fas fa-heart"></i>
+                    {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
+                        <i class="fas fa-syringe"></i>
+                    {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
+                        <i class="fas fa-heartbeat"></i>
+                    {% elif 'Eye' in category.name or 'Vision' in category.name %}
+                        <i class="fas fa-eye"></i>
+                    {% elif 'Dental' in category.name or 'Oral' in category.name %}
+                        <i class="fas fa-tooth"></i>
+                    {% elif 'Wellness' in category.name or 'Health' in category.name %}
+                        <i class="fas fa-dumbbell"></i>
+                    {% else %}
+                        <i class="fas fa-capsules"></i>
+                    {% endif %}
+                </div>
+                <div class="category-info">
+                    <span class="category-name">{{ category.name }}</span>
+                    <span class="category-desc">Explore Products</span>
+                </div>
+            </button>
+            {% endfor %}
         </div>
     </div>
 
@@ -157,16 +221,45 @@
 
     // Search functionality
     function handleSearch(event) {
-        if (event.key === 'Enter') {
-            const searchValue = event.target.value.trim();
-            const url = new URL(window.location.href);
-            if (searchValue) {
-                url.searchParams.set('search', searchValue);
-            } else {
-                url.searchParams.delete('search');
-            }
-            window.location.href = url.toString();
+        const searchInput = event.target;
+        const clearBtn = document.querySelector('.search-clear-btn');
+        
+        // Show/hide clear button
+        if (searchInput.value.trim()) {
+            clearBtn.style.display = 'flex';
+        } else {
+            clearBtn.style.display = 'none';
         }
+        
+        // Search on Enter key
+        if (event.key === 'Enter') {
+            performSearch();
+        }
+    }
+    
+    // Perform search
+    function performSearch() {
+        const searchValue = document.getElementById('searchInput').value.trim();
+        const url = new URL(window.location.href);
+        if (searchValue) {
+            url.searchParams.set('search', searchValue);
+        } else {
+            url.searchParams.delete('search');
+        }
+        window.location.href = url.toString();
+    }
+    
+    // Clear search
+    function clearSearch() {
+        const searchInput = document.getElementById('searchInput');
+        searchInput.value = '';
+        searchInput.focus();
+        document.querySelector('.search-clear-btn').style.display = 'none';
+        
+        // Clear search from URL
+        const url = new URL(window.location.href);
+        url.searchParams.delete('search');
+        window.location.href = url.toString();
     }
 
     // Open product detail in new tab
@@ -304,6 +397,13 @@
     // Update product count on page load
     document.addEventListener('DOMContentLoaded', function() {
         updateCartCount();
+        
+        // Show clear button if search value exists
+        const searchInput = document.getElementById('searchInput');
+        const clearBtn = document.querySelector('.search-clear-btn');
+        if (searchInput.value.trim()) {
+            clearBtn.style.display = 'flex';
+        }
     });
 </script>
 {% endblock %}
