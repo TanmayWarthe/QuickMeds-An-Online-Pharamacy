@@ -1,0 +1,38 @@
+:root {
+  --primary: #2563eb;
+  --primary-dark: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-contrast: #ffffff;
+  --navbar-height: 76px;
+  --dark: #1e293b;
+  --dark-lighter: #334155;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --muted: #64748b;
+  --light: #f8fafc;
+  --border: #e2e8f0;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+/* Utilities for consistent theming */
+.bg-primary-gradient {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+}
+.text-primary {
+  color: var(--primary) !important;
+}
+.btn-primary-solid {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+.btn-primary-solid:hover {
+  background: var(--primary-dark);
+}
+.border-light {
+  border-color: var(--border) !important;
+}
+
+/* Global layout components now live in layout.css (navbar, sidebar, footer) */

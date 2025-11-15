@@ -1,0 +1,85 @@
+{% load static %}
+<!-- Footer - Reusable Component with Customization Support -->
+<footer class="modern-footer">
+    <div class="container">
+        {% block footer_before_main %}
+        <!-- Pages can inject content above footer main (e.g., newsletter) -->
+        {% endblock %}
+        
+        <div class="footer-main">
+            <div class="footer-col brand-col">
+                <div class="footer-brand">
+                    <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds">
+                    <span>QuickMeds</span>
+                </div>
+                <p class="footer-desc">{% block footer_description %}Your trusted online pharmacy delivering quality healthcare products to your doorstep.{% endblock %}</p>
+                <div class="social-links">
+                    {% block footer_social_links %}
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                    {% endblock %}
+                </div>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="{% url 'product' %}">Shop Medicines</a></li>
+                    <li><a href="{% url 'about' %}">About Us</a></li>
+                    <li><a href="{% url 'contact' %}">Contact</a></li>
+                    {% block footer_quick_links_extra %}{% endblock %}
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>{% block footer_categories_title %}Categories{% endblock %}</h4>
+                <ul>
+                    {% block footer_categories %}
+                    <li><a href="{% url 'product' %}">Prescription Drugs</a></li>
+                    <li><a href="{% url 'product' %}">OTC Medicines</a></li>
+                    <li><a href="{% url 'product' %}">Vitamins & Supplements</a></li>
+                    <li><a href="{% url 'product' %}">Personal Care</a></li>
+                    {% endblock %}
+                </ul>
+            </div>
+            
+            <div class="footer-col">
+                <h4>Contact</h4>
+                <ul class="contact-list">
+                    {% block footer_contact %}
+                    <li>
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>Nagpur, Maharashtra, India</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-phone"></i>
+                        <span>+91 123-456-7890</span>
+                    </li>
+                    <li>
+                        <i class="fas fa-envelope"></i>
+                        <span>info@quickmeds.com</span>
+                    </li>
+                    {% endblock %}
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>{% block footer_copyright %}&copy; 2025 QuickMeds. All rights reserved.{% endblock %}</p>
+            <div class="footer-links">
+                {% block footer_legal_links %}
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Refund Policy</a>
+                {% endblock %}
+            </div>
+        </div>
+        
+        {% block footer_after_bottom %}
+        <!-- Pages can inject content after footer bottom -->
+        {% endblock %}
+    </div>
+</footer>

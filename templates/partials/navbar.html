@@ -1,0 +1,155 @@
+{% load static %}
+<!-- Professional Navbar - Top-Tier Navigation System -->
+<nav class="modern-navbar">
+    <div class="container">
+        <div class="navbar-content">
+            <!-- Left: Brand -->
+            <div class="brand-group">
+                {% block navbar_brand %}
+                <a href="{% url 'home' %}" class="brand-logo">
+                    <div class="logo-icon">
+                        <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds">
+                    </div>
+                    <span class="brand-name">QuickMeds</span>
+                </a>
+                {% endblock %}
+            </div>
+            
+            <!-- Center: Main Navigation (Desktop) -->
+            <div class="nav-center">
+                {% block navbar_center %}
+                <nav class="main-nav" aria-label="Main navigation">
+                    <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
+                        <i class="fas fa-home"></i>
+                        <span>Home</span>
+                    </a>
+                    <a href="{% url 'product' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
+                        <i class="fas fa-pills"></i>
+                        <span>Medicines</span>
+                    </a>
+                    <a href="{% url 'about' %}" class="nav-link {% if 'about' in request.path %}active{% endif %}">
+                        <i class="fas fa-info-circle"></i>
+                        <span>About</span>
+                    </a>
+                    <a href="{% url 'contact' %}" class="nav-link {% if 'contact' in request.path %}active{% endif %}">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contact</span>
+                    </a>
+                </nav>
+                {% endblock %}
+            </div>
+            
+            <!-- Right: Actions -->
+            <div class="nav-right">
+                {% block navbar_extra_left %}{% endblock %}
+                
+                <!-- Search -->
+                <button class="nav-search-btn" id="searchToggle" type="button" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                
+                {% if user.is_authenticated %}
+                <!-- Cart -->
+                <a href="{% url 'cart' %}" class="nav-cart" aria-label="Shopping cart">
+                    <i class="fas fa-shopping-bag"></i>
+                    {% if cart_count > 0 %}
+                    <span class="cart-badge">{{ cart_count }}</span>
+                    {% endif %}
+                </a>
+                
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="user-menu-btn" type="button" aria-label="User menu">
+                        <i class="fas fa-user-circle"></i>
+                    </button>
+                    <ul class="dropdown-menu">
+                        {% block navbar_user_menu_prepend %}{% endblock %}
+                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user"></i> My Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders' %}"><i class="fas fa-box"></i> My Orders</a></li>
+                        {% block navbar_user_menu_append %}{% endblock %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="auth-group">
+                    <a href="{% url 'login' %}" class="btn-login">Login</a>
+                    <a href="{% url 'login' %}?signup=true" class="btn-signup">Get Started</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Search Overlay -->
+    <div class="search-overlay" id="searchOverlay">
+        <div class="container">
+            <div class="search-container">
+                <form action="/search/" method="GET" class="search-form">
+                    <i class="fas fa-search search-icon"></i>
+                    <input type="text" name="q" class="search-input" placeholder="Search medicines, health products..." autocomplete="off" autofocus>
+                    <button type="button" class="search-close" id="searchClose">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script>
+// Navbar functionality
+document.addEventListener('DOMContentLoaded', function() {
+    // User menu dropdown
+    const btn = document.querySelector('.user-menu-btn');
+    const menu = document.querySelector('.dropdown-menu');
+    
+    if (btn && menu) {
+        btn.onclick = function(e) {
+            e.stopPropagation();
+            menu.classList.toggle('show');
+        };
+        
+        document.onclick = function(e) {
+            if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        };
+    }
+    
+    // Search overlay toggle
+    const searchToggle = document.getElementById('searchToggle');
+    const searchOverlay = document.getElementById('searchOverlay');
+    const searchClose = document.getElementById('searchClose');
+    const searchInput = document.querySelector('.search-input');
+    
+    function toggleSearch(force) {
+        const shouldOpen = typeof force === 'boolean' ? force : !searchOverlay.classList.contains('active');
+        if (searchOverlay) {
+            searchOverlay.classList.toggle('active', shouldOpen);
+            if (shouldOpen && searchInput) {
+                setTimeout(() => searchInput.focus(), 300);
+            }
+        }
+    }
+    
+    if (searchToggle) searchToggle.addEventListener('click', () => toggleSearch());
+    if (searchClose) searchClose.addEventListener('click', () => toggleSearch(false));
+    
+    // Close search on ESC key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('active')) {
+            toggleSearch(false);
+        }
+    });
+    
+    // Close search when clicking outside
+    if (searchOverlay) {
+        searchOverlay.addEventListener('click', (e) => {
+            if (e.target === searchOverlay) {
+                toggleSearch(false);
+            }
+        });
+    }
+});
+</script>
