@@ -227,9 +227,15 @@
                         {% for item in order.items.all %}
                         <div class="col-md-6">
                             <div class="d-flex align-items-center">
-                                <img src="{{ item.product.image.url|default:'/static/img/medicines-icon.png' }}" 
-                                     alt="{{ item.product.name }}" 
-                                     class="product-image me-3">
+                                {% if item.product.image %}
+                                    <img src="{{ item.product.image.url }}" 
+                                         alt="{{ item.product.name }}" 
+                                         class="product-image me-3">
+                                {% else %}
+                                    <img src="{% static 'img/medicines-icon.png' %}" 
+                                         alt="{{ item.product.name }}" 
+                                         class="product-image me-3">
+                                {% endif %}
                                 <div>
                                     <h6 class="mb-1">{{ item.product.name }}</h6>
                                     <p class="mb-0 text-muted">

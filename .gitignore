@@ -47,4 +47,17 @@ ENV/
 # OS
 .DS_Store
 Thumbs.db
+
+# Deployment platforms
+.vercel/
 .vercel
+
+# Empty/unused directories
+config/
+core/
+requirements/
+tests/
+
+# Media and static files (optional - uncomment if not tracking)
+# media/
+# staticfiles/

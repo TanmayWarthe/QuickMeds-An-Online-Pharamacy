@@ -10,67 +10,8 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='order',
-            name='order_id',
-        ),
-        migrations.RemoveField(
-            model_name='order',
-            name='payment_id',
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='city',
-            field=models.CharField(default='', max_length=100),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='email',
-            field=models.EmailField(default='', max_length=254),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='first_name',
-            field=models.CharField(default='', max_length=100),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='last_name',
-            field=models.CharField(default='', max_length=100),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='phone',
-            field=models.CharField(default='', max_length=15),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='pincode',
-            field=models.CharField(default='', max_length=10),
-        ),
-        migrations.AddField(
-            model_name='order',
-            name='state',
-            field=models.CharField(default='', max_length=100),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='address',
-            field=models.TextField(default=''),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='order_status',
-            field=models.CharField(default='Placed', max_length=20),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='payment_method',
-            field=models.CharField(max_length=20),
-        ),
-        migrations.AlterField(
-            model_name='order',
-            name='payment_status',
-            field=models.CharField(default='Pending', max_length=20),
-        ),
+        # Note: All fields already exist in database from 0001_initial
+        # This migration was needed for SQLite but MySQL already has the correct schema
+        # Skipping operations to avoid conflicts
+        migrations.RunPython(migrations.RunPython.noop, migrations.RunPython.noop),
     ]

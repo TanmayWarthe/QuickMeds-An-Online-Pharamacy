@@ -64,8 +64,9 @@ def send_otp_email(email, otp):
         
         # Connect to SMTP server using SSL
         with smtplib.SMTP_SSL(settings.EMAIL_HOST, settings.EMAIL_PORT, context=context) as server:
-            # Login
-            server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
+            # Login (trim spaces that Gmail app password UI shows)
+            app_password = (settings.EMAIL_HOST_PASSWORD or "").replace(" ", "")
+            server.login(settings.EMAIL_HOST_USER, app_password)
             
             # Send email
             server.send_message(msg)

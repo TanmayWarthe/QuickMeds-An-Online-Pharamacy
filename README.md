@@ -57,7 +57,7 @@ It provides:
 |--------------|------------|
 | **Backend**  | Django (Python) |
 | **Frontend** | HTML5, CSS3, JavaScript, Bootstrap |
-| **Database** | SQLite (Dev) |
+| **Database** | MySQL (Production) / SQLite (Dev) |
 | **Hosting**  | Render |
 | **Version Control** | Git & GitHub |
 
@@ -93,6 +93,11 @@ source .venv/bin/activate   # On Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+**Note for MySQL**: If you plan to use MySQL locally, you may need to install MySQL development libraries first:
+- **Linux**: `sudo apt-get install default-libmysqlclient-dev python3-dev` (Ubuntu/Debian) or `sudo yum install mysql-devel python3-devel` (CentOS/RHEL)
+- **macOS**: `brew install mysql-client pkg-config`
+- **Windows**: `mysqlclient` usually installs directly via pip, but you may need Visual C++ Build Tools if installation fails
+
 3. **Create `.env` file**
 
 ```env
@@ -102,6 +107,14 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 SECURE_SSL_REDIRECT=False
 SESSION_COOKIE_SECURE=False
 CSRF_COOKIE_SECURE=False
+
+# MySQL Configuration (optional - defaults to SQLite if not set)
+# USE_MYSQL=True
+# DB_NAME=quickmeds_db
+# DB_USER=root
+# DB_PASSWORD=your_password
+# DB_HOST=localhost
+# DB_PORT=3306
 ```
 
 4. **Migrate & Run**
@@ -134,7 +147,7 @@ from django.core.management.utils import get_random_secret_key
 print(get_random_secret_key())
 ```
 
-3. Use PostgreSQL/MySQL for production database
+3. Use MySQL for production database
 4. Collect static files using `python manage.py collectstatic`
 5. Enable **HTTPS** for security
 

@@ -430,6 +430,45 @@ input.error {
     font-size: 14px;
 }
 
+/* Password wrapper with toggle button */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+    margin: 0;
+}
+
+.password-wrapper input {
+    padding-right: 50px; /* Space for the toggle button */
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px 10px;
+    color: rgba(0, 0, 0, 0.5);
+    font-size: 16px;
+    transition: color 0.3s ease;
+    z-index: 10;
+    outline: none;
+}
+
+.password-toggle:hover {
+    color: rgba(0, 0, 0, 0.8);
+}
+
+.password-toggle:focus {
+    outline: none;
+}
+
+.password-toggle i {
+    pointer-events: none;
+}
+
 #signup-step-2 {
     animation: fadeIn 0.3s ease;
 }

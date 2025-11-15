@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config, Csv
-import ssl
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -106,21 +105,47 @@ WSGI_APPLICATION = 'quickmeds.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# Use PostgreSQL for production, SQLite for development
-if DEBUG:
+# MySQL database configuration for both development and production
+# For development: Set DB_ENGINE=mysql to use MySQL, otherwise falls back to SQLite
+USE_MYSQL = config('USE_MYSQL', default=False, cast=bool)
+
+if USE_MYSQL or not DEBUG:
+    # MySQL database configuration
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': config('DB_NAME', default='quickmeds_db'),
+            'USER': config('DB_USER', default='root'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='3306'),
+            'OPTIONS': {
+                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                'charset': 'utf8mb4',
+            },
+        }
+    }
+    
+    # Allow DATABASE_URL to override settings (useful for production and development)
+    database_url = config('DATABASE_URL', default=None)
+    if database_url:
+        import dj_database_url
+        db_config = dj_database_url.parse(database_url)
+        # MySQL URLs use mysql:// scheme
+        if db_config.get('ENGINE') == 'django.db.backends.mysql' or 'mysql' in database_url.lower():
+            DATABASES['default'].update(db_config)
+            if 'OPTIONS' not in DATABASES['default']:
+                DATABASES['default']['OPTIONS'] = {
+                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                    'charset': 'utf8mb4',
+                }
+else:
+    # SQLite for local development (when USE_MYSQL=False)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': BASE_DIR / 'db.sqlite3',
         }
-    }
-else:
-    # Production database configuration
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(
-            config('DATABASE_URL', default='sqlite:///db.sqlite3')
-        )
     }
 
 
@@ -197,7 +222,7 @@ EMAIL_PORT = 465  # Use SSL
 EMAIL_USE_TLS = False
 EMAIL_USE_SSL = True
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='tanmaywarthe09@gmail.com')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='wjlc iris covi oune')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('EMAIL_HOST_USER', default='tanmaywarthe09@gmail.com')
 EMAIL_TIMEOUT = 60
 
@@ -232,5 +257,5 @@ LOGGING = {
 }
 
 # Razorpay Configuration
-RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='rzp_test_tPcdMpc0pKpdgJ')
-RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='yRZXwAiQtCyBKLve67k6llus') 
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='') 

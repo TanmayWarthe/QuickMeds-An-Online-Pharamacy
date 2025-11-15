@@ -27,7 +27,14 @@ Before deploying, you'll need to set up these environment variables in Render:
 DJANGO_SECRET_KEY=your-secret-key-here
 DEBUG=False
 ALLOWED_HOSTS=dawai-ki-dukan-j67h.onrender.com,.onrender.com
-DATABASE_URL=postgresql://username:password@host:port/database_name
+DATABASE_URL=mysql://username:password@host:port/database_name
+# Or use individual MySQL variables:
+# DB_NAME=quickmeds_db
+# DB_USER=your_username
+# DB_PASSWORD=your_password
+# DB_HOST=localhost
+# DB_PORT=3306
+# USE_MYSQL=True
 USE_CLOUDINARY=True
 CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
 CLOUDINARY_API_KEY=your-cloudinary-api-key
@@ -60,12 +67,14 @@ RAZORPAY_KEY_SECRET=your-razorpay-secret
    - **Build Command**: `pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate`
    - **Start Command**: `gunicorn quickmeds.wsgi:application`
 
-## Step 4: Set Up PostgreSQL Database
+## Step 4: Set Up MySQL Database
 
-1. In Render Dashboard, click "New +" → "PostgreSQL"
+1. In Render Dashboard, click "New +" → "MySQL"
 2. Name it `dawai-ki-dukan-db`
-3. Choose the free plan
+3. Choose your preferred plan
 4. Copy the database URL and add it to your environment variables as `DATABASE_URL`
+   - The URL format should be: `mysql://username:password@host:port/database_name`
+   - Or set individual MySQL variables: `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`
 
 ## Step 5: Configure Cloudinary (Optional but Recommended)
 
@@ -96,9 +105,10 @@ RAZORPAY_KEY_SECRET=your-razorpay-secret
 ### Common Issues:
 
 1. **Static files not loading**: Make sure `collectstatic` is running in build command
-2. **Database errors**: Ensure PostgreSQL is properly configured
+2. **Database errors**: Ensure MySQL is properly configured and the database exists
 3. **Media files not working**: Set up Cloudinary for production
 4. **Email not working**: Check email credentials and Gmail app passwords
+5. **MySQL connection errors**: Verify DATABASE_URL format or individual MySQL credentials are correct
 
 ### Logs:
 

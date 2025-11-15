@@ -93,7 +93,7 @@ function updateCartCount() {
 }
 
 function updateCartBadge(count) {
-    const cartBadge = document.querySelector('.cart-icon .badge');
+    const cartBadge = document.querySelector('.nav-cart .cart-badge') || document.querySelector('.cart-icon .badge');
     if (cartBadge) {
         if (count > 0) {
             cartBadge.textContent = count;

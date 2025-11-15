@@ -14,22 +14,15 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='userprofile',
-            name='address',
-        ),
-        migrations.AddField(
+        # Note: address, created_at, profile_image, and updated_at already exist from 0001_initial
+        # Skipping RemoveField(address) and AddField operations to avoid errors
+        # Address will be managed by later migrations (0011 adds it back)
+        migrations.AlterField(
             model_name='userprofile',
             name='created_at',
             field=models.DateTimeField(auto_now_add=True, default=django.utils.timezone.now),
-            preserve_default=False,
         ),
-        migrations.AddField(
-            model_name='userprofile',
-            name='profile_image',
-            field=models.ImageField(blank=True, null=True, upload_to='profile_images/'),
-        ),
-        migrations.AddField(
+        migrations.AlterField(
             model_name='userprofile',
             name='updated_at',
             field=models.DateTimeField(auto_now=True),
