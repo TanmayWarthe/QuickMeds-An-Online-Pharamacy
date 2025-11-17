@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('QuickMedsApp', '0014_checkoutsession'),
+        ('QuickMedsApp', '0014_order_orderitem'),
     ]
 
     operations = [
