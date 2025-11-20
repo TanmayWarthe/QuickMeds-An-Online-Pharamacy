@@ -111,13 +111,19 @@
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
         {% for product in products %}
-        <div class="product-card" data-product-id="{{ product.id }}" onclick="openProductDetail({{ product.id }}, event)">
+        <div class="product-card" data-product-id="{{ product.id }}">
+            <!-- Quick View Badge -->
+            <button class="quick-view-badge" onclick="openProductDetail({{ product.id }}, event)">
+                <i class="fas fa-eye"></i>
+                <span>Quick View</span>
+            </button>
+            
             <!-- Product Image -->
-            <div class="product-image-wrapper">
+            <div class="product-image-wrapper" onclick="openProductDetail({{ product.id }}, event)">
                 {% if product.image %}
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                 {% else %}
-                    <img src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                    <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
                 {% endif %}
                 
                 <!-- Badges -->
@@ -131,22 +137,14 @@
                         <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out of Stock</span>
                     {% endif %}
                 </div>
-                
-                <!-- Quick View Overlay -->
-                <div class="quick-view-overlay">
-                    <button class="quick-view-btn" onclick="openProductDetail({{ product.id }}, event)">
-                        <i class="fas fa-eye"></i>
-                        <span>Quick View</span>
-                    </button>
-                </div>
             </div>
 
             <!-- Product Info -->
             <div class="product-info">
                 <div class="product-category">{{ product.category.name }}</div>
-                <h3 class="product-name">{{ product.name }}</h3>
+                <h3 class="product-name" onclick="openProductDetail({{ product.id }}, event)">{{ product.name }}</h3>
                 
-                <!-- Rating (placeholder) -->
+                {% comment %} <!-- Rating -->
                 <div class="product-rating">
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star"></i>
@@ -154,12 +152,12 @@
                     <i class="fas fa-star"></i>
                     <i class="fas fa-star-half-alt"></i>
                     <span class="rating-count">(4.5)</span>
-                </div>
+                </div> {% endcomment %}
 
                 <!-- Price -->
                 <div class="product-price-section">
                     <div class="price-row">
-                        <span class="current-price">₹{{ product.price }}</span>
+                        <span class="current-price">{{ product.price }}</span>
                         {% if product.original_price and product.original_price > product.price %}
                             <span class="original-price">₹{{ product.original_price }}</span>
                         {% endif %}
@@ -167,14 +165,9 @@
                 </div>
 
                 <!-- Stock Status -->
-                <div class="stock-status">
-                    {% if product.stock > 0 %}
-                        <i class="fas fa-check-circle"></i>
-                        <span class="in-stock">In Stock</span>
-                    {% else %}
-                        <i class="fas fa-times-circle"></i>
-                        <span class="out-stock">Out of Stock</span>
-                    {% endif %}
+                <div class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                    <i class="fas {% if product.stock > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                    <span>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
                 </div>
 
                 <!-- Actions -->
@@ -182,12 +175,12 @@
                     {% if product.stock > 0 %}
                         <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
                             <i class="fas fa-shopping-cart"></i>
-                            <span>Add to Cart</span>
+                            <span>Add</span>
                         </button>
-                        <button class="btn-quick-view" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
+                        <button class="btn-icon-action btn-quick-view" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
                             <i class="fas fa-eye"></i>
                         </button>
-                        <button class="btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
+                        <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
                             <i class="far fa-heart"></i>
                         </button>
                     {% else %}
