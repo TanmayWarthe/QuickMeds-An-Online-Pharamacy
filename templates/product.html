@@ -112,11 +112,12 @@
     <div class="products-grid" id="productsGrid">
         {% for product in products %}
         <div class="product-card" data-product-id="{{ product.id }}">
-            <!-- Quick View Badge -->
+            
+            {% comment %} <!-- Quick View Badge -->
             <button class="quick-view-badge" onclick="openProductDetail({{ product.id }}, event)">
                 <i class="fas fa-eye"></i>
                 <span>Quick View</span>
-            </button>
+            </button> {% endcomment %}
             
             <!-- Product Image -->
             <div class="product-image-wrapper" onclick="openProductDetail({{ product.id }}, event)">

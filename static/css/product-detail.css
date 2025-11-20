@@ -44,11 +44,11 @@
 /* Breadcrumb Navigation */
 .breadcrumb-nav {
     margin-bottom: 20px;
-    background: var(--bg-white);
-    padding: 12px 20px;
+    background: #f8f9fa;
+    padding: 14px 20px;
     border-radius: 8px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--border-color);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border: 1px solid #e5e7eb;
 }
 
 .breadcrumb {
@@ -63,14 +63,16 @@
 .breadcrumb-item {
     display: flex;
     align-items: center;
-    color: var(--text-secondary);
-    font-size: 12px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 500;
 }
 
 .breadcrumb-item a {
-    color: var(--text-secondary);
+    color: #4b5563;
     text-decoration: none;
     transition: var(--transition);
+    font-weight: 500;
 }
 
 .breadcrumb-item a:hover {
@@ -78,14 +80,15 @@
 }
 
 .breadcrumb-item.active {
-    color: var(--text-primary);
-    font-weight: 500;
+    color: #1f2937;
+    font-weight: 600;
 }
 
 .breadcrumb-item + .breadcrumb-item::before {
     content: "/";
     margin-right: 10px;
-    color: var(--border-color);
+    color: #9ca3af;
+    font-weight: 500;
 }
 
 /* Product Detail Grid */
@@ -521,6 +524,9 @@
     padding: 24px;
     box-shadow: var(--shadow-md);
     border: 1px solid var(--border-color);
+    position: sticky;
+    top: 100px;
+    height: fit-content;
 }
 
 .product-header {
@@ -571,19 +577,18 @@
 
 /* Price Section */
 .price-section {
-    margin-bottom: 20px;
-    padding: 18px 20px;
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border-radius: 10px;
-    border-left: 4px solid var(--primary-color);
-    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
 }
 
 .current-price {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 700;
     color: var(--primary-color);
-    margin-bottom: 8px;
+    margin-bottom: 0;
 }
 
 .price-details {
@@ -594,23 +599,23 @@
 }
 
 .original-price {
-    font-size: 15px;
+    font-size: 13px;
     color: var(--text-secondary);
     text-decoration: line-through;
 }
 
 .savings {
-    padding: 5px 12px;
+    padding: 3px 10px;
     background: var(--primary-color);
     color: white;
-    border-radius: 20px;
-    font-size: 13px;
+    border-radius: 12px;
+    font-size: 11px;
     font-weight: 600;
 }
 
 /* Stock Info */
 .stock-info {
-    display: flex;
+    display: none;
     flex-direction: column;
     gap: 10px;
     margin-bottom: 20px;
@@ -899,7 +904,7 @@
 
 /* Info Pills */
 .info-pills {
-    display: flex;
+    display: none;
     flex-wrap: wrap;
     gap: 10px;
 }
@@ -990,38 +995,41 @@
 }
 
 .tab-content h3 {
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 20px;
+    font-weight: 650;
     margin-bottom: 12px;
-    color: var(--text-primary);
+    color: #2c3e50;
 }
 
 .tab-content h4 {
-    font-size: 14px;
-    font-weight: 600;
+    font-size: 17px;
+    font-weight: 650;
     margin: 16px 0 10px;
-    color: var(--text-primary);
+    color: #2c3e50;
     display: flex;
     align-items: center;
     gap: 6px;
 }
 
 .tab-content p {
-    color: var(--text-secondary);
+    color: #6b7280;
     line-height: 1.7;
     margin-bottom: 12px;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: 400;
 }
 
 .tab-content ul {
-    color: var(--text-secondary);
+    color: #6b7280;
     line-height: 1.7;
     padding-left: 18px;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: 400;
 }
 
 .tab-content ul li {
     margin-bottom: 6px;
+    color: #2d3748;
 }
 
 /* Usage Instructions & Precautions */
@@ -1056,17 +1064,20 @@
 
 .details-table td {
     padding: 10px 8px;
-    font-size: 13px;
+    font-size: 15px;
+    font-weight: 400;
+    color: #2d3748;
 }
 
 .details-table td.label {
     font-weight: 600;
-    color: var(--text-primary);
+    color: #1a1a1a;
     width: 160px;
 }
 
 .details-table td:last-child {
-    color: var(--text-secondary);
+    color: var(--text-primary);
+    font-weight: 500;
 }
 
 .badge-status {
