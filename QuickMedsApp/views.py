@@ -99,12 +99,6 @@ def home(request):
     }
     return render(request, 'home.html', context)
 
-def about_view(request):
-    context = {
-        'cart_count': get_cart_count(request)
-    }
-    return render(request, 'about.html', context)
-
 def get_cart_count(request):
     if request.user.is_authenticated:
         return CartItem.objects.filter(cart__user=request.user).count()

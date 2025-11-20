@@ -9,7 +9,6 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('profile/', views.profile_view, name='profile'),
-    path('about/', views.about_view, name='about'),
     path('products/', views.product, name='product'),
     path('shop/', RedirectView.as_view(pattern_name='product', permanent=True), name='shop'),
     path('product/<int:product_id>/', views.product_detail_view, name='product_detail'),
