@@ -77,12 +77,12 @@
                     <!-- Image Badges -->
                     <div class="image-badges">
                         {% if product.discount_percentage > 0 %}
-                            <span class="badge badge-discount">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                            <span class="badge badge-discount pulse-badge"><i class="fas fa-percentage"></i> {{ product.discount_percentage|floatformat:0 }}% OFF</span>
                         {% endif %}
                         {% if product.stock < 10 and product.stock > 0 %}
-                            <span class="badge badge-low-stock">Low Stock</span>
+                            <span class="badge badge-low-stock"><i class="fas fa-fire"></i> Only {{ product.stock }} left</span>
                         {% elif product.stock == 0 %}
-                            <span class="badge badge-out-of-stock">Out of Stock</span>
+                            <span class="badge badge-out-of-stock"><i class="fas fa-ban"></i> Out of Stock</span>
                         {% endif %}
                         {% if is_expiring_soon %}
                             <span class="badge badge-expiring"><i class="fas fa-clock"></i> Expiring Soon</span>
@@ -93,6 +93,37 @@
                     <button class="zoom-btn" onclick="toggleImageZoom()" title="Zoom Image">
                         <i class="fas fa-search-plus"></i>
                     </button>
+                    
+                    <!-- Share Button -->
+                    <button class="share-btn" onclick="toggleShareMenu()" title="Share Product">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+                
+                <!-- Share Menu Dropdown -->
+                <div id="shareMenu" class="share-menu">
+                    <div class="share-menu-header">
+                        <h4><i class="fas fa-share-nodes"></i> Share this product</h4>
+                        <button onclick="toggleShareMenu()" class="share-close"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="share-options">
+                        <button class="share-option" onclick="shareVia('whatsapp')">
+                            <i class="fab fa-whatsapp"></i>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button class="share-option" onclick="shareVia('facebook')">
+                            <i class="fab fa-facebook"></i>
+                            <span>Facebook</span>
+                        </button>
+                        <button class="share-option" onclick="shareVia('twitter')">
+                            <i class="fab fa-twitter"></i>
+                            <span>Twitter</span>
+                        </button>
+                        <button class="share-option" onclick="shareVia('copy')">
+                            <i class="fas fa-link"></i>
+                            <span>Copy Link</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Thumbnail Gallery (if multiple images exist) -->
@@ -179,10 +210,12 @@
                     <button class="btn btn-add-to-cart" onclick="addToCartFromDetail()">
                         <i class="fas fa-shopping-cart"></i>
                         <span>Add to Cart</span>
+                        <div class="btn-shine"></div>
                     </button>
                     <button class="btn btn-buy-now" onclick="buyNow()">
                         <i class="fas fa-bolt"></i>
                         <span>Buy Now</span>
+                        <div class="btn-shine"></div>
                     </button>
                 {% else %}
                     <button class="btn btn-notify" onclick="notifyWhenAvailable()">
@@ -192,6 +225,7 @@
                 {% endif %}
                 <button class="btn btn-wishlist" onclick="toggleWishlist()" title="Add to Wishlist">
                     <i class="far fa-heart"></i>
+                    <span class="wishlist-text">Wishlist</span>
                 </button>
             </div>
 

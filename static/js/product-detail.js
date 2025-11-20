@@ -278,6 +278,61 @@ function closeImageZoom() {
     }
 }
 
+// Share Menu
+function toggleShareMenu() {
+    const shareMenu = document.getElementById('shareMenu');
+    if (shareMenu) {
+        shareMenu.classList.toggle('active');
+    }
+}
+
+// Share Product
+function shareVia(platform) {
+    const url = window.location.href;
+    const title = document.querySelector('.product-title')?.textContent || 'Check out this product';
+    const text = `${title} - QuickMeds`;
+    
+    let shareUrl = '';
+    
+    switch(platform) {
+        case 'whatsapp':
+            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
+            break;
+        case 'facebook':
+            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+            break;
+        case 'twitter':
+            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
+            break;
+        case 'copy':
+            navigator.clipboard.writeText(url).then(() => {
+                showNotification('Link copied to clipboard!', 'success');
+                toggleShareMenu();
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showNotification('Failed to copy link', 'error');
+            });
+            return;
+    }
+    
+    if (shareUrl) {
+        window.open(shareUrl, '_blank', 'width=600,height=400');
+        toggleShareMenu();
+    }
+}
+
+// Close share menu when clicking outside
+document.addEventListener('click', function(event) {
+    const shareMenu = document.getElementById('shareMenu');
+    const shareBtn = document.querySelector('.share-btn');
+    
+    if (shareMenu && shareBtn) {
+        if (!shareMenu.contains(event.target) && !shareBtn.contains(event.target)) {
+            shareMenu.classList.remove('active');
+        }
+    }
+});
+
 // Close zoom modal on Escape key
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') {

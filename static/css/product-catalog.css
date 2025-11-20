@@ -655,6 +655,69 @@
     font-size: 0.7rem;
 }
 
+/* Quick View Overlay */
+.quick-view-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(59, 130, 246, 0.95);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    z-index: 3;
+}
+
+.product-card:hover .quick-view-overlay {
+    opacity: 1;
+    visibility: visible;
+}
+
+.quick-view-btn {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    color: var(--primary);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    transform: scale(0.9);
+}
+
+.product-card:hover .quick-view-btn {
+    transform: scale(1);
+}
+
+.quick-view-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Pulse Badge Animation */
+.pulse-badge {
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.05);
+    }
+}
+
 /* Product Actions */
 .product-actions {
     display: flex;
@@ -680,11 +743,31 @@
     justify-content: center;
     gap: 0.35rem;
     box-shadow: var(--shadow-sm);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-add-cart::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn-add-cart:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .btn-add-cart:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .btn-add-cart:active {
@@ -711,13 +794,69 @@
     align-items: center;
     justify-content: center;
     font-size: 0.875rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-quick-view::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--primary);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    z-index: -1;
+}
+
+.btn-quick-view:hover::before {
+    transform: scaleX(1);
 }
 
 .btn-quick-view:hover {
-    background: var(--primary);
     color: white;
+    border-color: var(--primary);
     transform: translateY(-2px);
     box-shadow: var(--shadow-sm);
+    z-index: 1;
+}
+
+.btn-wishlist-quick {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: white;
+    border: 2px solid #ef4444;
+    color: #ef4444;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.875rem;
+}
+
+.btn-wishlist-quick:hover {
+    background: #ef4444;
+    color: white;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: var(--shadow-sm);
+}
+
+.btn-wishlist-quick.active {
+    background: #ef4444;
+    color: white;
+}
+
+.btn-wishlist-quick.active i {
+    animation: heartBeat 0.5s ease-in-out;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.2); }
 }
 
 .btn-notify {
@@ -1022,11 +1161,17 @@
     }
     
     .product-actions {
-        flex-direction: column;
+        flex-wrap: wrap;
     }
     
-    .btn-quick-view {
-        width: 100%;
+    .btn-add-cart {
+        flex: 1 1 100%;
+    }
+    
+    .btn-quick-view,
+    .btn-wishlist-quick {
+        flex: 1;
+        width: auto;
     }
     
     .category-pills {
@@ -1037,5 +1182,18 @@
         flex: 1 1 auto;
         min-width: calc(50% - 0.25rem);
         justify-content: center;
+    }
+    
+    .tagline {
+        font-size: 2rem;
+        letter-spacing: 0.12em;
+    }
+    
+    .quick-view-overlay {
+        display: none;
+    }
+    
+    .product-card:active {
+        transform: scale(0.98);
     }
 }

@@ -123,13 +123,21 @@
                 <!-- Badges -->
                 <div class="product-badges">
                     {% if product.discount_percentage > 0 %}
-                        <span class="badge badge-sale">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                        <span class="badge badge-sale pulse-badge"><i class="fas fa-tag"></i> -{{ product.discount_percentage|floatformat:0 }}%</span>
                     {% endif %}
                     {% if product.stock < 10 and product.stock > 0 %}
-                        <span class="badge badge-low">Low Stock</span>
+                        <span class="badge badge-low"><i class="fas fa-exclamation-circle"></i> Only {{ product.stock }} left</span>
                     {% elif product.stock == 0 %}
-                        <span class="badge badge-out">Out of Stock</span>
+                        <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out of Stock</span>
                     {% endif %}
+                </div>
+                
+                <!-- Quick View Overlay -->
+                <div class="quick-view-overlay">
+                    <button class="quick-view-btn" onclick="openProductDetail({{ product.id }}, event)">
+                        <i class="fas fa-eye"></i>
+                        <span>Quick View</span>
+                    </button>
                 </div>
             </div>
 
@@ -176,8 +184,11 @@
                             <i class="fas fa-shopping-cart"></i>
                             <span>Add to Cart</span>
                         </button>
-                        <button class="btn-quick-view" onclick="openProductDetail({{ product.id }}, event)">
+                        <button class="btn-quick-view" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
                             <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
+                            <i class="far fa-heart"></i>
                         </button>
                     {% else %}
                         <button class="btn-notify" onclick="notifyMe(event, {{ product.id }})">
@@ -333,6 +344,28 @@
     function notifyMe(event, productId) {
         event.stopPropagation();
         showNotification('You will be notified when this product is back in stock', 'success');
+    }
+    
+    // Toggle wishlist quick
+    function toggleWishlistQuick(event, productId) {
+        event.stopPropagation();
+        event.preventDefault();
+        
+        const button = event.currentTarget;
+        const icon = button.querySelector('i');
+        
+        // Toggle active state
+        button.classList.toggle('active');
+        
+        if (button.classList.contains('active')) {
+            icon.classList.remove('far');
+            icon.classList.add('fas');
+            showNotification('Added to wishlist!', 'success');
+        } else {
+            icon.classList.remove('fas');
+            icon.classList.add('far');
+            showNotification('Removed from wishlist', 'success');
+        }
     }
 
     // Update cart count
