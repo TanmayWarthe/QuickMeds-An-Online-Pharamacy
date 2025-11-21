@@ -14,7 +14,7 @@
                 </a>
                 {% endblock %}
             </div>
-            
+
             <!-- Center: Main Navigation (Desktop) -->
             <div class="nav-center">
                 {% block navbar_center %}
@@ -34,16 +34,16 @@
                 </nav>
                 {% endblock %}
             </div>
-            
+
             <!-- Right: Actions -->
             <div class="nav-right">
                 {% block navbar_extra_left %}{% endblock %}
-                
+
                 <!-- Search -->
                 <button class="nav-search-btn" id="searchToggle" type="button" aria-label="Search">
                     <i class="fas fa-search"></i>
                 </button>
-                
+
                 {% if user.is_authenticated %}
                 <!-- Cart -->
                 <a href="{% url 'cart' %}" class="nav-cart" aria-label="Shopping cart">
@@ -52,7 +52,7 @@
                     <span class="cart-badge">{{ cart_count }}</span>
                     {% endif %}
                 </a>
-                
+
                 <!-- User Menu -->
                 <div class="dropdown">
                     <button class="user-menu-btn" type="button" aria-label="User menu">
@@ -60,11 +60,16 @@
                     </button>
                     <ul class="dropdown-menu">
                         {% block navbar_user_menu_prepend %}{% endblock %}
-                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user"></i> My Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'orders' %}"><i class="fas fa-box"></i> My Orders</a></li>
+                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user"></i> My
+                                Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'orders' %}"><i class="fas fa-box"></i> My Orders</a>
+                        </li>
                         {% block navbar_user_menu_append %}{% endblock %}
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>
+                                Logout</a></li>
                     </ul>
                 </div>
                 {% else %}
@@ -76,14 +81,15 @@
             </div>
         </div>
     </div>
-    
+
     <!-- Search Overlay -->
     <div class="search-overlay" id="searchOverlay">
         <div class="container">
             <div class="search-container">
                 <form action="/search/" method="GET" class="search-form">
                     <i class="fas fa-search search-icon"></i>
-                    <input type="text" name="q" class="search-input" placeholder="Search medicines, health products..." autocomplete="off" autofocus>
+                    <input type="text" name="q" class="search-input" placeholder="Search medicines, health products..."
+                        autocomplete="off" autofocus>
                     <button type="button" class="search-close" id="searchClose">
                         <i class="fas fa-times"></i>
                     </button>
@@ -94,58 +100,70 @@
 </nav>
 
 <script>
-// Navbar functionality
-document.addEventListener('DOMContentLoaded', function() {
-    // User menu dropdown
-    const btn = document.querySelector('.user-menu-btn');
-    const menu = document.querySelector('.dropdown-menu');
-    
-    if (btn && menu) {
-        btn.onclick = function(e) {
-            e.stopPropagation();
-            menu.classList.toggle('show');
-        };
-        
-        document.onclick = function(e) {
-            if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.remove('show');
-            }
-        };
-    }
-    
-    // Search overlay toggle
-    const searchToggle = document.getElementById('searchToggle');
-    const searchOverlay = document.getElementById('searchOverlay');
-    const searchClose = document.getElementById('searchClose');
-    const searchInput = document.querySelector('.search-input');
-    
-    function toggleSearch(force) {
-        const shouldOpen = typeof force === 'boolean' ? force : !searchOverlay.classList.contains('active');
-        if (searchOverlay) {
-            searchOverlay.classList.toggle('active', shouldOpen);
-            if (shouldOpen && searchInput) {
-                setTimeout(() => searchInput.focus(), 300);
+    // Navbar functionality
+    document.addEventListener('DOMContentLoaded', function () {
+        // User menu dropdown
+        const dropdown = document.querySelector('.nav-right .dropdown');
+
+        if (dropdown) {
+            const btn = dropdown.querySelector('.user-menu-btn');
+            const menu = dropdown.querySelector('.dropdown-menu');
+
+            if (btn && menu) {
+                // Toggle dropdown on button click
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    menu.classList.toggle('show');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function (e) {
+                    if (!dropdown.contains(e.target)) {
+                        menu.classList.remove('show');
+                    }
+                });
+
+                // Prevent dropdown from closing when clicking inside menu
+                menu.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                });
             }
         }
-    }
-    
-    if (searchToggle) searchToggle.addEventListener('click', () => toggleSearch());
-    if (searchClose) searchClose.addEventListener('click', () => toggleSearch(false));
-    
-    // Close search on ESC key
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('active')) {
-            toggleSearch(false);
+
+        // Search overlay toggle
+        const searchToggle = document.getElementById('searchToggle');
+        const searchOverlay = document.getElementById('searchOverlay');
+        const searchClose = document.getElementById('searchClose');
+        const searchInput = document.querySelector('.search-input');
+
+        function toggleSearch(force) {
+            const shouldOpen = typeof force === 'boolean' ? force : !searchOverlay.classList.contains('active');
+            if (searchOverlay) {
+                searchOverlay.classList.toggle('active', shouldOpen);
+                if (shouldOpen && searchInput) {
+                    setTimeout(() => searchInput.focus(), 300);
+                }
+            }
         }
-    });
-    
-    // Close search when clicking outside
-    if (searchOverlay) {
-        searchOverlay.addEventListener('click', (e) => {
-            if (e.target === searchOverlay) {
+
+        if (searchToggle) searchToggle.addEventListener('click', () => toggleSearch());
+        if (searchClose) searchClose.addEventListener('click', () => toggleSearch(false));
+
+        // Close search on ESC key
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('active')) {
                 toggleSearch(false);
             }
         });
-    }
-});
+
+        // Close search when clicking outside
+        if (searchOverlay) {
+            searchOverlay.addEventListener('click', (e) => {
+                if (e.target === searchOverlay) {
+                    toggleSearch(false);
+                }
+            });
+        }
+    });
 </script>
