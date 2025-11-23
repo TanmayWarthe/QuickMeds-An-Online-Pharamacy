@@ -131,9 +131,10 @@ if USE_MYSQL or not DEBUG:
     if database_url:
         import dj_database_url
         db_config = dj_database_url.parse(database_url)
-        # MySQL URLs use mysql:// scheme
-        if db_config.get('ENGINE') == 'django.db.backends.mysql' or 'mysql' in database_url.lower():
-            DATABASES['default'].update(db_config)
+        DATABASES['default'] = db_config
+        
+        # If it's MySQL, ensure we have the options
+        if db_config['ENGINE'] == 'django.db.backends.mysql':
             if 'OPTIONS' not in DATABASES['default']:
                 DATABASES['default']['OPTIONS'] = {
                     'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
