@@ -30,10 +30,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 if DEBUG:
     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 else:
-    # In production, allow all subdomains of onrender.com
+    # Production hosts: keep conservative defaults (no provider-specific hostnames)
     ALLOWED_HOSTS = [
-        'dawai-ki-dukan-j67h.onrender.com',
-        '.onrender.com',  # This allows all subdomains of onrender.com
         'localhost',
         '127.0.0.1'
     ]

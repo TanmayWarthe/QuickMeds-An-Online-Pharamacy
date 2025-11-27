@@ -292,6 +292,11 @@
                     </div>
                 </div>
             </div>
+            <!-- Hidden fields for Razorpay response -->
+            <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+            <input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
+            <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+
         </form>
     </div>
 </div>
@@ -349,10 +354,18 @@ document.getElementById('checkoutForm').addEventListener('submit', function(e) {
                     description: 'Medicine Purchase',
                     order_id: data.order_id,
                     handler: function(response) {
+                        // Set hidden inputs as a reliable backup (so server sees them if form submitted)
+                        var paymentInput = document.getElementById('razorpay_payment_id');
+                        var orderInput = document.getElementById('razorpay_order_id');
+                        var sigInput = document.getElementById('razorpay_signature');
+                        if (paymentInput) paymentInput.value = response.razorpay_payment_id;
+                        if (orderInput) orderInput.value = response.razorpay_order_id;
+                        if (sigInput) sigInput.value = response.razorpay_signature;
+
                         formData.append('razorpay_payment_id', response.razorpay_payment_id);
                         formData.append('razorpay_order_id', response.razorpay_order_id);
                         formData.append('razorpay_signature', response.razorpay_signature);
-                        
+
                         fetch('/process-payment/', {
                             method: 'POST',
                             body: formData,
@@ -442,8 +455,4 @@ function getFieldValue(fieldId) {
 }
 </script>
 
-<!-- Hidden fields for Razorpay response -->
-<input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
-<input type="hidden" name="razorpay_order_id" id="razorpay_order_id">
-<input type="hidden" name="razorpay_signature" id="razorpay_signature">
 {% endblock %}
