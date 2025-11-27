@@ -27,14 +27,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Update ALLOWED_HOSTS configuration
-if DEBUG:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1']
-else:
-    # Production hosts: keep conservative defaults (no provider-specific hostnames)
-    ALLOWED_HOSTS = [
-        'localhost',
-        '127.0.0.1'
-    ]
+ALLOWED_HOSTS = ['*']
 
 # Security settings for production
 if not DEBUG:
@@ -184,9 +177,9 @@ USE_TZ = True
 
 # Make sure your settings.py has these configurations
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'static')
+    BASE_DIR / "static"
 ]
 
 # Media files
