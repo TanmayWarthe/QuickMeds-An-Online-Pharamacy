@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Users - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    body { margin: 0; padding: 0; background: #f8fafc; }
+    .main-content { padding: 0; margin: 0; }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h4>
+                <i class="fas fa-shield-alt"></i>
+                Admin <span class="admin-badge">PANEL</span>
+            </h4>
+        </div>
+        <nav class="admin-nav">
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_products' %}">
+                    <i class="fas fa-pills"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_orders' %}">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link active" href="{% url 'admin_users' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_categories' %}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_contacts' %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </div>
+            <div class="admin-nav-divider"></div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>View Site</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2>Manage Users</h2>
+            <div style="color: #64748b; font-size: 14px;">
+                <i class="fas fa-users"></i> {{ users.count }} total users
+            </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5><i class="fas fa-users me-2"></i>All Users</h5>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Full Name</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Last Login</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for user in users %}
+                            <tr>
+                                <td><strong>{{ user.username }}</strong></td>
+                                <td>{{ user.email }}</td>
+                                <td>{{ user.get_full_name|default:"-" }}</td>
+                                <td>
+                                    {% if user.is_superuser %}
+                                    <span class="badge-admin badge-danger">
+                                        <i class="fas fa-crown"></i> Superuser
+                                    </span>
+                                    {% elif user.is_staff %}
+                                    <span class="badge-admin badge-warning">
+                                        <i class="fas fa-user-shield"></i> Staff
+                                    </span>
+                                    {% else %}
+                                    <span class="badge-admin badge-primary">
+                                        <i class="fas fa-user"></i> Customer
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if user.is_active %}
+                                    <span class="badge-admin badge-success">
+                                        <i class="fas fa-check-circle"></i> Active
+                                    </span>
+                                    {% else %}
+                                    <span class="badge-admin badge-secondary">
+                                        <i class="fas fa-ban"></i> Inactive
+                                    </span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ user.date_joined|date:"d M, Y" }}</td>
+                                <td>
+                                    {% if user.last_login %}
+                                    {{ user.last_login|date:"d M, Y H:i" }}
+                                    {% else %}
+                                    <span style="color: #94a3b8;">Never</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="7">
+                                    <div class="empty-state">
+                                        <i class="fas fa-users-slash"></i>
+                                        <p>No users found</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Statistics -->
+        <div class="stats-grid" style="margin-top: 30px;">
+            <div class="stat-card primary">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Total Users</h6>
+                        <div class="stat-card-value">{{ users.count }}</div>
+                        <p class="stat-card-subtitle">Registered accounts</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Active Users</h6>
+                        <div class="stat-card-value">{{ users|length }}</div>
+                        <p class="stat-card-subtitle">Currently active</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-user-check"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Staff Members</h6>
+                        <div class="stat-card-value">{{ staff_count }}</div>
+                        <p class="stat-card-subtitle">Admin access</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">New This Month</h6>
+                        <div class="stat-card-value">0</div>
+                        <p class="stat-card-subtitle">Recent signups</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock content_wrapper %}

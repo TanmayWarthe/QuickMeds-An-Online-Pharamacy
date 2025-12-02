@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    body { margin: 0; padding: 0; background: #f8fafc; }
+    .main-content { padding: 0; margin: 0; }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h4>
+                <i class="fas fa-shield-alt"></i>
+                Admin <span class="admin-badge">PANEL</span>
+            </h4>
+        </div>
+        <nav class="admin-nav">
+            <div class="admin-nav-item">
+                <a class="admin-nav-link active" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_products' %}">
+                    <i class="fas fa-pills"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_orders' %}">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_users' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_categories' %}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_contacts' %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </div>
+            <div class="admin-nav-divider"></div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>View Site</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2>Dashboard Overview</h2>
+            <div style="color: #64748b; font-size: 14px;">
+                <i class="fas fa-user-circle"></i> {{ request.user.username }}
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card primary">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Total Products</h6>
+                        <div class="stat-card-value">{{ total_products }}</div>
+                        <p class="stat-card-subtitle">Active in store</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-pills"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card success">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Total Orders</h6>
+                        <div class="stat-card-value">{{ total_orders }}</div>
+                        <p class="stat-card-subtitle">All time orders</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-shopping-bag"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card warning">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Pending Orders</h6>
+                        <div class="stat-card-value">{{ pending_orders }}</div>
+                        <p class="stat-card-subtitle">Need attention</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="stat-card info">
+                <div class="stat-card-header">
+                    <div>
+                        <h6 class="stat-card-title">Total Users</h6>
+                        <div class="stat-card-value">{{ total_users }}</div>
+                        <p class="stat-card-subtitle">Registered users</p>
+                    </div>
+                    <div class="stat-card-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5><i class="fas fa-shopping-bag me-2"></i>Recent Orders</h5>
+                <a href="{% url 'admin_orders' %}" class="btn-admin btn-admin-sm btn-admin-primary">
+                    View All <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td>{{ order.user.email }}</td>
+                                <td><strong>₹{{ order.total_amount }}</strong></td>
+                                <td>
+                                    {% if order.order_status == 'PENDING' %}
+                                    <span class="badge-admin badge-warning">Pending</span>
+                                    {% elif order.order_status == 'CONFIRMED' %}
+                                    <span class="badge-admin badge-primary">Confirmed</span>
+                                    {% elif order.order_status == 'DELIVERED' %}
+                                    <span class="badge-admin badge-success">Delivered</span>
+                                    {% elif order.order_status == 'CANCELLED' %}
+                                    <span class="badge-admin badge-danger">Cancelled</span>
+                                    {% else %}
+                                    <span class="badge-admin badge-secondary">{{ order.order_status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ order.created_at|date:"d M, Y" }}</td>
+                                <td>
+                                    <a href="{% url 'admin_order_detail' order.id %}" class="btn-admin btn-admin-sm btn-admin-primary">
+                                        <i class="fas fa-eye"></i> View
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-inbox"></i>
+                                        <p>No orders yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Low Stock Products -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert</h5>
+                <a href="{% url 'admin_products' %}" class="btn-admin btn-admin-sm btn-admin-primary">
+                    Manage Stock <i class="fas fa-arrow-right"></i>
+                </a>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Category</th>
+                                <th>Stock</th>
+                                <th>Price</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in low_stock_products %}
+                            <tr>
+                                <td><strong>{{ product.name }}</strong></td>
+                                <td>{{ product.category.name }}</td>
+                                <td>
+                                    {% if product.stock <= 5 %}
+                                    <span class="badge-admin badge-danger">{{ product.stock }} left</span>
+                                    {% else %}
+                                    <span class="badge-admin badge-warning">{{ product.stock }} left</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>₹{{ product.price }}</strong></td>
+                                <td>
+                                    <a href="{% url 'admin_product_edit' product.id %}" class="btn-admin btn-admin-sm btn-admin-success">
+                                        <i class="fas fa-box"></i> Restock
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-check-circle"></i>
+                                        <p>All products are well stocked!</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock content_wrapper %}

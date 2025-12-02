@@ -96,12 +96,29 @@ WSGI_APPLICATION = 'quickmeds.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# MySQL database configuration for both development and production
-# For development: Set DB_ENGINE=mysql to use MySQL, otherwise falls back to SQLite
-USE_MYSQL = config('USE_MYSQL', default=False, cast=bool)
 
-if USE_MYSQL or not DEBUG:
-    # MySQL database configuration
+# Database configuration: supports PostgreSQL, MySQL, SQLite, and DATABASE_URL
+USE_MYSQL = config('USE_MYSQL', default=False, cast=bool)
+USE_POSTGRES = config('USE_POSTGRES', default=False, cast=bool)
+database_url = config('DATABASE_URL', default=None)
+
+if database_url:
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.parse(database_url)
+    }
+elif USE_POSTGRES:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': config('DB_NAME', default='quickmeds_db'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default='5432'),
+        }
+    }
+elif USE_MYSQL or not DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.mysql',
@@ -116,23 +133,7 @@ if USE_MYSQL or not DEBUG:
             },
         }
     }
-    
-    # Allow DATABASE_URL to override settings (useful for production and development)
-    database_url = config('DATABASE_URL', default=None)
-    if database_url:
-        import dj_database_url
-        db_config = dj_database_url.parse(database_url)
-        DATABASES['default'] = db_config
-        
-        # If it's MySQL, ensure we have the options
-        if db_config['ENGINE'] == 'django.db.backends.mysql':
-            if 'OPTIONS' not in DATABASES['default']:
-                DATABASES['default']['OPTIONS'] = {
-                    'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-                    'charset': 'utf8mb4',
-                }
 else:
-    # SQLite for local development (when USE_MYSQL=False)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',

@@ -1638,5 +1638,214 @@ def delete_order(request, order_id):
             'message': 'Failed to delete order'
         }, status=500)
 
+
+# ==================== ADMIN DASHBOARD VIEWS ====================
+
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import user_passes_test
+
+def is_staff_or_superuser(user):
+    return user.is_staff or user.is_superuser
+
+def admin_login(request):
+    """Admin login view - separate from user login"""
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        
+        try:
+            # Get all users with this email and filter for admin users
+            users_with_email = User.objects.filter(email=email, is_staff=True) | User.objects.filter(email=email, is_superuser=True)
+            
+            if not users_with_email.exists():
+                messages.error(request, 'Invalid email or password.')
+            else:
+                # Try to authenticate with each user's username
+                authenticated = False
+                for user_obj in users_with_email:
+                    user = authenticate(request, username=user_obj.username, password=password)
+                    if user is not None:
+                        login(request, user)
+                        messages.success(request, f'Welcome back, {user.get_full_name() or user.username}!')
+                        authenticated = True
+                        return redirect('admin_dashboard')
+                
+                if not authenticated:
+                    messages.error(request, 'Invalid email or password.')
+                    
+        except Exception as e:
+            logger.error(f'Admin login error: {str(e)}')
+            messages.error(request, 'An error occurred. Please try again.')
+    
+    # If user is already logged in and is admin, redirect to dashboard
+    if request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser):
+        return redirect('admin_dashboard')
+    
+    return render(request, 'admin_login.html')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_dashboard(request):
+    """Admin dashboard overview"""
+    total_products = Product.objects.count()
+    total_orders = Order.objects.count()
+    pending_orders = Order.objects.filter(order_status='PENDING').count()
+    total_users = User.objects.count()
+    
+    recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
+    low_stock_products = Product.objects.filter(stock__lte=10).order_by('stock')[:10]
+    
+    context = {
+        'total_products': total_products,
+        'total_orders': total_orders,
+        'pending_orders': pending_orders,
+        'total_users': total_users,
+        'recent_orders': recent_orders,
+        'low_stock_products': low_stock_products,
+    }
+    return render(request, 'admin_dashboard.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_products(request):
+    """Manage products"""
+    products = Product.objects.select_related('category').all()
+    categories = Category.objects.all()
+    
+    # Filtering
+    search = request.GET.get('search')
+    category = request.GET.get('category')
+    stock_status = request.GET.get('stock_status')
+    
+    if search:
+        products = products.filter(Q(name__icontains=search) | Q(description__icontains=search))
+    
+    if category:
+        products = products.filter(category_id=category)
+    
+    if stock_status == 'in_stock':
+        products = products.filter(in_stock=True, stock__gt=0)
+    elif stock_status == 'out_of_stock':
+        products = products.filter(Q(in_stock=False) | Q(stock=0))
+    elif stock_status == 'low_stock':
+        products = products.filter(stock__lte=10, stock__gt=0)
+    
+    context = {
+        'products': products,
+        'categories': categories,
+    }
+    return render(request, 'admin_products.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_orders(request):
+    """Manage orders"""
+    orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')
+    
+    # Filtering
+    status = request.GET.get('status')
+    if status:
+        orders = orders.filter(order_status=status)
+    
+    context = {
+        'orders': orders,
+    }
+    return render(request, 'admin_orders.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_users(request):
+    """Manage users"""
+    users = User.objects.select_related('userprofile').all().order_by('-date_joined')
+    staff_count = User.objects.filter(is_staff=True).count()
+    
+    context = {
+        'users': users,
+        'staff_count': staff_count,
+    }
+    return render(request, 'admin_users.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_categories(request):
+    """Manage categories"""
+    categories = Category.objects.all()
+    
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'admin_categories.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_contacts(request):
+    """View contact messages"""
+    from .models import Contact
+    contacts = Contact.objects.all().order_by('-created_at')
+    
+    context = {
+        'contacts': contacts,
+    }
+    return render(request, 'admin_contacts.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_product_add(request):
+    """Add new product"""
+    if request.method == 'POST':
+        # Handle product creation
+        pass
+    
+    categories = Category.objects.all()
+    context = {
+        'categories': categories,
+    }
+    return render(request, 'admin_product_form.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_product_edit(request, product_id):
+    """Edit product"""
+    product = get_object_or_404(Product, id=product_id)
+    
+    if request.method == 'POST':
+        # Handle product update
+        pass
+    
+    categories = Category.objects.all()
+    context = {
+        'product': product,
+        'categories': categories,
+    }
+    return render(request, 'admin_product_form.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_product_delete(request, product_id):
+    """Delete product"""
+    product = get_object_or_404(Product, id=product_id)
+    product.delete()
+    messages.success(request, 'Product deleted successfully!')
+    return redirect('admin_products')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_order_detail(request, order_id):
+    """View order details"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    if request.method == 'POST':
+        # Update order status
+        new_status = request.POST.get('order_status')
+        if new_status:
+            order.order_status = new_status
+            order.save()
+            messages.success(request, 'Order status updated!')
+    
+    context = {
+        'order': order,
+    }
+    return render(request, 'admin_order_detail.html', context)
+
 def success_view(request):
     return render(request, 'success.html')  # Create a success.html template

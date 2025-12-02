@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Login - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/login.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
+<style>
+/* Override base template styles for login page */
+body {
+	padding: 0;
+	margin: 0;
+}
+.main-content {
+	padding: 0;
+	margin: 0;
+	width: 100%;
+}
+.admin-login-badge {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+</style>
+{% endblock %}
+
+{% block header %}
+<!-- No navbar on login page -->
+{% endblock %}
+
+{% block footer %}
+<!-- No footer on login page -->
+{% endblock %}
+
+{% block content_wrapper %}
+<div class="login-wrapper">
+	<div class="container" style="max-width: 450px;">
+		<div class="form-container" style="position: relative; width: 100%; opacity: 1;">
+			<form id="adminLoginForm" method="POST" action="{% url 'admin_login' %}">
+				{% csrf_token %}
+				<div class="admin-login-badge">
+					<i class="fas fa-shield-alt"></i>
+					<span>Admin Panel Login</span>
+				</div>
+				<h1>Administrator Access</h1>
+				<span>Enter your admin credentials</span>
+				
+				{% if messages %}
+				<div style="width: 100%; margin: 15px 0;">
+					{% for message in messages %}
+					<div class="alert alert-{{ message.tags }}" style="margin: 5px 0;">
+						{{ message }}
+					</div>
+					{% endfor %}
+				</div>
+				{% endif %}
+				
+				<input type="email" name="email" placeholder="Admin Email" required autocomplete="email" />
+				<div class="password-wrapper">
+					<input type="password" name="password" id="admin_password" placeholder="Password" required autocomplete="current-password" />
+					<button type="button" class="password-toggle" onclick="togglePassword('admin_password')">
+						<i class="fas fa-eye" id="admin_password-eye"></i>
+					</button>
+				</div>
+				<button type="submit" class="sign-button">
+					<i class="fas fa-sign-in-alt" style="margin-right: 8px;"></i>
+					SIGN IN AS ADMIN
+				</button>
+				<div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+					<a href="{% url 'login' %}" style="color: #666; font-size: 14px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px;">
+						<i class="fas fa-arrow-left"></i>
+						<span>Back to User Login</span>
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<script>
+function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById(inputId + '-eye');
+    
+    if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+    } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+    }
+}
+</script>
+{% endblock content_wrapper %}

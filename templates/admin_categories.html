@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Categories - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    body { margin: 0; padding: 0; background: #f8fafc; }
+    .main-content { padding: 0; margin: 0; }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h4>
+                <i class="fas fa-shield-alt"></i>
+                Admin <span class="admin-badge">PANEL</span>
+            </h4>
+        </div>
+        <nav class="admin-nav">
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_products' %}">
+                    <i class="fas fa-pills"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_orders' %}">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_users' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link active" href="{% url 'admin_categories' %}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_contacts' %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </div>
+            <div class="admin-nav-divider"></div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>View Site</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2>Manage Categories</h2>
+            <button class="btn-admin btn-admin-success" onclick="alert('Add category form coming soon!')">
+                <i class="fas fa-plus"></i> Add New Category
+            </button>
+        </div>
+
+        <!-- Categories Grid -->
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4">
+                <div class="content-card">
+                    <div class="content-card-body">
+                        <div style="display: flex; justify-content: space-between; align-items: start;">
+                            <div>
+                                <h5 style="color: #1e293b; margin-bottom: 8px;">
+                                    <i class="fas fa-tag" style="color: #2563eb;"></i>
+                                    {{ category.name }}
+                                </h5>
+                                <p style="color: #64748b; font-size: 14px; margin-bottom: 12px;">
+                                    {{ category.products.count }} products
+                                </p>
+                                <div>
+                                    <button class="btn-admin btn-admin-sm btn-admin-primary" onclick="alert('Edit form coming soon!')">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </button>
+                                    <button class="btn-admin btn-admin-sm" style="background: #ef4444; color: #fff; margin-left: 5px;" onclick="return confirm('Delete this category?')">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="content-card">
+                    <div class="content-card-body">
+                        <div class="empty-state">
+                            <i class="fas fa-tags"></i>
+                            <p>No categories found</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+{% endblock content_wrapper %}

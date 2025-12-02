@@ -1,63 +1,69 @@
-# Environment variables
+# =============================
+# Django/Python .gitignore
+# =============================
+
+# --- Environment Variables ---
 .env
+.env.*
 
-# Database
-db.sqlite3
-*.sqlite3
-
-# Python
+# --- Python Bytecode & Caches ---
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# --- Virtual Environments ---
 env/
+.env/
+venv/
+.venv/
+ENV/
+
+# --- Build & Distribution ---
 build/
-develop-eggs/
 dist/
 downloads/
+sdist/
+develop-eggs/
 eggs/
 .eggs/
 lib/
 lib64/
 parts/
-sdist/
 var/
 *.egg-info/
 .installed.cfg
 *.egg
 
-# Django
+# --- Django Database & Logs ---
+db.sqlite3
+*.sqlite3
+db.sqlite3-journal
 # *.log
 # local_settings.py
-db.sqlite3-journal
 
-# Virtual Environment
-.venv/
-venv/
-ENV/
-
-# IDE
+# --- IDE & Editor Files ---
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
 
-# OS
+# --- OS Generated Files ---
 .DS_Store
 Thumbs.db
 
-# Deployment platforms
+# --- Deployment/Platform Files ---
 .vercel/
 .vercel
 
-# Empty/unused directories
+# --- Unused/Empty Directories (if not used in repo) ---
 config/
 core/
 requirements/
 tests/
 
-# Media and static files (optional - uncomment if not tracking)
+# --- Media & Static Files (uncomment if not tracked in git) ---
 # media/
 # staticfiles/

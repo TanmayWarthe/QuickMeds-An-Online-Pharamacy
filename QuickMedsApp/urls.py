@@ -47,4 +47,17 @@ urlpatterns = [
     path('address/<int:address_id>/set-default/', views.set_default_address, name='set_default_address'),
     path('contact/', views.contact_view, name='contact'),
     path('success/', views.success_view, name='success'),
+    
+    # Admin Dashboard URLs
+    path('admin-panel/login/', views.admin_login, name='admin_login'),
+    path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-panel/products/', views.admin_products, name='admin_products'),
+    path('admin-panel/products/add/', views.admin_product_add, name='admin_product_add'),
+    path('admin-panel/products/<int:product_id>/edit/', views.admin_product_edit, name='admin_product_edit'),
+    path('admin-panel/products/<int:product_id>/delete/', views.admin_product_delete, name='admin_product_delete'),
+    path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
+    path('admin-panel/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
+    path('admin-panel/users/', views.admin_users, name='admin_users'),
+    path('admin-panel/categories/', views.admin_categories, name='admin_categories'),
+    path('admin-panel/contacts/', views.admin_contacts, name='admin_contacts'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

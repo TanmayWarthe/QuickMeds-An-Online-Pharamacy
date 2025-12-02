@@ -33,13 +33,25 @@ SECURE_HSTS_PRELOAD = True
 if not SECRET_KEY or SECRET_KEY.startswith("dev-secret-key"):
     raise RuntimeError("DJANGO_SECRET_KEY must be set to a strong value in production.")
 
-# Database: Prefer DATABASE_URL, fallback to MySQL env vars
+# Database: Prefer DATABASE_URL, fallback to PostgreSQL or MySQL env vars
 database_url = config("DATABASE_URL", default=None)
+USE_POSTGRES = config("USE_POSTGRES", default=False, cast=bool)
+USE_MYSQL = config("USE_MYSQL", default=False, cast=bool)
 if database_url:
     import dj_database_url
-
     DATABASES = {  # noqa: F405
         "default": dj_database_url.parse(database_url, conn_max_age=600, ssl_require=False)
+    }
+elif USE_POSTGRES:
+    DATABASES = {  # noqa: F405
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="quickmeds_db"),
+            "USER": config("DB_USER", default="postgres"),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default="127.0.0.1"),
+            "PORT": config("DB_PORT", default="5432"),
+        }
     }
 else:
     DATABASES = {  # noqa: F405

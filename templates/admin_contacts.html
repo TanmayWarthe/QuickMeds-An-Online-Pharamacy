@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact Messages - Admin{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    body { margin: 0; padding: 0; background: #f8fafc; }
+    .main-content { padding: 0; margin: 0; }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h4>
+                <i class="fas fa-shield-alt"></i>
+                Admin <span class="admin-badge">PANEL</span>
+            </h4>
+        </div>
+        <nav class="admin-nav">
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_products' %}">
+                    <i class="fas fa-pills"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_orders' %}">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_users' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_categories' %}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link active" href="{% url 'admin_contacts' %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </div>
+            <div class="admin-nav-divider"></div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>View Site</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2>Contact Messages</h2>
+            <div style="color: #64748b; font-size: 14px;">
+                <i class="fas fa-envelope"></i> {{ contacts.count }} messages
+            </div>
+        </div>
+
+        <!-- Messages Table -->
+        <div class="content-card">
+            <div class="content-card-header">
+                <h5><i class="fas fa-envelope me-2"></i>All Messages</h5>
+            </div>
+            <div class="content-card-body">
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Message</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contact in contacts %}
+                            <tr>
+                                <td><strong>{{ contact.name }}</strong></td>
+                                <td>{{ contact.email }}</td>
+                                <td>{{ contact.phone|default:"-" }}</td>
+                                <td>
+                                    <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                        {{ contact.message }}
+                                    </div>
+                                </td>
+                                <td>{{ contact.created_at|date:"d M, Y H:i" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5">
+                                    <div class="empty-state">
+                                        <i class="fas fa-envelope-open"></i>
+                                        <p>No messages yet</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock content_wrapper %}

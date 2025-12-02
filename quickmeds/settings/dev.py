@@ -12,8 +12,9 @@ INSTALLED_APPS += [  # type: ignore # noqa: F405
     "whitenoise.runserver_nostatic",
 ]
 
-# Database: use SQLite by default; optional MySQL if USE_MYSQL=True
+# Database: use SQLite by default; optional MySQL or PostgreSQL if enabled
 USE_MYSQL = config("USE_MYSQL", default=False, cast=bool)
+USE_POSTGRES = config("USE_POSTGRES", default=False, cast=bool)
 
 if USE_MYSQL:
     DATABASES = {  # noqa: F405
@@ -28,6 +29,17 @@ if USE_MYSQL:
                 "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
                 "charset": "utf8mb4",
             },
+        }
+    }
+elif USE_POSTGRES:
+    DATABASES = {  # noqa: F405
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="quickmeds_db"),
+            "USER": config("DB_USER", default="postgres"),
+            "PASSWORD": config("DB_PASSWORD", default=""),
+            "HOST": config("DB_HOST", default="127.0.0.1"),
+            "PORT": config("DB_PORT", default="5432"),
         }
     }
 else:
