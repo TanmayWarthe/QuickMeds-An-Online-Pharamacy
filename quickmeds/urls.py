@@ -23,7 +23,7 @@ from django.templatetags.static import static as static_url
 
 urlpatterns = [
     # Serve a favicon to avoid 404s; points to static asset
-    path('favicon.ico', RedirectView.as_view(url=static_url('img/medicines-icon.png'), permanent=True)),
+    path('favicon.ico', RedirectView.as_view(url=static_url('img/logo.png'), permanent=True)),
     path('admin/', admin.site.urls),
     path('', include('QuickMedsApp.urls')),
 ]
