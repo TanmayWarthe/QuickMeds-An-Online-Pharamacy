@@ -16,23 +16,9 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
 <style>
-    /* Cleaner navbar for product detail */
-    .modern-navbar {
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(10px);
-        border-bottom: 1px solid #e0e0e0;
-    }
-    
+    /* Product detail specific styles - navbar styles in layout.css */
     .nav-center {
-        flex: 1;
-        display: flex;
         justify-content: center;
-    }
-    
-    .main-nav .nav-link {
-        padding: 10px 20px;
-        border-radius: 8px;
-        transition: all 0.3s ease;
     }
     
     .main-nav .nav-link:hover {

@@ -67,3 +67,5 @@ tests/
 # --- Media & Static Files (uncomment if not tracked in git) ---
 # media/
 # staticfiles/
+
+RENDER_ENV_PRODUCTION.txt

@@ -1,19 +1,31 @@
-/* Global Layout: Professional Navbar, Sidebar, Footer */
-/* Depends on base theme variables in theme.css */
+/* ============================================================================
+   GLOBAL LAYOUT COMPONENTS - SINGLE SOURCE OF TRUTH
+   ============================================================================
+   
+   This file defines all layout components (Navbar, Sidebar, Footer) used 
+   across the entire application. 
+   
+   IMPORTANT - CONSISTENCY RULES:
+   1. All navbar styles are defined HERE ONLY - do not duplicate in other CSS files
+   2. Uses theme variables from theme.css for colors (--primary, --dark, etc.)
+   3. The navbar is included via {% include 'partials/navbar.html' %} in base.html
+   4. To customize navbar for specific pages, use {% block navbar_center %} etc.
+   5. DO NOT add inline <style> tags that override navbar - extend blocks instead
+   
+   Dependencies: theme.css (must be loaded before this file)
+   ============================================================================ */
 
-/* Navbar - Professional Design */
-.modern-navbar {background: var(--primary-contrast); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); position: sticky; top:0; z-index:1200; backdrop-filter: blur(12px); height: var(--navbar-height);} 
-.navbar-content {display:flex; align-items:center; justify-content:space-between; padding:1.25rem 0; height: 100%; gap: 3rem;}
+/* Navbar - Professional Design with Optimized Logo */
+.modern-navbar {background: var(--primary-contrast); border-bottom: 1px solid var(--border); box-shadow: var(--shadow-sm); position: sticky; top:0; z-index:1200; backdrop-filter: blur(12px);}
+.navbar-content {display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0; height: 100%; gap: 2rem;}
 .brand-group {display:flex; align-items:center; margin-left: -0.5rem;}
 .sidebar-toggle {display: none;}
 .toggle-icon {display: none;}
-.brand-logo {display:flex; align-items:center; gap:.875rem; text-decoration:none; transition: opacity .25s ease;}
-.brand-logo:hover {opacity: 0.85;}
-.logo-icon {width:44px; height:44px; background:linear-gradient(135deg, var(--primary), var(--primary-dark)); border-radius:14px; display:flex; align-items:center; justify-content:center; padding:10px; box-shadow: var(--shadow-md);}
-.logo-icon img {width:100%; height:100%; object-fit:contain; filter:brightness(0) invert(1);} 
-.brand-name {font-size:1.625rem; font-weight:700; color: var(--dark); letter-spacing: -0.02em; line-height: 1;} 
-
-/* Main Navigation - Horizontal Menu (Desktop) */
+.brand-logo {display:flex; align-items:center; gap:0.875rem; text-decoration:none; transition: all .3s ease;}
+.brand-logo:hover {transform: translateY(-1px); opacity: 0.95;}
+.logo-icon {display: none;}
+.logo-icon img {display: none;}
+.brand-name {font-size:1.5rem; font-weight:700; color: var(--dark); letter-spacing: -0.02em; line-height: 1;}/* Main Navigation - Horizontal Menu (Desktop) */
 .nav-center {flex: 1; display:flex; justify-content:flex-start; margin-left: 2rem; max-width: 500px;}
 .main-nav {display:flex; align-items:center; gap:.5rem;}
 .nav-link {display:flex; align-items:center; gap:.625rem; padding:.75rem 1.25rem; color: var(--dark-lighter); text-decoration:none; border-radius:10px; transition:all .25s cubic-bezier(0.4, 0, 0.2, 1); font-weight:600; font-size:.9375rem; letter-spacing: -0.01em; position: relative; border: 1px solid transparent;}
@@ -129,7 +141,8 @@ body.sidebar-open {overflow: hidden;}
 
 @media (max-width: 576px) {
   .brand-name {display: none;}
-  .logo-icon {width: 40px; height: 40px;}
+  .logo-icon {display: none;}
+  .brand-name {font-size: 1.25rem;}
   .sidebar {width: 280px; left: -280px;}
   .nav-cart {width: 44px; height: 44px;}
   .user-menu-btn {width: 44px; height: 44px;}

@@ -12,54 +12,7 @@
 <!-- Notification Container -->
 <div class="notification" id="notification" style="display: none;"></div>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg">
-    <div class="container-fluid px-4">
-        <div class="nav-start">
-            <div class="brand-section">
-                <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle navigation menu" type="button">
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                    <span class="toggle-icon"></span>
-                </button>
-                <div class="logo-wrapper">
-                    <img src="{% static 'img/medicines-icon.png' %}" class="nav-logo" alt="">
-                </div>
-                <a class="navbar-brand" href="#">QuickMeds</a>
-            </div>
-        </div>
-        
-        <div class="nav-actions">
-            <a href="{% url 'product' %}" class="quick-order-btn">
-                <i class="fas fa-bolt"></i>
-                <span>Quick Order</span>
-            </a>
-            {% if user.is_authenticated %}
-            <div class="nav-icons">
-                <a href="{% url 'cart' %}" class="icon-btn cart-icon">
-                    <i class="fa fa-shopping-cart"></i>
-                    <span class="badge">{{ cart_count|default:0 }}</span>
-                </a>
-                <div class="dropdown">
-                    <button class="icon-btn user-icon" type="button" aria-expanded="false" aria-label="User menu">
-                        <i class="fa fa-user"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="{% url 'profile' %}">My Profile</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
-                    </ul>
-                </div>
-            </div>
-            {% else %}
-            <div class="auth-buttons">
-                <a href="{% url 'login' %}" class="auth-btn login-btn">Login</a>
-                <a href="{% url 'login' %}?signup=true" class="auth-btn signup-btn">Sign Up</a>
-            </div>
-            {% endif %}
-        </div>
-    </div>
-</nav>
+
 
 <!-- Sidebar Navigation -->
 <div class="sidebar" id="sidebar">
@@ -103,14 +56,7 @@
 <!-- Sidebar Overlay -->
 <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-<!-- Header with tagline -->
-<div class="tagline">
-    <div class="centered-text-container">
-        <i class="fas fa-heartbeat tagline-icon"></i>
-        <span class="text-center">SECURE <span class="healthcare">CHECKOUT</span> WITH QUICK DELIVERY</span>
-        <i class="fas fa-shipping-fast tagline-icon"></i>
-    </div>
-</div>
+
 
 <!-- Rest of the checkout content -->
 <div class="checkout-wrapper">

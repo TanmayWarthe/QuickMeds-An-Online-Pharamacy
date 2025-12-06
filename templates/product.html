@@ -29,28 +29,7 @@
         </div>
     </div>
 
-    {% comment %} <!-- Search Section -->
-    <div class="search-section">`
-        <div class="search-container">
-            <div class="search-box-wrapper">
-                <i class="fas fa-search search-icon"></i>
-                <input type="text" id="searchInput" class="search-input" placeholder="Search for medicines, vitamins, supplements..." value="{{ request.GET.search|default:'' }}" onkeyup="handleSearch(event)">
-                <button class="search-clear-btn" onclick="clearSearch()" style="display: none;">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <button class="search-submit-btn" onclick="performSearch()">
-                <i class="fas fa-search"></i>
-                <span>Search</span>
-            </button>
-        </div>
-        <div class="results-info">
-            <div class="product-count-badge">
-                <i class="fas fa-box-open"></i>
-                <span><strong id="productCount">{{ products.count }}</strong> Products Available</span>
-            </div>
-        </div>
-    </div> {% endcomment %}
+   
 
     <!-- Category Pills -->
     <div class="category-section">
@@ -113,11 +92,7 @@
         {% for product in products %}
         <div class="product-card" data-product-id="{{ product.id }}">
             
-            {% comment %} <!-- Quick View Badge -->
-            <button class="quick-view-badge" onclick="openProductDetail({{ product.id }}, event)">
-                <i class="fas fa-eye"></i>
-                <span>Quick View</span>
-            </button> {% endcomment %}
+         
             
             <!-- Product Image -->
             <div class="product-image-wrapper" onclick="openProductDetail({{ product.id }}, event)">
@@ -201,12 +176,6 @@
         </div>
         {% endfor %}
     </div>
-</div>
-
-<!-- Notification Toast -->
-<div id="notification" class="notification">
-    <i class="notification-icon"></i>
-    <span id="notification-message"></span>
 </div>
 
 {% endblock %}
@@ -304,7 +273,6 @@
         .then(response => {
             if (!response.ok) {
                 if (response.status === 403) {
-                    showNotification('Please login to add items to cart', 'error');
                     setTimeout(() => window.location.href = '/login/', 2000);
                     throw new Error('Not authenticated');
                 }
@@ -315,7 +283,6 @@
         .then(data => {
             if (data.success) {
                 updateCartCount();
-                showNotification('Added to cart successfully!', 'success');
                 button.innerHTML = '<i class="fas fa-check"></i> Added';
                 
                 setTimeout(() => {
@@ -328,7 +295,7 @@
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification(error.message || 'Failed to add to cart', 'error');
+            console.error('Failed to add to cart:', error);
             button.innerHTML = originalHTML;
             button.disabled = false;
         });
@@ -337,7 +304,7 @@
     // Notify me
     function notifyMe(event, productId) {
         event.stopPropagation();
-        showNotification('You will be notified when this product is back in stock', 'success');
+        // Notify functionality - placeholder
     }
     
     // Toggle wishlist quick
@@ -354,11 +321,9 @@
         if (button.classList.contains('active')) {
             icon.classList.remove('far');
             icon.classList.add('fas');
-            showNotification('Added to wishlist!', 'success');
         } else {
             icon.classList.remove('fas');
             icon.classList.add('far');
-            showNotification('Removed from wishlist', 'success');
         }
     }
 
@@ -387,22 +352,6 @@
             }
         })
         .catch(error => console.error('Error:', error));
-    }
-
-    // Show notification
-    function showNotification(message, type = 'success') {
-        const notification = document.getElementById('notification');
-        const messageSpan = document.getElementById('notification-message');
-        
-        if (notification && messageSpan) {
-            notification.className = 'notification ' + type;
-            messageSpan.textContent = message;
-            notification.classList.add('show');
-            
-            setTimeout(() => {
-                notification.classList.remove('show');
-            }, 3000);
-        }
     }
 
     // Get CSRF token
