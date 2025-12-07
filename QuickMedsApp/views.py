@@ -91,6 +91,15 @@ def base(request):
 def home(request):
     products = list(Product.objects.filter(in_stock=True))  # Fetch all in-stock products
     random_products = sample(products, min(len(products), 10))  # Select up to 10 random products
+    
+    # Calculate stock percentage for progress bar
+    for product in random_products:
+        if product.stock >= 50:
+            product.stock_percentage = 100
+        elif product.stock >= 20:
+            product.stock_percentage = 60
+        else:
+            product.stock_percentage = 30
 
     context = {
         'random_products': random_products,
