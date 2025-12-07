@@ -171,7 +171,7 @@
                         {% if product.discount_percentage %}
                         <span class="badge badge-discount">-{{ product.discount_percentage }}%</span>
                         {% endif %}
-                        {% if product.stock < 10 and product.stock> 0 %}
+                        {% if product.stock < 10 and product.stock > 0 %}
                             <span class="badge badge-low-stock">Only {{ product.stock }} left</span>
                             {% elif not product.in_stock or product.stock == 0 %}
                             <span class="badge badge-out-stock">Out of Stock</span>
