@@ -107,13 +107,4 @@ function getCookie(name) {
         }
     }
     return cookieValue;
-}
-
-// Export functions for use in other files
-export {
-    updateCartCount,
-    addToCart,
-    animateCartIcon,
-    showNotification,
-    getCookie
-}; 
+} 

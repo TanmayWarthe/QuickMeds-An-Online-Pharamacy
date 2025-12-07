@@ -37,10 +37,10 @@ body {
 				<h1>Create Account</h1>
 				<span>Sign up to get started</span>
 				<div id="registration-step-1">
-					<input type="text" name="name" placeholder="Full Name" required pattern="[A-Za-z\s]+" title="Please enter only letters and spaces" autocomplete="name" />
-					<input type="email" name="email" placeholder="Email" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$" title="Please enter a valid email address" autocomplete="email" />
+					<input type="text" name="name" placeholder="Full Name" required autocomplete="name" />
+					<input type="email" name="email" placeholder="Email" required autocomplete="email" />
 					<div class="password-wrapper">
-						<input type="password" name="password" id="password" placeholder="Password" required minlength="8" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}" title="Must contain at least one number and one uppercase and lowercase letter, and at least 8 or more characters" autocomplete="new-password" />
+						<input type="password" name="password" id="password" placeholder="Password" required minlength="8" autocomplete="new-password" />
 						<button type="button" class="password-toggle" onclick="togglePassword('password')">
 							<i class="fas fa-eye" id="password-eye"></i>
 						</button>
@@ -72,9 +72,9 @@ body {
 				{% csrf_token %}
 				<h1>Welcome Back</h1>
 				<span>Sign in to your account</span>
-				<input type="email" name="email" placeholder="Email" required />
+				<input type="email" name="email" placeholder="Email" required autocomplete="email" />
 				<div class="password-wrapper">
-					<input type="password" name="password" id="login_password" placeholder="Password" required />
+					<input type="password" name="password" id="login_password" placeholder="Password" required autocomplete="current-password" />
 					<button type="button" class="password-toggle" onclick="togglePassword('login_password')">
 						<i class="fas fa-eye" id="login_password-eye"></i>
 					</button>
@@ -119,198 +119,4 @@ body {
 
 {% block extra_js %}
 <script src="{% static 'js/login.js' %}"></script>
-<script>
-let registrationEmail = '';
-
-async function handleSignup(event) {
-	event.preventDefault();
-	const form = event.target;
-	const formData = new FormData(form);
-	
-	if (formData.get('password') !== formData.get('confirm_password')) {
-		alert('Passwords do not match!');
-		return false;
-	}
-	
-	registrationEmail = formData.get('email');
-	
-	try {
-		const response = await fetch('{% url "login" %}', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-			},
-			body: JSON.stringify({
-				action: 'register',
-				name: formData.get('name'),
-				email: formData.get('email'),
-				password: formData.get('password')
-			})
-		});
-		
-		const data = await response.json();
-		if (data.success) {
-			document.getElementById('registration-step-1').style.display = 'none';
-			document.getElementById('registration-step-2').style.display = 'block';
-		} else {
-			alert(data.message);
-		}
-	} catch (error) {
-		alert('Error during registration. Please try again.');
-	}
-	
-	return false;
-}
-
-async function resendOTP() {
-	if (!registrationEmail) {
-		alert('Please complete registration form first');
-		return;
-	}
-	
-	try {
-		const response = await fetch('{% url "login" %}', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-			},
-			body: JSON.stringify({
-				action: 'register',
-				email: registrationEmail,
-				name: document.querySelector('input[name="name"]').value,
-				password: document.querySelector('input[name="password"]').value
-			})
-		});
-		
-		const data = await response.json();
-		if (data.success) {
-			alert('OTP resent successfully! Please check your email.');
-			// Clear OTP inputs
-			document.querySelectorAll('.otp-input').forEach(input => input.value = '');
-			document.querySelectorAll('.otp-input')[0].focus();
-		} else {
-			alert(data.message);
-		}
-	} catch (error) {
-		alert('Error resending OTP. Please try again.');
-	}
-}
-
-async function verifyOTP() {
-	const otpInputs = document.querySelectorAll('.otp-input');
-	const otp = Array.from(otpInputs).map(input => input.value).join('');
-	
-	if (otp.length !== 4) {
-		alert('Please enter complete OTP');
-		return;
-	}
-	
-	try {
-		const response = await fetch('{% url "login" %}', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-			},
-			body: JSON.stringify({
-				action: 'verify_otp',
-				email: registrationEmail,
-				otp: otp
-			})
-		});
-		
-		const data = await response.json();
-		if (data.success) {
-			alert(data.message);
-			window.location.href = data.redirect_url;
-		} else {
-			alert(data.message);
-		}
-	} catch (error) {
-		alert('Error during OTP verification. Please try again.');
-	}
-}
-
-async function handleLogin(event) {
-	event.preventDefault();
-	const form = event.target;
-	const formData = new FormData(form);
-	
-	try {
-		const response = await fetch('{% url "login" %}', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-			},
-			body: JSON.stringify({
-				action: 'login',
-				email: formData.get('email'),
-				password: document.getElementById('login_password').value || formData.get('password')
-			})
-		});
-		
-		const data = await response.json();
-		if (data.success) {
-			window.location.href = data.redirect_url;
-		} else {
-			alert(data.message);
-		}
-	} catch (error) {
-		alert('Error during login. Please try again.');
-	}
-	
-	return false;
-}
-
-// OTP input handling
-document.querySelectorAll('.otp-input').forEach((input, index) => {
-	input.addEventListener('input', function(e) {
-		if (this.value.length === 1) {
-			if (index < document.querySelectorAll('.otp-input').length - 1) {
-				document.querySelectorAll('.otp-input')[index + 1].focus();
-			}
-		}
-	});
-
-	input.addEventListener('keydown', function(e) {
-		if (e.key === 'Backspace' && !this.value && index > 0) {
-			document.querySelectorAll('.otp-input')[index - 1].focus();
-		}
-	});
-});
-
-// Password match validation
-document.getElementById('confirm_password').addEventListener('input', function() {
-	const password = document.getElementById('password').value;
-	const confirmPassword = this.value;
-	const message = document.getElementById('password-match-message');
-	
-	if (password === confirmPassword) {
-		message.textContent = 'Passwords match!';
-		message.style.color = 'green';
-	} else {
-		message.textContent = 'Passwords do not match!';
-		message.style.color = 'red';
-	}
-});
-
-// Password visibility toggle function
-function togglePassword(inputId) {
-	const passwordInput = document.getElementById(inputId);
-	const eyeIcon = document.getElementById(inputId + '-eye');
-	
-	if (passwordInput.type === 'password') {
-		passwordInput.type = 'text';
-		eyeIcon.classList.remove('fa-eye');
-		eyeIcon.classList.add('fa-eye-slash');
-	} else {
-		passwordInput.type = 'password';
-		eyeIcon.classList.remove('fa-eye-slash');
-		eyeIcon.classList.add('fa-eye');
-	}
-}
-</script>
 {% endblock %}
