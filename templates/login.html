@@ -72,15 +72,29 @@ body {
 				{% csrf_token %}
 				<h1>Welcome Back</h1>
 				<span>Sign in to your account</span>
-				<input type="email" name="email" placeholder="Email" required autocomplete="email" />
-				<div class="password-wrapper">
-					<input type="password" name="password" id="login_password" placeholder="Password" required autocomplete="current-password" />
-					<button type="button" class="password-toggle" onclick="togglePassword('login_password')">
-						<i class="fas fa-eye" id="login_password-eye"></i>
-					</button>
+				<div id="login-step-1">
+					<input type="email" name="email" placeholder="Email" required autocomplete="email" />
+					<div class="password-wrapper">
+						<input type="password" name="password" id="login_password" placeholder="Password" required autocomplete="current-password" />
+						<button type="button" class="password-toggle" onclick="togglePassword('login_password')">
+							<i class="fas fa-eye" id="login_password-eye"></i>
+						</button>
+					</div>
+					<a href="#" class="forgot-password">Forgot your password?</a>
+					<button type="submit" class="sign-button">SIGN IN</button>
 				</div>
-				<a href="#" class="forgot-password">Forgot your password?</a>
-				<button type="submit" class="sign-button">SIGN IN</button>
+				<div id="login-step-2" style="display: none;">
+					<p>Please enter the OTP sent to your email</p>
+					<div class="otp-input-container">
+						<input type="text" maxlength="1" class="otp-input-login" />
+						<input type="text" maxlength="1" class="otp-input-login" />
+						<input type="text" maxlength="1" class="otp-input-login" />
+						<input type="text" maxlength="1" class="otp-input-login" />
+					</div>
+					<button type="button" class="sign-button" onclick="verifyLoginOTP()">Verify OTP</button>
+					<button type="button" class="sign-button resend" onclick="resendLoginOTP()">Resend OTP</button>
+					<button type="button" class="sign-button back-to-login" onclick="backToLogin()">Back to Login</button>
+				</div>
 				<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
 					<a href="{% url 'admin_login' %}" class="admin-link" style="color: #666; font-size: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px;">
 						<i class="fas fa-user-shield"></i>

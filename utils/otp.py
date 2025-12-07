@@ -13,21 +13,29 @@ def generate_otp():
     """Generate a 4-digit OTP"""
     return ''.join(random.choices(string.digits, k=4))
 
-def send_otp_email(email, otp):
+def send_otp_email(email, otp, purpose='verification'):
     """Send OTP via email"""
-    subject = 'QuickMeds - Your Registration OTP'
+    if purpose == 'login':
+        subject = 'QuickMeds - Your Login OTP'
+        title = 'Login Verification'
+        intro = 'You are attempting to log in to your QuickMeds account. Your One-Time Password (OTP) is:'
+    else:
+        subject = 'QuickMeds - Your Registration OTP'
+        title = 'Registration Verification'
+        intro = 'Thank you for registering with QuickMeds. Your One-Time Password (OTP) is:'
+    
     message = f'''<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuickMeds Registration OTP</title>
+    <title>QuickMeds {title}</title>
 </head>
 <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
     <div style="max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #4f46e5; text-align: center;">QuickMeds Registration</h2>
+        <h2 style="color: #4f46e5; text-align: center;">QuickMeds {title}</h2>
         <p>Hello,</p>
-        <p>Thank you for registering with QuickMeds. Your One-Time Password (OTP) is:</p>
+        <p>{intro}</p>
         <div style="background-color: #f3f4f6; padding: 15px; text-align: center; margin: 20px 0; border-radius: 5px;">
             <h1 style="color: #4f46e5; margin: 0; font-size: 32px; letter-spacing: 5px;">{otp}</h1>
         </div>

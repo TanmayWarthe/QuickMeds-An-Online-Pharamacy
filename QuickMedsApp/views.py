@@ -308,12 +308,35 @@ def login_view(request):
                 user = authenticate(username=user.username, password=password)
                 
                 if user is not None:
-                    login(request, user)
-                    return JsonResponse({
-                        'success': True,
-                        'message': f'Welcome back {user.first_name}!',
-                        'redirect_url': '/'
-                    })
+                    # Generate and send OTP for login verification
+                    otp = generate_otp()
+                    store_result = store_otp(email, otp)
+                    email_result = send_otp_email(email, otp, purpose='login')
+                    
+                    if store_result:
+                        # Store user info in session for OTP verification
+                        request.session['login_user_id'] = user.id
+                        request.session['login_email'] = email
+                        
+                        # Check if email is configured
+                        from django.conf import settings
+                        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                            return JsonResponse({
+                                'success': True,
+                                'otp_required': True,
+                                'message': f'Email not configured. Your OTP is: {otp} (Check server console)'
+                            })
+                        
+                        return JsonResponse({
+                            'success': True,
+                            'otp_required': True,
+                            'message': 'OTP sent to your email. Please verify to continue.'
+                        })
+                    else:
+                        return JsonResponse({
+                            'success': False,
+                            'message': 'Failed to generate OTP. Please try again.'
+                        })
                 else:
                     return JsonResponse({
                         'success': False,
@@ -329,6 +352,83 @@ def login_view(request):
                 return JsonResponse({
                     'success': False,
                     'message': f'Login failed: {str(e)}'
+                })
+                
+        elif action == 'verify_login_otp':
+            try:
+                otp = data.get('otp')
+                email = request.session.get('login_email')
+                user_id = request.session.get('login_user_id')
+                
+                if not email or not user_id:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Session expired. Please try logging in again.'
+                    })
+                
+                if verify_otp(email, otp):
+                    # Get user and log them in
+                    user = User.objects.get(id=user_id)
+                    login(request, user)
+                    
+                    # Clear session data
+                    del request.session['login_user_id']
+                    del request.session['login_email']
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Welcome back {user.first_name}!',
+                        'redirect_url': '/'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Invalid OTP. Please try again.'
+                    })
+                    
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Verification failed: {str(e)}'
+                })
+                
+        elif action == 'resend_login_otp':
+            try:
+                email = request.session.get('login_email')
+                
+                if not email:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Session expired. Please try logging in again.'
+                    })
+                
+                # Generate and send new OTP
+                otp = generate_otp()
+                store_result = store_otp(email, otp)
+                email_result = send_otp_email(email, otp, purpose='login')
+                
+                if store_result:
+                    from django.conf import settings
+                    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                        return JsonResponse({
+                            'success': True,
+                            'message': f'Email not configured. Your OTP is: {otp} (Check server console)'
+                        })
+                    
+                    return JsonResponse({
+                        'success': True,
+                        'message': 'New OTP sent to your email.'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': 'Failed to resend OTP. Please try again.'
+                    })
+                    
+            except Exception as e:
+                return JsonResponse({
+                    'success': False,
+                    'message': f'Failed to resend OTP: {str(e)}'
                 })
     
     return render(request, 'login.html')
