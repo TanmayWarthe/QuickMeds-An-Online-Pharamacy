@@ -16,4 +16,8 @@ python manage.py collectstatic --noinput
 echo "🗄️  Running database migrations..."
 python manage.py migrate --noinput
 
+# Create admin user from environment variables
+echo "👤 Creating admin user..."
+python manage.py create_admin
+
 echo "✅ Build completed successfully!"
