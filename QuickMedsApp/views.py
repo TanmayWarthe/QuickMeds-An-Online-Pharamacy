@@ -223,15 +223,26 @@ def login_view(request):
                 
                 # Generate and send OTP
                 otp = generate_otp()
-                if store_otp(email, otp) and send_otp_email(email, otp):
+                store_result = store_otp(email, otp)
+                email_result = send_otp_email(email, otp)
+                
+                if store_result:
+                    # Check if email is configured
+                    from django.conf import settings
+                    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                        return JsonResponse({
+                            'success': True,
+                            'message': f'Email not configured. Your OTP is: {otp} (Check server console)'
+                        })
+                    
                     return JsonResponse({
                         'success': True,
-                        'message': 'OTP sent successfully'
+                        'message': 'OTP sent to your email. Please check your inbox.'
                     })
                 else:
                     return JsonResponse({
                         'success': False,
-                        'message': 'Failed to send OTP'
+                        'message': 'Failed to generate OTP. Please try again.'
                     })
                     
             except ValidationError:

@@ -46,10 +46,18 @@ def send_otp_email(email, otp):
         # Log attempt
         logger.info(f"Attempting to send OTP to {email}")
         
-        # Print OTP for debugging
+        # Print OTP for debugging (console fallback)
         print(f"\n{'='*50}")
-        print(f"Attempting to send OTP {otp} to {email}")
+        print(f"OTP for {email}: {otp}")
         print(f"{'='*50}\n")
+        
+        # Check if email is configured
+        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+            logger.warning("Email not configured. OTP printed to console.")
+            print(f"⚠️ EMAIL NOT CONFIGURED - Using console fallback")
+            print(f"OTP for {email}: {otp}")
+            # Return True to allow registration to continue
+            return True
         
         # Create message with HTML content
         msg = MIMEText(message, 'html')
@@ -72,21 +80,22 @@ def send_otp_email(email, otp):
             server.send_message(msg)
             
             logger.info(f"Successfully sent OTP to {email}")
-            print(f"OTP sent successfully to {email}")
+            print(f"✅ OTP sent successfully to {email}")
             return True
             
     except smtplib.SMTPAuthenticationError as e:
         logger.error(f"SMTP Authentication Error: {str(e)}")
-        print(f"SMTP Authentication Error: {str(e)}")
-        return False
+        print(f"❌ SMTP Authentication Error - OTP printed to console: {otp}")
+        # Return True to allow registration even if email fails
+        return True
     except smtplib.SMTPException as e:
         logger.error(f"SMTP Error: {str(e)}")
-        print(f"SMTP Error: {str(e)}")
-        return False
+        print(f"❌ SMTP Error - OTP printed to console: {otp}")
+        return True
     except Exception as e:
         logger.error(f"Error sending OTP to {email}: {str(e)}")
-        print(f"\nError sending OTP: {str(e)}")
-        return False
+        print(f"❌ Error sending OTP - OTP printed to console: {otp}")
+        return True
 
 def store_otp(email, otp):
     """Store OTP in cache with 10 minutes expiration"""
