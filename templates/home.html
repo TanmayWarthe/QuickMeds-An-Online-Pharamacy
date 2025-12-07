@@ -10,337 +10,343 @@
 {% block extra_js %}
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script>
-// Immediate dropdown initialization
-document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.querySelector('.user-menu-btn');
-    const menu = document.querySelector('.dropdown-menu');
-    
-    if (btn && menu) {
-        btn.onclick = function(e) {
-            e.stopPropagation();
-            menu.classList.toggle('show');
-        };
-        
-        document.onclick = function(e) {
-            if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                menu.classList.remove('show');
-            }
-        };
-    }
-});
+    // Immediate dropdown initialization
+    document.addEventListener('DOMContentLoaded', function () {
+        const btn = document.querySelector('.user-menu-btn');
+        const menu = document.querySelector('.dropdown-menu');
+
+        if (btn && menu) {
+            btn.onclick = function (e) {
+                e.stopPropagation();
+                menu.classList.toggle('show');
+            };
+
+            document.onclick = function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('show');
+                }
+            };
+        }
+    });
 </script>
 {% endblock %}
 
 {% block content %}
-    <!-- Sidebar -->
-    <aside class="sidebar" id="sidebar">
-        <div class="sidebar-header">
-            <div class="sidebar-brand">
-                <img src="{% static 'img/medicines-icon.png' %}" alt="QuickMeds">
-                <span>QuickMeds</span>
-            </div>
-            <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close">
-                <i class="fas fa-times"></i>
-            </button>
+<!-- Sidebar -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <img src="{% static 'img/logo.png' %}" alt="QuickMeds">
+            <span>QuickMeds</span>
         </div>
-        
-        <nav class="sidebar-nav">
-            <a href="{% url 'home' %}" class="nav-item active">
-                <i class="fas fa-home"></i>
-                <span>Home</span>
-            </a>
-            <a href="{% url 'product' %}" class="nav-item">
-                <i class="fas fa-pills"></i>
-                <span>Shop Medicines</span>
-            </a>
-            <a href="{% url 'contact' %}" class="nav-item">
-                <i class="fas fa-envelope"></i>
-                <span>Contact</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <div class="support-card">
-                <i class="fas fa-headset"></i>
-                <div>
-                    <p class="support-label">24/7 Support</p>
-                    <p class="support-phone">1-234-567-890</p>
-                </div>
-            </div>
-        </div>
-    </aside>
-    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        <button class="close-sidebar" id="closeSidebar" type="button" aria-label="Close">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
 
-    <!-- Hero Section -->
-    <section class="hero-modern">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <div class="hero-badge">
-                        <i class="fas fa-certificate"></i>
-                        <span>Certified & Trusted</span>
+    <nav class="sidebar-nav">
+        <a href="{% url 'home' %}" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        <a href="{% url 'product' %}" class="nav-item">
+            <i class="fas fa-pills"></i>
+            <span>Shop Medicines</span>
+        </a>
+        <a href="{% url 'contact' %}" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Contact</span>
+        </a>
+    </nav>
+
+    <div class="sidebar-footer">
+        <div class="support-card">
+            <i class="fas fa-headset"></i>
+            <div>
+                <p class="support-label">24/7 Support</p>
+                <p class="support-phone">1-234-567-890</p>
+            </div>
+        </div>
+    </div>
+</aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- Hero Section -->
+<section class="hero-modern">
+    <div class="container">
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <i class="fas fa-certificate"></i>
+                    <span>Certified & Trusted</span>
+                </div>
+                <h1 class="hero-title">
+                    Your Health,<br>
+                    <span class="gradient-text">Delivered Fast</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Get genuine medicines at your doorstep. Fast delivery, great prices, and 24/7 support.
+                </p>
+
+                <!-- Search Bar -->
+                <form action="{% url 'search_products' %}" method="GET" class="hero-search">
+                    <div class="search-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" name="q" class="search-input"
+                            placeholder="Search for medicines, vitamins, health products..." required>
+                        <button type="submit" class="search-submit">Search</button>
                     </div>
-                    <h1 class="hero-title">
-                        Your Health,<br>
-                        <span class="gradient-text">Delivered Fast</span>
-                    </h1>
-                    <p class="hero-subtitle">
-                        Get genuine medicines at your doorstep. Fast delivery, great prices, and 24/7 support.
-                    </p>
-                    
-                    <!-- Search Bar -->
-                    <form action="{% url 'search_products' %}" method="GET" class="hero-search">
-                        <div class="search-wrapper">
-                            <i class="fas fa-search search-icon"></i>
-                            <input type="text" name="q" class="search-input" placeholder="Search for medicines, vitamins, health products..." required>
-                            <button type="submit" class="search-submit">Search</button>
-                        </div>
-                    </form>
-                    
-                    <div class="hero-features">
-                        <div class="feature-item">
-                            <i class="fas fa-shipping-fast"></i>
-                            <span>Free Delivery on ₹500+</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>100% Genuine Products</span>
-                        </div>
-                        <div class="feature-item">
-                            <i class="fas fa-tag"></i>
-                            <span>Up to 30% Off</span>
-                        </div>
+                </form>
+
+                <div class="hero-features">
+                    <div class="feature-item">
+                        <i class="fas fa-shipping-fast"></i>
+                        <span>Free Delivery on ₹500+</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-shield-alt"></i>
+                        <span>100% Genuine Products</span>
+                    </div>
+                    <div class="feature-item">
+                        <i class="fas fa-tag"></i>
+                        <span>Up to 30% Off</span>
                     </div>
                 </div>
-                
-                <div class="hero-visual">
-                    <div class="hero-card">
-                        <div class="card-glow"></div>
-                        <img src="{% static 'img/homepage.png' %}" alt="Healthcare" class="hero-image">
-                        <div class="floating-badge badge-1">
-                            <i class="fas fa-heart-pulse"></i>
-                            <span>5000+ Products</span>
-                        </div>
-                        <div class="floating-badge badge-2">
-                            <i class="fas fa-users"></i>
-                            <span>50K+ Customers</span>
-                        </div>
+            </div>
+
+            <div class="hero-visual">
+                <div class="hero-card">
+                    <div class="card-glow"></div>
+                    <img src="{% static 'img/homepage.png' %}" alt="Healthcare" class="hero-image">
+                    <div class="floating-badge badge-1">
+                        <i class="fas fa-heart-pulse"></i>
+                        <span>5000+ Products</span>
+                    </div>
+                    <div class="floating-badge badge-2">
+                        <i class="fas fa-users"></i>
+                        <span>50K+ Customers</span>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Featured Products -->
-    <section class="products-section products-section--minimal">
-        <div class="container">
-            <div class="section-head">
-                <div class="section-info">
-                    <h2 class="section-title">Featured Medicines</h2>
-                    <p class="section-subtitle">Top-rated products trusted by thousands</p>
-                </div>
-                <a href="{% url 'product' %}" class="view-all-btn">
-                    View All <i class="fas fa-arrow-right"></i>
-                </a>
+<!-- Featured Products -->
+<section class="products-section products-section--minimal">
+    <div class="container">
+        <div class="section-head">
+            <div class="section-info">
+                <h2 class="section-title">Featured Medicines</h2>
+                <p class="section-subtitle">Top-rated products trusted by thousands</p>
             </div>
-            
-            <div class="products-grid">
-                {% for product in random_products %}
-                <article class="product-card-modern" data-product-id="{{ product.id }}">
-                    <div class="product-image-wrapper">
-                        <a href="{% url 'product_detail' product.id %}" class="product-image-link">
-                            {% if product.image %}
-                            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
-                            {% else %}
-                            <img src="{% static 'img/default.png' %}" alt="{{ product.name }}" loading="lazy" class="product-img">
-                            {% endif %}
-                        </a>
-                        
-                        <!-- Badges -->
-                        <div class="product-badges">
-                            {% if product.discount_percentage %}
-                            <span class="badge badge-discount">-{{ product.discount_percentage }}%</span>
-                            {% endif %}
-                            {% if product.stock < 10 and product.stock > 0 %}
+            <a href="{% url 'product' %}" class="view-all-btn">
+                View All <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="products-grid">
+            {% for product in random_products %}
+            <article class="product-card-modern" data-product-id="{{ product.id }}">
+                <div class="product-image-wrapper">
+                    <a href="{% url 'product_detail' product.id %}" class="product-image-link">
+                        {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
+                        {% else %}
+                        <img src="{% static 'img/default.png' %}" alt="{{ product.name }}" loading="lazy"
+                            class="product-img">
+                        {% endif %}
+                    </a>
+
+                    <!-- Badges -->
+                    <div class="product-badges">
+                        {% if product.discount_percentage %}
+                        <span class="badge badge-discount">-{{ product.discount_percentage }}%</span>
+                        {% endif %}
+                        {% if product.stock < 10 and product.stock> 0 %}
                             <span class="badge badge-low-stock">Only {{ product.stock }} left</span>
                             {% elif not product.in_stock or product.stock == 0 %}
                             <span class="badge badge-out-stock">Out of Stock</span>
                             {% endif %}
-                        </div>
-                        
-                        <!-- Quick Actions -->
-                        <div class="product-quick-actions">
-                            <button class="quick-action-btn" onclick="quickView({{ product.id }})" title="Quick View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </div>
                     </div>
-                    
-                    <div class="product-details">
-                        <span class="product-category">{{ product.category.name }}</span>
-                        <a href="{% url 'product_detail' product.id %}" class="product-name-link">
-                            <h3 class="product-name">{{ product.name|truncatewords:6 }}</h3>
-                        </a>
-                        
-                        <div class="product-pricing">
-                            <span class="price-current">₹{{ product.price|floatformat:2 }}</span>
-                            {% if product.original_price and product.price < product.original_price %}
-                            <span class="price-original">₹{{ product.original_price|floatformat:2 }}</span>
+
+                    <!-- Quick Actions -->
+                    <div class="product-quick-actions">
+                        <button class="quick-action-btn" onclick="quickView({{ product.id }})" title="Quick View">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="product-details">
+                    <span class="product-category">{{ product.category.name }}</span>
+                    <a href="{% url 'product_detail' product.id %}" class="product-name-link">
+                        <h3 class="product-name">{{ product.name|truncatewords:6 }}</h3>
+                    </a>
+
+                    <div class="product-pricing">
+                        <span class="price-current">₹{{ product.price|floatformat:2 }}</span>
+                        {% if product.original_price and product.price < product.original_price %} <span
+                            class="price-original">₹{{ product.original_price|floatformat:2 }}</span>
                             {% endif %}
-                        </div>
-                        
-                        <!-- Stock Indicator -->
-                        {% if product.in_stock and product.stock > 0 %}
-                        <div class="stock-indicator">
-                            <div class="stock-bar">
-                                <div class="stock-fill" style="width: {% if product.stock >= 50 %}100{% elif product.stock >= 20 %}60{% else %}30{% endif %}%"></div>
+                    </div>
+
+                    <!-- Stock Indicator -->
+                    {% if product.in_stock and product.stock > 0 %}
+                    <div class="stock-indicator">
+                        <div class="stock-bar">
+                            <div class="stock-fill"
+                                style="width: {% if product.stock >= 50 %}100{% elif product.stock >= 20 %}60{% else %}30{% endif %}%">
                             </div>
-                            <span class="stock-text {% if product.stock < 10 %}text-danger{% endif %}">
-                                {% if product.stock >= 50 %}In Stock{% elif product.stock >= 10 %}Limited Stock{% else %}Low Stock{% endif %}
-                            </span>
                         </div>
-                        {% endif %}
-                        
-                        {% if product.in_stock and product.stock > 0 %}
-                        <button class="add-cart-btn" data-product-id="{{ product.id }}" onclick="handleAddToCart({{ product.id }}, event)" type="button">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Add to Cart</span>
-                        </button>
-                        {% else %}
-                        <button class="add-cart-btn out-of-stock" disabled type="button">
-                            <i class="fas fa-ban"></i>
-                            <span>Out of Stock</span>
-                        </button>
-                        {% endif %}
+                        <span class="stock-text {% if product.stock < 10 %}text-danger{% endif %}">
+                            {% if product.stock >= 50 %}In Stock{% elif product.stock >= 10 %}Limited Stock{% else %}Low
+                            Stock{% endif %}
+                        </span>
                     </div>
-                </article>
-                {% empty %}
-                <div class="no-products">
-                    <i class="fas fa-box-open"></i>
-                    <p>No products available at the moment</p>
-                    <a href="{% url 'contact' %}" class="btn-primary">Contact Us</a>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </section>
+                    {% endif %}
 
-    <!-- Statistics Section -->
-    <section class="stats-section">
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-capsules"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" data-target="{{ products_count }}">0</h3>
-                        <p class="stat-label">Medicines Available</p>
-                    </div>
+                    {% if product.in_stock and product.stock > 0 %}
+                    <button class="add-cart-btn" data-product-id="{{ product.id }}"
+                        onclick="handleAddToCart({{ product.id }}, event)" type="button">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span>Add to Cart</span>
+                    </button>
+                    {% else %}
+                    <button class="add-cart-btn out-of-stock" disabled type="button">
+                        <i class="fas fa-ban"></i>
+                        <span>Out of Stock</span>
+                    </button>
+                    {% endif %}
                 </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-shield-check"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" data-target="100">0</h3>
-                        <p class="stat-label">% Genuine Products</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-truck-fast"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" data-target="24">0</h3>
-                        <p class="stat-label">Hour Delivery Available</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <div cla
-                    ss="stat-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <div class="stat-content">
-                        <h3 class="stat-number" data-target="7">0</h3>
-                        <p class="stat-label">Days Customer Support</p>
-                    </div>
-                </div>
+            </article>
+            {% empty %}
+            <div class="no-products">
+                <i class="fas fa-box-open"></i>
+                <p>No products available at the moment</p>
+                <a href="{% url 'contact' %}" class="btn-primary">Contact Us</a>
             </div>
+            {% endfor %}
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Why Choose Us -->
-    <section class="why-choose-section">
-        <div class="container">
-            <div class="section-header text-center">
-                <h2 class="section-title">Why Choose QuickMeds?</h2>
-                <div class="section-underline mx-auto"></div>
-                <p class="section-subtitle mt-3">Your trusted partner for health and wellness</p>
+<!-- Statistics Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-capsules"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" data-target="{{ products_count }}">0</h3>
+                    <p class="stat-label">Medicines Available</p>
+                </div>
             </div>
-            <div class="row g-4">
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-box">
-                        <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
-                        <h5>Fast Delivery</h5>
-                        <p>Get your medicines delivered within hours. Free shipping on orders above ₹500</p>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-shield-check"></i>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-box">
-                        <div class="feature-icon"><i class="fas fa-certificate"></i></div>
-                        <h5>100% Genuine</h5>
-                        <p>All products sourced from authorized distributors and manufacturers</p>
-                    </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" data-target="100">0</h3>
+                    <p class="stat-label">% Genuine Products</p>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-box">
-                        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
-                        <h5>Secure Payment💸</h5>
-                        <p>Multiple payment options with 100% secure and encrypted checkout</p>
-                    </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-truck-fast"></i>
                 </div>
-                <div class="col-md-3 col-sm-6">
-                    <div class="feature-box">
-                        <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                        <h5>24/7 Support</h5>
-                        <p>Our expert pharmacists are available round the clock for assistance</p>
-                    </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" data-target="24">0</h3>
+                    <p class="stat-label">Hour Delivery Available</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div cla ss="stat-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <div class="stat-content">
+                    <h3 class="stat-number" data-target="7">0</h3>
+                    <p class="stat-label">Days Customer Support</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-
-    <!-- Newsletter -->
-    <section class="cta-banner">
-        <div class="container">
-            <div class="cta-content-wrapper">
-                <div class="cta-icon">
-                    <i class="fas fa-envelope-open"></i>
+<!-- Why Choose Us -->
+<section class="why-choose-section">
+    <div class="container">
+        <div class="section-header text-center">
+            <h2 class="section-title">Why Choose QuickMeds?</h2>
+            <div class="section-underline mx-auto"></div>
+            <p class="section-subtitle mt-3">Your trusted partner for health and wellness</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
+                    <h5>Fast Delivery</h5>
+                    <p>Get your medicines delivered within hours. Free shipping on orders above ₹500</p>
                 </div>
-                <div class="row align-items-center w-100">
-                    <div class="col-lg-7 mb-3 mb-lg-0">
-                        <h3>Stay Updated with Health Tips</h3>
-                        <p class="mb-0">Subscribe to our newsletter for exclusive deals, health tips, and medicine updates delivered to your inbox</p>
-                    </div>
-                    <div class="col-lg-5">
-                        <form class="newsletter-form" onsubmit="return false">
-                            <div class="input-group">
-                                <input type="email" class="form-control" placeholder="Enter your email address" required>
-                                <button class="btn" type="submit"><i class="fas fa-paper-plane me-2"></i>Subscribe</button>
-                            </div>
-                        </form>
-                    </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-certificate"></i></div>
+                    <h5>100% Genuine</h5>
+                    <p>All products sourced from authorized distributors and manufacturers</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                    <h5>Secure Payment💸</h5>
+                    <p>Multiple payment options with 100% secure and encrypted checkout</p>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="feature-box">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h5>24/7 Support</h5>
+                    <p>Our expert pharmacists are available round the clock for assistance</p>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Scroll to Top -->
-    <button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
-        <i class="fas fa-arrow-up"></i>
-    </button>
+
+<!-- Newsletter -->
+<section class="cta-banner">
+    <div class="container">
+        <div class="cta-content-wrapper">
+            <div class="cta-icon">
+                <i class="fas fa-envelope-open"></i>
+            </div>
+            <div class="row align-items-center w-100">
+                <div class="col-lg-7 mb-3 mb-lg-0">
+                    <h3>Stay Updated with Health Tips</h3>
+                    <p class="mb-0">Subscribe to our newsletter for exclusive deals, health tips, and medicine updates
+                        delivered to your inbox</p>
+                </div>
+                <div class="col-lg-5">
+                    <form class="newsletter-form" onsubmit="return false">
+                        <div class="input-group">
+                            <input type="email" class="form-control" placeholder="Enter your email address" required>
+                            <button class="btn" type="submit"><i class="fas fa-paper-plane me-2"></i>Subscribe</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Scroll to Top -->
+<button class="scroll-top" id="scrollTop" aria-label="Scroll to top">
+    <i class="fas fa-arrow-up"></i>
+</button>
 {% endblock %}
 
 {% block extra_styles %}{% endblock %}
