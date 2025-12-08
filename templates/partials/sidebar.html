@@ -1,0 +1,99 @@
+{% load static %}
+<!-- Mobile Sidebar Navigation -->
+<aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-brand">
+            <img src="{% static 'img/logo.png' %}" alt="QuickMeds">
+            <span>QuickMeds</span>
+        </div>
+        <button class="close-sidebar" id="closeSidebar" aria-label="Close menu">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+    
+    <nav class="sidebar-nav" aria-label="Mobile navigation">
+        {% if user.is_authenticated %}
+        <!-- User Info Section -->
+        <div class="sidebar-user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <div class="user-name">{{ user.get_full_name|default:user.username }}</div>
+                <div class="user-email">{{ user.email }}</div>
+            </div>
+        </div>
+        <hr class="sidebar-divider">
+        {% endif %}
+        
+        <!-- Main Navigation Links -->
+        <a href="{% url 'home' %}" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        
+        <a href="{% url 'product' %}" class="nav-item {% if 'product' in request.path %}active{% endif %}">
+            <i class="fas fa-pills"></i>
+            <span>Medicines</span>
+        </a>
+        
+        {% if user.is_authenticated %}
+        <a href="{% url 'cart' %}" class="nav-item {% if 'cart' in request.path %}active{% endif %}">
+            <i class="fas fa-shopping-cart"></i>
+            <span>My Cart</span>
+            {% if cart_count > 0 %}
+            <span class="nav-badge">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+        
+        <a href="{% url 'orders' %}" class="nav-item {% if 'orders' in request.path %}active{% endif %}">
+            <i class="fas fa-box"></i>
+            <span>My Orders</span>
+        </a>
+        
+        <a href="{% url 'profile' %}" class="nav-item {% if 'profile' in request.path %}active{% endif %}">
+            <i class="fas fa-user"></i>
+            <span>My Profile</span>
+        </a>
+        {% endif %}
+        
+        <a href="{% url 'contact' %}" class="nav-item {% if 'contact' in request.path %}active{% endif %}">
+            <i class="fas fa-envelope"></i>
+            <span>Contact Us</span>
+        </a>
+        
+        {% if user.is_authenticated %}
+        <hr class="sidebar-divider">
+        
+        <a href="{% url 'logout' %}" class="nav-item logout">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Logout</span>
+        </a>
+        {% else %}
+        <hr class="sidebar-divider">
+        
+        <a href="{% url 'login' %}" class="nav-item">
+            <i class="fas fa-sign-in-alt"></i>
+            <span>Login</span>
+        </a>
+        
+        <a href="{% url 'login' %}?signup=true" class="nav-item signup">
+            <i class="fas fa-user-plus"></i>
+            <span>Sign Up</span>
+        </a>
+        {% endif %}
+    </nav>
+    
+    <div class="sidebar-footer">
+        <div class="support-card">
+            <i class="fas fa-headset"></i>
+            <div>
+                <p class="support-label">24/7 Support</p>
+                <p class="support-phone">1800-123-4567</p>
+            </div>
+        </div>
+    </div>
+</aside>
+
+<!-- Sidebar Overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
