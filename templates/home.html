@@ -158,10 +158,10 @@
 
         <div class="products-grid">
             {% for product in random_products %}
-            <div class="product-card" data-product-id="{{ product.id }}" onclick="openProductDetail({{ product.id }}, event)">
+            <div class="product-card" data-product-id="{{ product.id }}">
                 
-                <!-- Product Image -->
-                <div class="product-image-wrapper">
+                <!-- Product Image - Clickable -->
+                <div class="product-image-wrapper" onclick="openProductDetail({{ product.id }}, event)" style="cursor: pointer;">
                     {% if product.image %}
                         <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
                     {% else %}
@@ -184,7 +184,7 @@
                 <!-- Product Info -->
                 <div class="product-info">
                     <div class="product-category">{{ product.category.name }}</div>
-                    <h3 class="product-name">{{ product.name }}</h3>
+                    <h3 class="product-name" onclick="openProductDetail({{ product.id }}, event)" style="cursor: pointer;">{{ product.name }}</h3>
 
                     <!-- Price -->
                     <div class="product-price-section">
@@ -208,9 +208,6 @@
                             <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
                                 <i class="fas fa-shopping-cart"></i>
                                 <span>Add to Cart</span>
-                            </button>
-                            <button class="btn-icon-action btn-quick-view hide-on-mobile" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
-                                <i class="fas fa-eye"></i>
                             </button>
                             <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
                                 <i class="far fa-heart"></i>
