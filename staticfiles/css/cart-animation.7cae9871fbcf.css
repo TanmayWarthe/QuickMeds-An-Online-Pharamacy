@@ -1,0 +1,167 @@
+/* Cart Button Base */
+.cart-button {
+    position: relative;
+    width: 160px;
+    height: 45px;
+    border: 0;
+    border-radius: 6px;
+    background-color: #00fffc;
+    cursor: pointer;
+    overflow: hidden;
+    font-weight: 600;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transform-origin: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Icon Styles */
+.cart-button i {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-button .fa-cart-shopping {
+    position: absolute;
+    z-index: 2;
+    top: 50%;
+    left: -10%;
+    font-size: 1.4em;
+    transform: translate(-50%, -50%);
+}
+
+.cart-button .fa-box {
+    position: absolute;
+    z-index: 3;
+    top: -20%;
+    left: 52%;
+    font-size: 1em;
+    transform: translate(-50%, -50%);
+    color: #ffd700;
+    opacity: 0;
+}
+
+/* Text Styles */
+.cart-button span {
+    position: absolute;
+    z-index: 3;
+    left: 50%;
+    top: 50%;
+    font-size: 0.95em;
+    transform: translate(-50%, -50%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+}
+
+.cart-button span.add-to-cart {
+    opacity: 1;
+}
+
+.cart-button span.added {
+    opacity: 0;
+}
+
+/* Animations */
+@keyframes buttonPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.97); }
+    100% { transform: scale(1); }
+}
+
+@keyframes truck {
+    0% { left: -10%; opacity: 1; }
+    40%, 55% { left: 50%; opacity: 1; }
+    100% { left: 110%; opacity: 0; }
+}
+
+@keyframes box {
+    0%, 40% { top: -20%; left: -5%; opacity: 0; }
+    55% { top: 37%; left: 52%; opacity: 1; }
+    100% { top: 37%; left: 110%; opacity: 0; }
+}
+
+@keyframes txt1 {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    20%, 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+}
+
+@keyframes txt2 {
+    0%, 80% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+/* Animation Classes */
+.cart-button.clicked {
+    animation: buttonPulse 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-button.clicked .fa-cart-shopping {
+    animation: truck 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.cart-button.clicked .fa-box {
+    animation: box 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.cart-button.clicked span.add-to-cart {
+    animation: txt1 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.cart-button.clicked span.added {
+    animation: txt2 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* States */
+.cart-button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    background-color: #ccc;
+}
+
+.cart-button:not(:disabled):hover {
+    background-color: #00f7f7;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Remove all hover effects and simplify active state */
+.cart-button:active {
+    transform: scale(.9);
+}
+
+/* Simplified Notification Styles */
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #2c3e50 0%, #3498db 100%);
+    color: white;
+    font-weight: 500;
+    display: none;
+    align-items: center;
+    gap: 10px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 9999;
+    opacity: 0;
+    transform: translateX(120%);
+    transition: all 0.3s ease;
+}
+
+.notification.show {
+    display: flex;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification i {
+    font-size: 1.2rem;
+    color: #ffd700;  /* Matching the healthcare text color */
+}
+
+.notification span {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}

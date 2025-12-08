@@ -1,6 +1,6 @@
 /* ============================================================================
    QUICKMEDS - MOBILE RESPONSIVE DESIGN
-   Mobile-First Responsive Layout System
+   Mobile-First Responsive Layout System - Clean & Minimal
    ============================================================================ */
 
 /* ============================================
@@ -15,7 +15,7 @@
 }
 
 html {
-    font-size: 16px;
+    font-size: 14px; /* Reduced from 16px for better mobile scaling */
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
 }
@@ -24,6 +24,8 @@ body {
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 0.875rem; /* 14px base for compact mobile view */
+    line-height: 1.5;
 }
 
 img {
@@ -40,25 +42,31 @@ img {
     width: 100%;
     max-width: 1280px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 0.75rem; /* Reduced padding for mobile */
 }
 
 /* Tablet */
 @media (min-width: 768px) {
+    html {
+        font-size: 15px;
+    }
     .container {
-        padding: 0 2rem;
+        padding: 0 1.5rem;
     }
 }
 
 /* Desktop */
 @media (min-width: 1024px) {
+    html {
+        font-size: 16px;
+    }
     .container {
-        padding: 0 2.5rem;
+        padding: 0 2rem;
     }
 }
 
 /* ============================================
-   3. RESPONSIVE NAVBAR
+   3. RESPONSIVE NAVBAR - COMPACT & MINIMAL
    ============================================ */
 
 /* Mobile Navigation (Base) */
@@ -68,15 +76,16 @@ img {
     z-index: 1200;
     background: var(--primary-contrast, #fff);
     border-bottom: 1px solid var(--border, #e5e7eb);
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .navbar-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.75rem 0;
-    gap: 1rem;
+    padding: 0.5rem 0; /* Reduced from 0.75rem */
+    gap: 0.5rem; /* Reduced from 1rem */
+    min-height: 56px; /* Fixed height for consistency */
 }
 
 /* Mobile: Show hamburger, hide desktop nav */
@@ -84,16 +93,21 @@ img {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    background: var(--light, #f3f4f6);
+    width: 40px; /* Reduced from 44px */
+    height: 40px;
+    background: transparent;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
+    color: var(--dark, #1f2937);
 }
 
 .sidebar-toggle:hover {
+    background: var(--light, #f3f4f6);
+}
+
+.sidebar-toggle:active {
     background: var(--primary, #2563eb);
     color: #fff;
 }
@@ -103,7 +117,7 @@ img {
     font-size: 1.25rem;
 }
 
-/* Brand */
+/* Brand - Compact */
 .brand-group {
     flex: 1;
     display: flex;
@@ -114,7 +128,7 @@ img {
 .brand-logo {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
+    gap: 0.5rem; /* Reduced from 0.75rem */
     text-decoration: none;
 }
 
@@ -123,13 +137,13 @@ img {
 }
 
 .logo-icon img {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
+    width: 32px; /* Reduced from 36px */
+    height: 32px;
+    border-radius: 6px;
 }
 
 .brand-name {
-    font-size: 1.25rem;
+    font-size: 1.125rem; /* Reduced from 1.25rem */
     font-weight: 700;
     color: var(--dark, #1f2937);
     white-space: nowrap;
@@ -140,54 +154,60 @@ img {
     display: none;
 }
 
-/* Mobile Nav Actions */
+/* Mobile Nav Actions - Compact */
 .nav-right {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.375rem; /* Reduced from 0.5rem */
 }
 
 .nav-search-btn,
 .nav-cart,
 .user-menu-btn {
-    width: 44px;
-    height: 44px;
+    width: 40px; /* Reduced from 44px for compact mobile */
+    height: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--light, #f3f4f6);
+    background: transparent; /* Clean look */
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     color: var(--dark, #1f2937);
     text-decoration: none;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
     position: relative;
+    font-size: 1.125rem;
 }
 
 .nav-search-btn:hover,
 .nav-cart:hover,
 .user-menu-btn:hover {
+    background: var(--light, #f3f4f6);
+}
+
+.nav-search-btn:active,
+.nav-cart:active,
+.user-menu-btn:active {
     background: var(--primary, #2563eb);
     color: #fff;
-    transform: translateY(-2px);
 }
 
 .cart-badge {
     position: absolute;
-    top: -6px;
-    right: -6px;
+    top: -4px;
+    right: -4px;
     background: var(--danger, #ef4444);
     color: #fff;
-    font-size: 0.7rem;
+    font-size: 0.625rem;
     font-weight: 700;
-    min-width: 22px;
-    height: 22px;
+    min-width: 16px; /* Smaller badge */
+    height: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 11px;
-    padding: 0 6px;
+    border-radius: 8px;
+    padding: 0 4px;
     border: 2px solid #fff;
 }
 
@@ -828,26 +848,27 @@ body.sidebar-open {
 }
 
 /* ============================================
-   8. RESPONSIVE GRID SYSTEMS
+   8. RESPONSIVE GRID SYSTEMS - COMPACT
    ============================================ */
 
-/* Product Grid */
+/* Product Grid - Compact Mobile */
 .products-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    grid-template-columns: repeat(2, 1fr); /* Always 2 columns on mobile */
+    gap: 0.75rem; /* Tighter spacing */
 }
 
-@media (max-width: 640px) {
+@media (min-width: 640px) {
     .products-grid {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 1rem;
     }
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
     .products-grid {
-        gap: 2rem;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.25rem;
     }
 }
 
@@ -855,7 +876,7 @@ body.sidebar-open {
 .grid-2-col {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1rem; /* Reduced from 1.5rem */
 }
 
 @media (min-width: 768px) {
