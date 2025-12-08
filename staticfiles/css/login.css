@@ -451,7 +451,8 @@ input.error {
     padding: 0 10px;
 }
 
-.otp-input {
+.otp-input,
+.otp-input-login {
     width: 56px;
     height: 56px;
     text-align: center;
@@ -470,24 +471,29 @@ input.error {
 }
 
 .otp-input::-webkit-outer-spin-button,
-.otp-input::-webkit-inner-spin-button {
+.otp-input::-webkit-inner-spin-button,
+.otp-input-login::-webkit-outer-spin-button,
+.otp-input-login::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
 
-.otp-input:focus {
+.otp-input:focus,
+.otp-input-login:focus {
     border-color: var(--primary);
     background: #ffffff;
     box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
     transform: scale(1.05);
 }
 
-.otp-input.filled {
+.otp-input.filled,
+.otp-input-login.filled {
     border-color: var(--success);
     background: #f0fdf4;
 }
 
-.otp-input.error {
+.otp-input.error,
+.otp-input-login.error {
     border-color: var(--danger);
     background: #fef2f2;
     animation: shake 0.5s;
@@ -499,14 +505,16 @@ input.error {
     75% { transform: translateX(5px); }
 }
 
-#registration-step-2 {
+#registration-step-2,
+#login-step-2 {
     width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-#registration-step-2 p {
+#registration-step-2 p,
+#login-step-2 p {
     font-size: 1rem;
     color: var(--text-secondary);
     margin-bottom: 10px;
@@ -527,6 +535,24 @@ input.error {
 
 #resend-otp-button:hover {
     background-color: #4b5563;
+}
+
+.back-to-login {
+    background: linear-gradient(135deg, #6b7280, #4b5563) !important;
+    margin-top: 10px;
+}
+
+.back-to-login:hover {
+    background: linear-gradient(135deg, #4b5563, #374151) !important;
+    transform: translateY(-2px);
+}
+
+.resend {
+    background: linear-gradient(135deg, #059669, #047857) !important;
+}
+
+.resend:hover {
+    background: linear-gradient(135deg, #047857, #065f46) !important;
 }
 
 .password-message {

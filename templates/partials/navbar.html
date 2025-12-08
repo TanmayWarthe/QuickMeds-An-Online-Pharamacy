@@ -3,6 +3,11 @@
 <nav class="modern-navbar">
     <div class="container">
         <div class="navbar-content">
+            <!-- Mobile: Hamburger Menu -->
+            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Menu">
+                <i class="fas fa-bars toggle-icon"></i>
+            </button>
+
             <!-- Left: Brand -->
             <div class="brand-group">
                 {% block navbar_brand %}
@@ -102,6 +107,33 @@
 <script>
     // Navbar functionality
     document.addEventListener('DOMContentLoaded', function () {
+        // Mobile sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const closeSidebar = document.getElementById('closeSidebar');
+
+        function toggleSidebar(shouldOpen) {
+            if (sidebar && sidebarOverlay) {
+                const isOpen = typeof shouldOpen === 'boolean' ? shouldOpen : !sidebar.classList.contains('active');
+                sidebar.classList.toggle('active', isOpen);
+                sidebarOverlay.classList.toggle('active', isOpen);
+                document.body.classList.toggle('sidebar-open', isOpen);
+            }
+        }
+
+        if (sidebarToggle) {
+            sidebarToggle.addEventListener('click', () => toggleSidebar());
+        }
+
+        if (closeSidebar) {
+            closeSidebar.addEventListener('click', () => toggleSidebar(false));
+        }
+
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
+        }
+
         // User menu dropdown
         const dropdown = document.querySelector('.nav-right .dropdown');
 
@@ -152,8 +184,13 @@
 
         // Close search on ESC key
         document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && searchOverlay && searchOverlay.classList.contains('active')) {
-                toggleSearch(false);
+            if (e.key === 'Escape') {
+                if (searchOverlay && searchOverlay.classList.contains('active')) {
+                    toggleSearch(false);
+                }
+                if (sidebar && sidebar.classList.contains('active')) {
+                    toggleSidebar(false);
+                }
             }
         });
 

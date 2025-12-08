@@ -68,6 +68,27 @@ tests/
 # media/
 # staticfiles/
 
+# --- Sensitive Documentation & Deployment Guides ---
 RENDER_ENV_PRODUCTION.txt
 OTP_LOGIN_IMPLEMENTATION.md
 OTP_LOGIN_FLOW_DIAGRAM.md
+ADMIN_ACCESS_GUIDE.md
+QUICK_DEPLOY_GUIDE.md
+OTP_LOGIN_QUICK_START.md
+RESPONSIVE_IMPLEMENTATION_SUMMARY.md
+RESPONSIVE_DESIGN_GUIDE.md
+QUICK_RESPONSIVE_SETUP.md
+
+# --- Additional Files to Ignore ---
+*.bak
+*.tmp
+*.cache
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+celerybeat-schedule
+*.pid
+*.seed
+*.pid.lock

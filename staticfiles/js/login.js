@@ -251,6 +251,8 @@
 
     // Login Handler
     const Login = {
+        currentEmail: '',
+
         async handleLogin(formData) {
             const email = formData.get('email').toLowerCase().trim();
             const password = formData.get('password');
@@ -265,6 +267,8 @@
                 return false;
             }
 
+            this.currentEmail = email;
+
             try {
                 const button = document.querySelector('#loginForm button[type="submit"]');
                 button.disabled = true;
@@ -278,7 +282,10 @@
                 button.disabled = false;
                 button.textContent = 'SIGN IN';
 
-                if (result.success) {
+                if (result.success && result.otp_required) {
+                    Utils.showMessage(result.message || 'OTP sent to your email!', 'success');
+                    this.showOTPForm();
+                } else if (result.success) {
                     Utils.showMessage('Login successful!', 'success');
                     setTimeout(() => {
                         window.location.href = result.redirect_url || '/';
@@ -291,13 +298,117 @@
             }
 
             return false;
+        },
+
+        showOTPForm() {
+            document.getElementById('login-step-1').style.display = 'none';
+            document.getElementById('login-step-2').style.display = 'block';
+            
+            // Focus first OTP input
+            const firstInput = document.querySelector('.otp-input-login');
+            if (firstInput) firstInput.focus();
+        },
+
+        async verifyOTP() {
+            const otpInputs = document.querySelectorAll('.otp-input-login');
+            const otp = Array.from(otpInputs).map(input => input.value).join('');
+
+            if (otp.length !== 4) {
+                Utils.showMessage('Please enter complete 4-digit OTP', 'error');
+                return;
+            }
+
+            try {
+                const button = document.querySelector('#login-step-2 .sign-button:not(.resend):not(.back-to-login)');
+                button.disabled = true;
+                button.textContent = 'Verifying...';
+
+                const result = await API.makeRequest('verify_login_otp', {
+                    otp
+                });
+
+                button.disabled = false;
+                button.textContent = 'Verify OTP';
+
+                if (result.success) {
+                    Utils.showMessage(result.message || 'Login successful!', 'success');
+                    setTimeout(() => {
+                        window.location.href = result.redirect_url || '/';
+                    }, 1000);
+                } else {
+                    Utils.showMessage(result.message || 'Invalid OTP', 'error');
+                    otpInputs.forEach(input => input.value = '');
+                    otpInputs[0].focus();
+                }
+            } catch (error) {
+                Utils.showMessage('Verification failed. Please try again.', 'error');
+            }
+        },
+
+        async resendOTP() {
+            try {
+                const button = document.querySelector('#login-step-2 .resend');
+                button.disabled = true;
+                button.textContent = 'Sending...';
+
+                const result = await API.makeRequest('resend_login_otp', {});
+
+                button.disabled = false;
+                button.textContent = 'Resend OTP';
+
+                if (result.success) {
+                    Utils.showMessage('OTP resent successfully!', 'success');
+                    document.querySelectorAll('.otp-input-login').forEach(input => input.value = '');
+                    document.querySelectorAll('.otp-input-login')[0].focus();
+                } else {
+                    Utils.showMessage(result.message || 'Failed to resend OTP', 'error');
+                }
+            } catch (error) {
+                Utils.showMessage('Failed to resend OTP', 'error');
+            }
+        },
+
+        backToLogin() {
+            document.getElementById('login-step-1').style.display = 'block';
+            document.getElementById('login-step-2').style.display = 'none';
+            document.querySelectorAll('.otp-input-login').forEach(input => input.value = '');
         }
     };
 
     // OTP Input Handler
     const OTPHandler = {
         init() {
+            // Handle registration OTP inputs
             document.querySelectorAll('.otp-input').forEach((input, index, inputs) => {
+                input.addEventListener('input', function(e) {
+                    // Only allow numbers
+                    this.value = this.value.replace(/[^0-9]/g, '');
+                    
+                    if (this.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Backspace' && !this.value && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                input.addEventListener('paste', function(e) {
+                    e.preventDefault();
+                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 4);
+                    inputs.forEach((inp, i) => {
+                        inp.value = pastedData[i] || '';
+                    });
+                    if (pastedData.length === 4) {
+                        inputs[3].focus();
+                    }
+                });
+            });
+
+            // Handle login OTP inputs
+            document.querySelectorAll('.otp-input-login').forEach((input, index, inputs) => {
                 input.addEventListener('input', function(e) {
                     // Only allow numbers
                     this.value = this.value.replace(/[^0-9]/g, '');
@@ -364,6 +475,18 @@
         Registration.resendOTP();
     };
 
+    window.verifyLoginOTP = function() {
+        Login.verifyOTP();
+    };
+
+    window.resendLoginOTP = function() {
+        Login.resendOTP();
+    };
+
+    window.backToLogin = function() {
+        Login.backToLogin();
+    };
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
         const signUpButton = document.getElementById('signUp');
@@ -382,6 +505,13 @@
                 // Reset registration form
                 document.getElementById('registration-step-1').style.display = 'block';
                 document.getElementById('registration-step-2').style.display = 'none';
+                // Reset login form
+                const loginStep1 = document.getElementById('login-step-1');
+                const loginStep2 = document.getElementById('login-step-2');
+                if (loginStep1) loginStep1.style.display = 'block';
+                if (loginStep2) loginStep2.style.display = 'none';
+                // Clear login OTP inputs
+                document.querySelectorAll('.otp-input-login').forEach(input => input.value = '');
             });
         }
 
