@@ -156,78 +156,72 @@
 
         <div class="products-grid">
             {% for product in random_products %}
-            <article class="product-card-modern" data-product-id="{{ product.id }}">
+            <div class="product-card" data-product-id="{{ product.id }}" onclick="openProductDetail({{ product.id }}, event)">
+                
+                <!-- Product Image -->
                 <div class="product-image-wrapper">
-                    <a href="{% url 'product_detail' product.id %}" class="product-image-link">
-                        {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy" class="product-img">
-                        {% else %}
-                        <img src="{% static 'img/default.png' %}" alt="{{ product.name }}" loading="lazy"
-                            class="product-img">
-                        {% endif %}
-                    </a>
-
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
+                    {% endif %}
+                    
                     <!-- Badges -->
                     <div class="product-badges">
-                        {% if product.discount_percentage %}
-                        <span class="badge badge-discount">-{{ product.discount_percentage }}%</span>
+                        {% if product.discount_percentage > 0 %}
+                            <span class="badge badge-sale pulse-badge"><i class="fas fa-tag"></i> -{{ product.discount_percentage|floatformat:0 }}%</span>
                         {% endif %}
                         {% if product.stock < 10 and product.stock > 0 %}
-                            <span class="badge badge-low-stock">Only {{ product.stock }} left</span>
-                            {% elif not product.in_stock or product.stock == 0 %}
-                            <span class="badge badge-out-stock">Out of Stock</span>
-                            {% endif %}
-                    </div>
-
-                    <!-- Quick Actions -->
-                    <div class="product-quick-actions">
-                        <button class="quick-action-btn" onclick="quickView('{{product.id}}')" title="Quick View">
-                            <i class="fas fa-eye"></i>
-                        </button>
+                            <span class="badge badge-low"><i class="fas fa-exclamation-circle"></i> Only {{ product.stock }} left</span>
+                        {% elif product.stock == 0 %}
+                            <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out of Stock</span>
+                        {% endif %}
                     </div>
                 </div>
 
-                <div class="product-details">
-                    <span class="product-category">{{ product.category.name }}</span>
-                    <a href="{% url 'product_detail' product.id %}" class="product-name-link">
-                        <h3 class="product-name">{{ product.name|truncatewords:6 }}</h3>
-                    </a>
+                <!-- Product Info -->
+                <div class="product-info">
+                    <div class="product-category">{{ product.category.name }}</div>
+                    <h3 class="product-name">{{ product.name }}</h3>
 
-                    <div class="product-pricing">
-                        <span class="price-current">₹{{ product.price|floatformat:2 }}</span>
-                        {% if product.original_price and product.price < product.original_price %} <span
-                            class="price-original">₹{{ product.original_price|floatformat:2 }}</span>
+                    <!-- Price -->
+                    <div class="product-price-section">
+                        <div class="price-row">
+                            <span class="current-price">₹{{ product.price }}</span>
+                            {% if product.original_price and product.original_price > product.price %}
+                                <span class="original-price">₹{{ product.original_price }}</span>
                             {% endif %}
-                    </div>
-
-                    <!-- Stock Indicator -->
-                    {% if product.in_stock and product.stock > 0 %}
-                    <div class="stock-indicator">
-                        <div class="stock-bar">
-                            <div class="stock-fill" data-stock-percent="{{ product.stock_percentage }}"></div>
                         </div>
-                        <span class="stock-text {% if product.stock < 10 %}text-danger{% endif %}">
-                            {% if product.stock >= 50 %}In Stock{% elif product.stock >= 10 %}Limited Stock{% else
-                            %}Low
-                            Stock{% endif %}
-                        </span>
                     </div>
-                    {% endif %}
 
-                    {% if product.in_stock and product.stock > 0 %}
-                    <button class="add-cart-btn" data-product-id="{{ product.id }}"
-                        onclick="handleAddToCart('{{ product.id }}', event)" type="button">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Add to Cart</span>
-                    </button>
-                    {% else %}
-                    <button class="add-cart-btn out-of-stock" disabled type="button">
-                        <i class="fas fa-ban"></i>
-                        <span>Out of Stock</span>
-                    </button>
-                    {% endif %}
+                    <!-- Stock Status -->
+                    <div class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+                        <i class="fas {% if product.stock > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        <span>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="product-actions">
+                        {% if product.stock > 0 %}
+                            <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
+                                <i class="fas fa-shopping-cart"></i>
+                                <span>Add to Cart</span>
+                            </button>
+                            <button class="btn-icon-action btn-quick-view hide-on-mobile" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
+                                <i class="far fa-heart"></i>
+                            </button>
+                        {% else %}
+                            <button class="btn-notify" onclick="notifyMe(event, {{ product.id }})">
+                                <i class="fas fa-bell"></i>
+                                <span>Notify Me</span>
+                            </button>
+                        {% endif %}
+                    </div>
                 </div>
-            </article>
+            </div>
             {% empty %}
             <div class="no-products">
                 <i class="fas fa-box-open"></i>
