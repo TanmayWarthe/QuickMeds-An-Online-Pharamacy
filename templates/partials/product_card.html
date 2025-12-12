@@ -1,0 +1,62 @@
+{% load static %}
+
+{# Reusable Product Card Component #}
+{# Usage: {% include 'partials/product_card.html' with product=product %} #}
+
+<div class="product-card" data-product-id="{{ product.id }}">
+
+    <!-- Product Image - Clickable -->
+    <div class="product-image-wrapper" onclick="openProductDetail('{{ product.id }}', event)" style="cursor: pointer;">
+        {% if product.image %}
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+        {% else %}
+        <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
+        {% endif %}
+
+
+    </div>
+
+    <!-- Product Info -->
+    <div class="product-info">
+        <div class="product-category">{{ product.category.name }}</div>
+        <h3 class="product-name" onclick="openProductDetail('{{ product.id }}', event)" style="cursor: pointer;">
+            {{ product.name }}
+        </h3>
+
+        <!-- Price -->
+        <div class="product-price-section">
+            <div class="price-row">
+                <span class="current-price">₹{{ product.price }}</span>
+                {% if product.original_price and product.original_price > product.price %}
+                <span class="original-price">₹{{ product.original_price }}</span>
+                <span class="discount-percent">{{ product.discount_percentage|floatformat:0 }}% OFF</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Stock Status -->
+        <div class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
+            <i class="fas {% if product.stock > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+            <span>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="product-actions">
+            {% if product.stock > 0 %}
+            <button class="btn-add-cart" onclick="addToCartQuick(event, '{{ product.id }}')">
+                <i class="fas fa-shopping-cart"></i>
+                <span>Add to Cart</span>
+            </button>
+            <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, '{{ product.id }}')"
+                title="Add to Wishlist">
+                <i class="far fa-heart"></i>
+            </button>
+            {% else %}
+            <button class="btn-notify" onclick="notifyMe(event, '{{ product.id }}')">
+                <i class="fas fa-bell"></i>
+                <span>Notify Me</span>
+            </button>
+            {% endif %}
+        </div>
+    </div>
+</div>

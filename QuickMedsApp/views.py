@@ -1191,59 +1191,58 @@ def create_checkout_session(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def send_otp(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        try:
-            # Generate OTP
-            otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-            
-            # Store OTP in cache
-            cache.set(f'otp_{email}', otp, timeout=600)  # 10 minutes timeout
-            
-            # Send OTP
-            if send_otp_email(email, otp):
-                return JsonResponse({'status': 'success', 'message': 'OTP sent successfully'})
-            else:
-                return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
-                
-        except Exception as e:
-            logger.error(f"Error in send_otp view: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': 'Failed to send OTP'}, status=500)
+    from .otp_utils import check_rate_limit, generate_otp, store_otp, increment_otp_count, send_otp_async
     
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=400)
+    try:
+        data = json.loads(request.body) if request.body else request.POST
+        email = data.get('email')
+        
+        if not email:
+            return JsonResponse({'status': 'error', 'message': 'Email is required'}, status=400)
+            
+        # Check rate limit
+        allowed, message = check_rate_limit(email)
+        if not allowed:
+            return JsonResponse({'status': 'error', 'message': message}, status=429)
+            
+        # Generate and store OTP
+        otp = generate_otp()
+        
+        if store_otp(email, otp):
+            increment_otp_count(email)
+            send_otp_async(email, otp, purpose='login')
+            return JsonResponse({'status': 'success', 'message': 'OTP sent successfully'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Failed to generate OTP'}, status=500)
+            
+    except Exception as e:
+        logger.error(f"Error in send_otp: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': 'Internal server error'}, status=500)
 
 @csrf_exempt
 @require_http_methods(["POST"])
 def verify_otp_view(request):
+    from .otp_utils import verify_otp
+    
     try:
         data = json.loads(request.body)
         email = data.get('email')
         otp = data.get('otp')
         
         if not email or not otp:
-            return JsonResponse({
-                'success': False,
-                'message': 'Email and OTP are required'
-            }, status=400)
+            return JsonResponse({'success': False, 'message': 'Email and OTP are required'}, status=400)
         
         # Verify OTP
-        if verify_otp(email, otp):
-            return JsonResponse({
-                'success': True,
-                'message': 'OTP verified successfully'
-            })
+        success, message = verify_otp(email, otp)
+        
+        if success:
+            return JsonResponse({'success': True, 'message': message})
         else:
-            return JsonResponse({
-                'success': False,
-                'message': 'Invalid or expired OTP'
-            }, status=400)
+            return JsonResponse({'success': False, 'message': message}, status=400)
             
     except Exception as e:
-        print(f"Error in verify_otp view: {str(e)}")  # Debug print
-        return JsonResponse({
-            'success': False,
-            'message': str(e)
-        }, status=500)
+        logger.error(f"Error in verify_otp: {str(e)}")
+        return JsonResponse({'success': False, 'message': 'Verification failed'}, status=500)
 
 def order_confirmation_view(request, order_id):
     if not request.user.is_authenticated:
@@ -1912,13 +1911,26 @@ def admin_contacts(request):
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_product_add(request):
     """Add new product"""
-    if request.method == 'POST':
-        # Handle product creation
-        pass
+    from .forms import ProductAdminForm
     
-    categories = Category.objects.all()
+    if request.method == 'POST':
+        form = ProductAdminForm(request.POST, request.FILES)
+        if form.is_valid():
+            try:
+                product = form.save()
+                messages.success(request, f'Product "{product.name}" added successfully!')
+                return redirect('admin_products')
+            except Exception as e:
+                messages.error(request, f'Error adding product: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProductAdminForm()
+    
     context = {
-        'categories': categories,
+        'form': form,
+        'title': 'Add New Product',
+        'button_text': 'Add Product'
     }
     return render(request, 'admin_product_form.html', context)
 
@@ -1926,26 +1938,46 @@ def admin_product_add(request):
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_product_edit(request, product_id):
     """Edit product"""
+    from .forms import ProductAdminForm
+    
     product = get_object_or_404(Product, id=product_id)
     
     if request.method == 'POST':
-        # Handle product update
-        pass
+        form = ProductAdminForm(request.POST, request.FILES, instance=product)
+        if form.is_valid():
+            try:
+                product = form.save()
+                messages.success(request, f'Product "{product.name}" updated successfully!')
+                return redirect('admin_products')
+            except Exception as e:
+                messages.error(request, f'Error updating product: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = ProductAdminForm(instance=product)
     
-    categories = Category.objects.all()
     context = {
+        'form': form,
         'product': product,
-        'categories': categories,
+        'title': 'Edit Product',
+        'button_text': 'Update Product'
     }
     return render(request, 'admin_product_form.html', context)
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
 def admin_product_delete(request, product_id):
     """Delete product"""
     product = get_object_or_404(Product, id=product_id)
-    product.delete()
-    messages.success(request, 'Product deleted successfully!')
+    product_name = product.name
+    
+    try:
+        product.delete()
+        messages.success(request, f'Product "{product_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting product: {str(e)}')
+    
     return redirect('admin_products')
 
 @login_required

@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} - Admin Panel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}">
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f8fafc;
+    }
+
+    .main-content {
+        padding: 0;
+        margin: 0;
+    }
+
+    .form-control:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+
+    .invalid-feedback {
+        display: block !important;
+    }
+</style>
+{% endblock %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block content_wrapper %}
+<div class="admin-wrapper">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <h4>
+                <i class="fas fa-shield-alt"></i>
+                Admin <span class="admin-badge">PANEL</span>
+            </h4>
+        </div>
+        <nav class="admin-nav">
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_dashboard' %}">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link active" href="{% url 'admin_products' %}">
+                    <i class="fas fa-pills"></i>
+                    <span>Products</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_orders' %}">
+                    <i class="fas fa-shopping-bag"></i>
+                    <span>Orders</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_users' %}">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_categories' %}">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'admin_contacts' %}">
+                    <i class="fas fa-envelope"></i>
+                    <span>Messages</span>
+                </a>
+            </div>
+            <div class="admin-nav-divider"></div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'home' %}">
+                    <i class="fas fa-globe"></i>
+                    <span>View Site</span>
+                </a>
+            </div>
+            <div class="admin-nav-item">
+                <a class="admin-nav-link" href="{% url 'logout' %}">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-content">
+        <div class="admin-header">
+            <h2><i class="fas fa-box"></i> {{ title }}</h2>
+            <div style="color: #64748b; font-size: 14px;">
+                <i class="fas fa-user-circle"></i> {{ request.user.username }}
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="container-fluid px-4 mb-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Form Card -->
+        <div class="content-card">
+            <div class="content-card-body">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {{ form.non_field_errors }}
+                    </div>
+                    {% endif %}
+
+                    <div class="row">
+                        <!-- Product Name -->
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">
+                                {{ form.name.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.name.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                                {{ form.description.label }}
+                            </label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.description.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Category -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.category.id_for_label }}" class="form-label fw-bold">
+                                {{ form.category.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.category.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Price -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">
+                                {{ form.price.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.price }}
+                            {% if form.price.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.price.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Original Price -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.original_price.id_for_label }}" class="form-label fw-bold">
+                                {{ form.original_price.label }}
+                            </label>
+                            {{ form.original_price }}
+                            <small class="form-text text-muted d-block">{{ form.original_price.help_text }}</small>
+                            {% if form.original_price.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.original_price.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Stock -->
+                        <div class="col-md-6 mb-3">
+                            <label for="{{ form.stock.id_for_label }}" class="form-label fw-bold">
+                                {{ form.stock.label }} <span class="text-danger">*</span>
+                            </label>
+                            {{ form.stock }}
+                            <small class="form-text text-muted d-block">{{ form.stock.help_text }}</small>
+                            {% if form.stock.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.stock.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Image -->
+                        <div class="col-md-12 mb-3">
+                            <label for="{{ form.image.id_for_label }}" class="form-label fw-bold">
+                                {{ form.image.label }}
+                            </label>
+
+                            {% if product and product.image %}
+                            <div class="mb-3">
+                                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="img-thumbnail"
+                                    style="max-width: 200px; border-radius: 8px;">
+                                <p class="text-muted small mt-2 mb-0">
+                                    <i class="fas fa-info-circle"></i> Current image - Upload a new one to replace
+                                </p>
+                            </div>
+                            {% endif %}
+
+                            {{ form.image }}
+                            <small class="form-text text-muted d-block mt-1">
+                                <i class="fas fa-image"></i> Max size: 5MB | Formats: JPG, PNG, WEBP
+                            </small>
+                            {% if form.image.errors %}
+                            <div class="invalid-feedback">
+                                {{ form.image.errors.0 }}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- In Stock Checkbox -->
+                        <div class="col-md-12 mb-3">
+                            <div class="form-check">
+                                {{ form.in_stock }}
+                                <label class="form-check-label fw-bold" for="{{ form.in_stock.id_for_label }}">
+                                    {{ form.in_stock.label }}
+                                </label>
+                                <small class="form-text text-muted d-block mt-1">{{ form.in_stock.help_text }}</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                        <a href="{% url 'admin_products' %}" class="btn-admin btn-admin-secondary">
+                            <i class="fas fa-arrow-left"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn-admin btn-admin-primary">
+                            <i class="fas fa-save"></i> {{ button_text }}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock content_wrapper %}

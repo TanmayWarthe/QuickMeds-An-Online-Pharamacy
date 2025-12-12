@@ -44,10 +44,37 @@
             <div class="nav-right">
                 {% block navbar_extra_left %}{% endblock %}
 
-                <!-- Search -->
-                <button class="nav-search-btn" id="searchToggle" type="button" aria-label="Search">
-                    <i class="fas fa-search"></i>
-                </button>
+                <!-- Inline Expanding Search with Suggestions -->
+                <div class="nav-search-wrapper" id="navSearchWrapper">
+                    <button class="nav-search-btn" id="searchToggle" type="button" aria-label="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    <form action="/search/" method="GET" class="nav-search-form" id="navSearchForm">
+                        <input type="search" name="q" class="nav-search-input" id="navSearchInput"
+                            placeholder="Search medicines, vitamins..." autocomplete="off" aria-autocomplete="list"
+                            aria-controls="searchSuggestions">
+                        <button type="button" class="search-clear-btn" id="searchClear" aria-label="Clear search">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </form>
+
+                    <!-- Search Suggestions Dropdown -->
+                    <div class="search-suggestions" id="searchSuggestions" role="listbox">
+                        <div class="suggestions-header">
+                            <i class="fas fa-clock"></i>
+                            <span>Recent Searches</span>
+                        </div>
+                        <div class="suggestions-list" id="suggestionsList">
+                            <!-- Suggestions will be populated by JavaScript -->
+                        </div>
+                        <div class="suggestions-footer">
+                            <button type="button" class="clear-history-btn" id="clearHistory">
+                                <i class="fas fa-trash-alt"></i>
+                                Clear History
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
                 {% if user.is_authenticated %}
                 <!-- Cart -->
@@ -83,22 +110,6 @@
                     <a href="{% url 'login' %}?signup=true" class="btn-signup">Get Started</a>
                 </div>
                 {% endif %}
-            </div>
-        </div>
-    </div>
-
-    <!-- Search Overlay -->
-    <div class="search-overlay" id="searchOverlay">
-        <div class="container">
-            <div class="search-container">
-                <form action="/search/" method="GET" class="search-form">
-                    <i class="fas fa-search search-icon"></i>
-                    <input type="text" name="q" class="search-input" placeholder="Search medicines, health products..."
-                        autocomplete="off" autofocus>
-                    <button type="button" class="search-close" id="searchClose">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </form>
             </div>
         </div>
     </div>
@@ -163,30 +174,186 @@
             }
         }
 
-        // Search overlay toggle
+        // Inline expanding search with suggestions
+        const searchWrapper = document.getElementById('navSearchWrapper');
         const searchToggle = document.getElementById('searchToggle');
-        const searchOverlay = document.getElementById('searchOverlay');
-        const searchClose = document.getElementById('searchClose');
-        const searchInput = document.querySelector('.search-input');
+        const searchForm = document.getElementById('navSearchForm');
+        const searchInput = document.getElementById('navSearchInput');
+        const searchClear = document.getElementById('searchClear');
+        const searchSuggestions = document.getElementById('searchSuggestions');
+        const suggestionsList = document.getElementById('suggestionsList');
+        const clearHistoryBtn = document.getElementById('clearHistory');
 
-        function toggleSearch(force) {
-            const shouldOpen = typeof force === 'boolean' ? force : !searchOverlay.classList.contains('active');
-            if (searchOverlay) {
-                searchOverlay.classList.toggle('active', shouldOpen);
-                if (shouldOpen && searchInput) {
-                    setTimeout(() => searchInput.focus(), 300);
+        // Recent searches management
+        const SEARCH_HISTORY_KEY = 'quickmeds_search_history';
+        const MAX_HISTORY_ITEMS = 5;
+
+        function getSearchHistory() {
+            try {
+                return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
+            } catch {
+                return [];
+            }
+        }
+
+        function saveSearchHistory(query) {
+            if (!query.trim()) return;
+            let history = getSearchHistory();
+            history = history.filter(item => item !== query);
+            history.unshift(query);
+            history = history.slice(0, MAX_HISTORY_ITEMS);
+            localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+        }
+
+        function clearSearchHistory() {
+            localStorage.removeItem(SEARCH_HISTORY_KEY);
+            renderSuggestions();
+        }
+
+        function renderSuggestions() {
+            const history = getSearchHistory();
+            if (history.length === 0) {
+                suggestionsList.innerHTML = '';
+                return;
+            }
+
+            suggestionsList.innerHTML = history.map(item => `
+                <div class="suggestion-item" data-query="${item}">
+                    <i class="fas fa-history"></i>
+                    <span class="suggestion-text">${item}</span>
+                    <button class="suggestion-remove" data-query="${item}" aria-label="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Add click handlers
+            document.querySelectorAll('.suggestion-item').forEach(item => {
+                item.addEventListener('click', function (e) {
+                    if (!e.target.closest('.suggestion-remove')) {
+                        const query = this.dataset.query;
+                        searchInput.value = query;
+                        searchForm.submit();
+                    }
+                });
+            });
+
+            document.querySelectorAll('.suggestion-remove').forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const query = this.dataset.query;
+                    let history = getSearchHistory();
+                    history = history.filter(item => item !== query);
+                    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
+                    renderSuggestions();
+                });
+            });
+        }
+
+        function openSearch() {
+            if (searchWrapper && searchForm && searchInput) {
+                searchWrapper.classList.add('active');
+                searchForm.classList.add('active');
+                renderSuggestions();
+                if (getSearchHistory().length > 0) {
+                    setTimeout(() => searchSuggestions.classList.add('active'), 100);
+                }
+                setTimeout(() => searchInput.focus(), 300);
+            }
+        }
+
+        function closeSearch() {
+            if (searchWrapper && searchForm) {
+                searchWrapper.classList.remove('active');
+                searchForm.classList.remove('active');
+                searchSuggestions.classList.remove('active');
+                if (searchInput) {
+                    searchInput.value = '';
                 }
             }
         }
 
-        if (searchToggle) searchToggle.addEventListener('click', () => toggleSearch());
-        if (searchClose) searchClose.addEventListener('click', () => toggleSearch(false));
+        if (searchToggle) {
+            searchToggle.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (searchWrapper.classList.contains('active')) {
+                    closeSearch();
+                } else {
+                    openSearch();
+                }
+            });
+        }
+
+        if (searchClear) {
+            searchClear.addEventListener('click', function (e) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (searchInput) {
+                    searchInput.value = '';
+                    searchInput.focus();
+                    searchSuggestions.classList.remove('active');
+                }
+            });
+        }
+
+        if (clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', clearSearchHistory);
+        }
+
+        // Show/hide suggestions on input focus
+        if (searchInput) {
+            searchInput.addEventListener('focus', function () {
+                if (getSearchHistory().length > 0) {
+                    renderSuggestions();
+                    searchSuggestions.classList.add('active');
+                }
+            });
+
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim()) {
+                    searchSuggestions.classList.remove('active');
+                } else if (getSearchHistory().length > 0) {
+                    searchSuggestions.classList.add('active');
+                }
+            });
+        }
+
+        // Save search on form submit
+        if (searchForm) {
+            searchForm.addEventListener('submit', function () {
+                if (searchInput && searchInput.value.trim()) {
+                    saveSearchHistory(searchInput.value.trim());
+                }
+            });
+        }
+
+        // Close search when clicking outside
+        document.addEventListener('click', function (e) {
+            if (searchWrapper && searchWrapper.classList.contains('active')) {
+                if (!searchWrapper.contains(e.target)) {
+                    closeSearch();
+                }
+            }
+        });
+
+        // Prevent closing when clicking inside search form or suggestions
+        if (searchForm) {
+            searchForm.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+        }
+
+        if (searchSuggestions) {
+            searchSuggestions.addEventListener('click', function (e) {
+                e.stopPropagation();
+            });
+        }
 
         // Close search on ESC key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                if (searchOverlay && searchOverlay.classList.contains('active')) {
-                    toggleSearch(false);
+                if (searchWrapper && searchWrapper.classList.contains('active')) {
+                    closeSearch();
                 }
                 if (sidebar && sidebar.classList.contains('active')) {
                     toggleSidebar(false);
@@ -194,11 +361,15 @@
             }
         });
 
-        // Close search when clicking outside
-        if (searchOverlay) {
-            searchOverlay.addEventListener('click', (e) => {
-                if (e.target === searchOverlay) {
-                    toggleSearch(false);
+        // Show/hide clear button based on input
+        if (searchInput && searchClear) {
+            searchInput.addEventListener('input', function () {
+                if (this.value.trim()) {
+                    searchClear.style.opacity = '1';
+                    searchClear.style.pointerEvents = 'auto';
+                } else {
+                    searchClear.style.opacity = '0';
+                    searchClear.style.pointerEvents = 'none';
                 }
             });
         }

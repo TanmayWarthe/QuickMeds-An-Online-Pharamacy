@@ -24,13 +24,15 @@
         </div>
         <div class="header-content">
             <h1 class="tagline">
-                <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap" rel="stylesheet">
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&family=Playfair+Display:wght@700&family=Poppins:wght@600&display=swap"
+                    rel="stylesheet">
                 Your Health, Our Priority
             </h1>
         </div>
     </div>
 
-   
+
 
     <!-- Category Pills -->
     <div class="category-section">
@@ -39,7 +41,8 @@
             Shop by Category
         </h2>
         <div class="category-pills">
-            <button class="category-pill {% if not request.GET.category %}active{% endif %}" onclick="filterByCategory('')">
+            <button class="category-pill {% if not request.GET.category %}active{% endif %}"
+                onclick="filterByCategory('')">
                 <div class="category-icon-wrapper all-products">
                     <i class="fas fa-th-large"></i>
                 </div>
@@ -49,34 +52,35 @@
                 </div>
             </button>
             {% for category in categories %}
-            <button class="category-pill {% if request.GET.category == category.name %}active{% endif %}" onclick="filterByCategory('{{ category.name }}')">
+            <button class="category-pill {% if request.GET.category == category.name %}active{% endif %}"
+                onclick="filterByCategory('{{ category.name }}')">
                 <div class="category-icon-wrapper">
                     {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
-                        <i class="fas fa-pills"></i>
+                    <i class="fas fa-pills"></i>
                     {% elif 'Pain' in category.name or 'Relief' in category.name %}
-                        <i class="fas fa-head-side-cough"></i>
+                    <i class="fas fa-head-side-cough"></i>
                     {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
-                        <i class="fas fa-leaf"></i>
+                    <i class="fas fa-leaf"></i>
                     {% elif 'First Aid' in category.name or 'Band' in category.name %}
-                        <i class="fas fa-first-aid"></i>
+                    <i class="fas fa-first-aid"></i>
                     {% elif 'Baby' in category.name or 'Child' in category.name %}
-                        <i class="fas fa-baby"></i>
+                    <i class="fas fa-baby"></i>
                     {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
-                        <i class="fas fa-spray-can"></i>
+                    <i class="fas fa-spray-can"></i>
                     {% elif 'Skin' in category.name or 'Beauty' in category.name %}
-                        <i class="fas fa-heart"></i>
+                    <i class="fas fa-heart"></i>
                     {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
-                        <i class="fas fa-syringe"></i>
+                    <i class="fas fa-syringe"></i>
                     {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
-                        <i class="fas fa-heartbeat"></i>
+                    <i class="fas fa-heartbeat"></i>
                     {% elif 'Eye' in category.name or 'Vision' in category.name %}
-                        <i class="fas fa-eye"></i>
+                    <i class="fas fa-eye"></i>
                     {% elif 'Dental' in category.name or 'Oral' in category.name %}
-                        <i class="fas fa-tooth"></i>
+                    <i class="fas fa-tooth"></i>
                     {% elif 'Wellness' in category.name or 'Health' in category.name %}
-                        <i class="fas fa-dumbbell"></i>
+                    <i class="fas fa-dumbbell"></i>
                     {% else %}
-                        <i class="fas fa-capsules"></i>
+                    <i class="fas fa-capsules"></i>
                     {% endif %}
                 </div>
                 <div class="category-info">
@@ -91,84 +95,7 @@
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
         {% for product in products %}
-        <div class="product-card" data-product-id="{{ product.id }}" onclick="openProductDetail({{ product.id }}, event)">
-            
-         
-            
-            <!-- Product Image -->
-            <div class="product-image-wrapper">
-                {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                {% else %}
-                    <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                {% endif %}
-                
-                <!-- Badges -->
-                <div class="product-badges">
-                    {% if product.discount_percentage > 0 %}
-                        <span class="badge badge-sale pulse-badge"><i class="fas fa-tag"></i> -{{ product.discount_percentage|floatformat:0 }}%</span>
-                    {% endif %}
-                    {% if product.stock < 10 and product.stock > 0 %}
-                        <span class="badge badge-low"><i class="fas fa-exclamation-circle"></i> Only {{ product.stock }} left</span>
-                    {% elif product.stock == 0 %}
-                        <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out of Stock</span>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Product Info -->
-            <div class="product-info">
-                <div class="product-category">{{ product.category.name }}</div>
-                <h3 class="product-name">{{ product.name }}</h3>
-                
-                {% comment %} <!-- Rating -->
-                <div class="product-rating">
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star"></i>
-                    <i class="fas fa-star-half-alt"></i>
-                    <span class="rating-count">(4.5)</span>
-                </div> {% endcomment %}
-
-                <!-- Price -->
-                <div class="product-price-section">
-                    <div class="price-row">
-                        <span class="current-price">{{ product.price }}</span>
-                        {% if product.original_price and product.original_price > product.price %}
-                            <span class="original-price">₹{{ product.original_price }}</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Stock Status -->
-                <div class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
-                    <i class="fas {% if product.stock > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                    <span>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
-                </div>
-
-                <!-- Actions -->
-                <div class="product-actions">
-                    {% if product.stock > 0 %}
-                        <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
-                            <i class="fas fa-shopping-cart"></i>
-                            <span>Add to Cart</span>
-                        </button>
-                        <button class="btn-icon-action btn-quick-view hide-on-mobile" onclick="openProductDetail({{ product.id }}, event)" title="Quick View">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
-                            <i class="far fa-heart"></i>
-                        </button>
-                    {% else %}
-                        <button class="btn-notify" onclick="notifyMe(event, {{ product.id }})">
-                            <i class="fas fa-bell"></i>
-                            <span>Notify Me</span>
-                        </button>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+        {% include 'partials/product_card.html' with product=product %}
         {% empty %}
         <div class="empty-state">
             <i class="fas fa-box-open"></i>
@@ -198,20 +125,20 @@
     function handleSearch(event) {
         const searchInput = event.target;
         const clearBtn = document.querySelector('.search-clear-btn');
-        
+
         // Show/hide clear button
         if (searchInput.value.trim()) {
             clearBtn.style.display = 'flex';
         } else {
             clearBtn.style.display = 'none';
         }
-        
+
         // Search on Enter key
         if (event.key === 'Enter') {
             performSearch();
         }
     }
-    
+
     // Perform search
     function performSearch() {
         const searchValue = document.getElementById('searchInput').value.trim();
@@ -223,14 +150,14 @@
         }
         window.location.href = url.toString();
     }
-    
+
     // Clear search
     function clearSearch() {
         const searchInput = document.getElementById('searchInput');
         searchInput.value = '';
         searchInput.focus();
         document.querySelector('.search-clear-btn').style.display = 'none';
-        
+
         // Clear search from URL
         const url = new URL(window.location.href);
         url.searchParams.delete('search');
@@ -252,12 +179,12 @@
     function addToCartQuick(event, productId) {
         event.stopPropagation();
         event.preventDefault();
-        
+
         const button = event.currentTarget;
         const originalHTML = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         button.disabled = true;
-        
+
         fetch(`/add-to-cart/${productId}/`, {
             method: 'POST',
             headers: {
@@ -271,35 +198,35 @@
             }),
             credentials: 'same-origin'
         })
-        .then(response => {
-            if (!response.ok) {
-                if (response.status === 403) {
-                    setTimeout(() => window.location.href = '/login/', 2000);
-                    throw new Error('Not authenticated');
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 403) {
+                        setTimeout(() => window.location.href = '/login/', 2000);
+                        throw new Error('Not authenticated');
+                    }
+                    throw new Error('Failed to add to cart');
                 }
-                throw new Error('Failed to add to cart');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                updateCartCount();
-                button.innerHTML = '<i class="fas fa-check"></i> Added';
-                
-                setTimeout(() => {
-                    button.innerHTML = originalHTML;
-                    button.disabled = false;
-                }, 2000);
-            } else {
-                throw new Error(data.message || 'Failed to add to cart');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            console.error('Failed to add to cart:', error);
-            button.innerHTML = originalHTML;
-            button.disabled = false;
-        });
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    updateCartCount();
+                    button.innerHTML = '<i class="fas fa-check"></i> Added';
+
+                    setTimeout(() => {
+                        button.innerHTML = originalHTML;
+                        button.disabled = false;
+                    }, 2000);
+                } else {
+                    throw new Error(data.message || 'Failed to add to cart');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                console.error('Failed to add to cart:', error);
+                button.innerHTML = originalHTML;
+                button.disabled = false;
+            });
     }
 
     // Notify me
@@ -307,18 +234,18 @@
         event.stopPropagation();
         // Notify functionality - placeholder
     }
-    
+
     // Toggle wishlist quick
     function toggleWishlistQuick(event, productId) {
         event.stopPropagation();
         event.preventDefault();
-        
+
         const button = event.currentTarget;
         const icon = button.querySelector('i');
-        
+
         // Toggle active state
         button.classList.toggle('active');
-        
+
         if (button.classList.contains('active')) {
             icon.classList.remove('far');
             icon.classList.add('fas');
@@ -338,21 +265,21 @@
             },
             credentials: 'same-origin'
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const cartBadge = document.querySelector('.cart-badge');
-                if (cartBadge) {
-                    if (data.cart_count > 0) {
-                        cartBadge.textContent = data.cart_count;
-                        cartBadge.style.display = 'flex';
-                    } else {
-                        cartBadge.style.display = 'none';
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const cartBadge = document.querySelector('.cart-badge');
+                    if (cartBadge) {
+                        if (data.cart_count > 0) {
+                            cartBadge.textContent = data.cart_count;
+                            cartBadge.style.display = 'flex';
+                        } else {
+                            cartBadge.style.display = 'none';
+                        }
                     }
                 }
-            }
-        })
-        .catch(error => console.error('Error:', error));
+            })
+            .catch(error => console.error('Error:', error));
     }
 
     // Get CSRF token
@@ -372,9 +299,9 @@
     }
 
     // Update product count on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         updateCartCount();
-        
+
         // Show clear button if search value exists
         const searchInput = document.getElementById('searchInput');
         const clearBtn = document.querySelector('.search-clear-btn');

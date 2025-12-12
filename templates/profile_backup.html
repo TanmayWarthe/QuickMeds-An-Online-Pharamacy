@@ -1,0 +1,990 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}My Profile - QuickMeds{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile-modern.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile-auth-responsive.css' %}">
+<style>
+    .profile-main-container {
+        max-width: 1200px;
+        margin: 40px auto;
+        padding: 0 20px;
+    }
+    
+    .profile-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 40px;
+        border-radius: 16px;
+        color: white;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+    
+    .profile-header-content {
+        display: flex;
+        align-items: center;
+        gap: 30px;
+    }
+    
+    .profile-avatar-large {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 40px;
+        color: #667eea;
+        border: 4px solid rgba(255,255,255,0.3);
+    }
+    
+    .profile-avatar-large img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .profile-header-info h1 {
+        margin: 0 0 10px 0;
+        font-size: 32px;
+        font-weight: 700;
+    }
+    
+    .profile-header-info p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 16px;
+    }
+    
+    .profile-tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #e0e0e0;
+        flex-wrap: wrap;
+    }
+    
+    .profile-tabs button {
+        padding: 12px 24px;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        color: #666;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .profile-tabs button:hover {
+        color: #667eea;
+    }
+    
+    .profile-tabs button.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    .info-card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 20px;
+    }
+    
+    .info-card h3 {
+        margin: 0 0 20px 0;
+        font-size: 20px;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+    }
+    
+    .info-item {
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .info-label {
+        display: block;
+        font-size: 13px;
+        color: #666;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    .info-value {
+        display: block;
+        font-size: 16px;
+        color: #333;
+        font-weight: 500;
+    }
+    
+    .btn-primary {
+        background: #667eea;
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary:hover {
+        background: #5568d3;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .order-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+    }
+    
+    .address-card {
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        margin-bottom: 15px;
+        position: relative;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+    }
+    
+    .empty-state i {
+        font-size: 64px;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+    
+    .empty-state p {
+        color: #666;
+        font-size: 16px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-main-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+        <div class="profile-header-content">
+            <div class="profile-avatar-large">
+                {% if user.userprofile.profile_image %}
+                <img src="{{ user.userprofile.profile_image.url }}" alt="Profile">
+                {% else %}
+                <i class="fas fa-user"></i>
+                {% endif %}
+            </div>
+            <div class="profile-header-info">
+                <h1>{{ user.get_full_name|default:user.username }}</h1>
+                <p><i class="fas fa-envelope"></i> {{ user.email }}</p>
+                <p><i class="fas fa-calendar"></i> Member since {{ user.date_joined|date:"F Y" }}</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tabs Navigation -->
+    <div class="profile-tabs">
+        <button class="tab-btn active" data-tab="info">
+            <i class="fas fa-user"></i> Personal Info
+        </button>
+        <button class="tab-btn" data-tab="orders">
+            <i class="fas fa-shopping-bag"></i> My Orders {% if orders_count %}({{ orders_count }}){% endif %}
+        </button>
+        <button class="tab-btn" data-tab="addresses">
+            <i class="fas fa-map-marker-alt"></i> Addresses
+        </button>
+        <button class="tab-btn" data-tab="settings">
+            <i class="fas fa-cog"></i> Settings
+        </button>
+        <button onclick="window.location.href='{% url 'logout' %}'" style="margin-left: auto; color: #dc3545;">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Profile Content -->
+    <div class="profile-content">
+        <!-- Personal Info Tab -->
+        <div class="profile-tab active" id="personal-info">
+            <div class="personal-info-container">
+                <!-- View Mode -->
+                <div id="profile-view" class="profile-view-mode">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-circle"></i> Personal Information</h2>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-section">
+                            <div class="section-title">
+                                <i class="fas fa-id-card-alt"></i>
+                                <h3>Basic Information</h3>
+                            </div>
+                            <div class="info-list">
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Full Name</span>
+                                        <span class="info-value">{{ user.get_full_name }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Email</span>
+                                        <span class="info-value">{{ user.email }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Phone</span>
+                                        <span class="info-value">{{ user.userprofile.phone|default:"Not provided"
+                                            }}</span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Gender</span>
+                                        <span class="info-value">
+                                            {% if user.userprofile.gender == 'M' %}Male
+                                            {% elif user.userprofile.gender == 'F' %}Female
+                                            {% elif user.userprofile.gender == 'O' %}Other
+                                            {% else %}Not specified{% endif %}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Date of Birth</span>
+                                        <span class="info-value">
+                                            {{ user.userprofile.dob|date:"F d, Y"|default:"Not provided" }}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <div class="info-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="info-content">
+                                        <span class="info-label">Member Since</span>
+                                        <span class="info-value">{{ user.date_joined|date:"F Y" }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-profile-action">
+                                <button class="btn btn-edit-profile" onclick="toggleEditMode()">
+                                    <i class="fas fa-edit"></i> Edit Profile
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Edit Mode (Hidden by default) -->
+                <div id="profile-edit" class="profile-edit-mode" style="display: none;">
+                    <div class="section-header">
+                        <h2><i class="fas fa-user-edit"></i> Edit Profile</h2>
+                        <button class="btn btn-cancel-edit" onclick="toggleEditMode()">
+                            <i class="fas fa-times"></i> Cancel
+                        </button>
+                    </div>
+
+                    <form id="profile-form" class="profile-edit-form">
+                        {% csrf_token %}
+                        <div class="form-card">
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-id-card"></i>
+                                    <h3>Basic Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="first_name">First Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="first_name" name="first_name"
+                                                value="{{ user.first_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="last_name">Last Name</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                            <input type="text" id="last_name" name="last_name"
+                                                value="{{ user.last_name }}" class="form-control" required>
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="email">Email Address</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                            <input type="email" id="email" name="email" value="{{ user.email }}"
+                                                class="form-control" readonly>
+                                        </div>
+                                        <small class="form-text text-muted"><i class="fas fa-info-circle"></i> Email
+                                            cannot be changed</small>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="phone">Phone Number</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-phone"></i></span>
+                                            <input type="tel" id="phone" name="phone"
+                                                value="{{ user.userprofile.phone|default:'' }}" class="form-control"
+                                                required pattern="[0-9]{10}">
+                                        </div>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <div class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h3>Additional Information</h3>
+                                </div>
+                                <div class="form-row">
+                                    <div class="form-group col-md-6">
+                                        <label for="gender">Gender</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-venus-mars"></i></span>
+                                            <select id="gender" name="gender" class="form-control">
+                                                <option value="">Select Gender</option>
+                                                <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
+                                                <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
+                                                <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="form-group col-md-6">
+                                        <label for="dob">Date of Birth</label>
+                                        <div class="input-group">
+                                            <span class="input-group-text"><i class="fas fa-calendar"></i></span>
+                                            <input type="date" id="dob" name="dob"
+                                                value="{{ user.userprofile.dob|date:'Y-m-d' }}" class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-save" id="saveChanges">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Tab -->
+        <div class="profile-tab" id="orders">
+            <h2><i class="fas fa-shopping-bag"></i> My Orders</h2>
+            {% if orders %}
+            <div class="orders-list">
+                {% for order in orders %}
+                <div class="order-card" data-order-id="{{ order.id }}">
+                    <div class="order-header">
+                        <div class="order-info">
+                            <div class="order-id-date">
+                                <span class="order-id">Order #{{ order.id }}</span>
+                                <span class="order-date">{{ order.created_at|date:"d M Y" }}</span>
+                            </div>
+                            <span class="order-status {{ order.order_status|lower }}">
+                                <i class="fas fa-circle"></i>
+                                {{ order.order_status }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="order-details">
+                        {% for item in order.items.all %}
+                        <div class="order-item">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" class="item-image">
+                            <div class="item-details">
+                                <h4>{{ item.product.name }}</h4>
+                                <p>Qty: {{ item.quantity }} × ₹{{ item.price }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="order-footer">
+                        <div class="order-summary">
+                            <div class="summary-item total">
+                                <span>Total Amount:</span>
+                                <span>₹{{ order.total_amount|intcomma }}</span>
+                            </div>
+                        </div>
+                        <div class="order-actions">
+                            <a href="{% url 'order_detail' order.id %}" class="btn-view-details">
+                                <i class="fas fa-eye"></i> View Details
+                            </a>
+                            {% if order.order_status == 'PENDING' or order.order_status == 'PROCESSING' %}
+                            <button class="btn-cancel-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-times"></i> Cancel Order
+                            </button>
+                            {% elif order.order_status == 'CANCELLED' %}
+                            <button class="btn-delete-order" data-order-id="{{ order.id }}">
+                                <i class="fas fa-trash-alt"></i> Delete Order
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="orders-empty">
+                <i class="fas fa-shopping-bag"></i>
+                <p>You haven't placed any orders yet</p>
+                <a href="{% url 'product' %}" class="btn-shop-now">Start Shopping</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Addresses Tab -->
+        <div class="profile-tab" id="addresses">
+            <div class="addresses-container">
+                <div class="addresses-header">
+                    <h2><i class="fas fa-map-marker-alt"></i> My Addresses</h2>
+                    <button id="add-address-btn" class="btn-primary">
+                        <i class="fas fa-plus"></i> Add New Address
+                    </button>
+                </div>
+
+                <!-- Address Form Container -->
+                <div class="address-form-container" style="display: none;">
+                    <div class="form-header">
+                        <h3><i class="fas fa-plus-circle"></i> <span class="form-title">Add New Address</span></h3>
+                        <button type="button" id="cancel-address-btn" class="btn-icon">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <form id="address-form" class="address-form" novalidate>
+                        {% csrf_token %}
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="full_name">Full Name*</label>
+                                <input type="text" id="full_name" name="full_name" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group col-md-6">
+                                <label for="phone_number">Phone Number*</label>
+                                <input type="tel" id="phone_number" name="phone_number" class="form-control" required
+                                    pattern="[0-9]{10}" title="Please enter a valid 10-digit phone number">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label for="type">Address Type*</label>
+                                <select id="type" name="type" class="form-control" required>
+                                    <option value="">Select Type</option>
+                                    <option value="Home">Home</option>
+                                    <option value="Office">Office</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="street_address">Street Address*</label>
+                            <textarea id="street_address" name="street_address" class="form-control" rows="3"
+                                required></textarea>
+                            <div class="invalid-feedback"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group col-md-4">
+                                <label for="city">City*</label>
+                                <input type="text" id="city" name="city" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="state">State*</label>
+                                <input type="text" id="state" name="state" class="form-control" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                            <div class="form-group col-md-4">
+                                <label for="postal_code">Postal Code*</label>
+                                <input type="text" id="postal_code" name="postal_code" class="form-control" required
+                                    pattern="[0-9]{6}" title="Please enter a valid 6-digit postal code">
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-checkbox">
+                                <input type="checkbox" id="is_default" name="is_default" class="custom-control-input">
+                                <label class="custom-control-label" for="is_default">Set as default address</label>
+                            </div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn-save">
+                                <i class="fas fa-save"></i> Save Address
+                            </button>
+                            <button type="button" class="btn-cancel" onclick="resetAddressForm()">
+                                <i class="fas fa-times"></i> Reset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Address List -->
+                <div class="addresses-list">
+                    {% for address in addresses %}
+                    <div class="address-card" data-id="{{ address.id }}">
+                        <div class="address-type">
+                            <i
+                                class="fas fa-{% if address.type == 'Home' %}home{% elif address.type == 'Office' %}building{% else %}map-marker{% endif %}"></i>
+                            {{ address.type }}
+                            {% if address.is_default %}
+                            <span class="default-badge">Default</span>
+                            {% endif %}
+                        </div>
+                        <div class="address-details">
+                            <h4>{{ address.full_name }}</h4>
+                            <p class="phone">{{ address.phone_number }}</p>
+                            <p class="street">{{ address.street_address }}</p>
+                            <p class="city-state">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                        </div>
+                        <div class="address-actions">
+                            {% if not address.is_default %}
+                            <button class="btn-set-default" onclick="setDefaultAddress('{{ address.id }}')">
+                                <i class="fas fa-star"></i> Set as Default
+                            </button>
+                            {% endif %}
+                            <button class="btn-edit" onclick="editAddress('{{ address.id }}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn-delete" onclick="deleteAddress('{{ address.id }}')">
+                                <i class="fas fa-trash-alt"></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="address-empty">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <p>No addresses added yet</p>
+                        <p class="subtitle">Add your first delivery address to make checkout easier</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div class="profile-tab" id="settings">
+            <div class="settings-section" id="account-settings">
+                <div class="section-header">
+                    <h2><i class="fas fa-cog"></i> Account Settings</h2>
+                </div>
+
+                <div class="settings-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Change Password</h3>
+                        </div>
+                        <div class="card-body">
+                            <form id="password-form" class="needs-validation" novalidate>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" class="form-control" id="username" name="username" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="current-password" class="form-label">Current Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="current-password"
+                                            name="current-password" required autocomplete="current-password">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('current-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="new-password" class="form-label">New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="new-password"
+                                            name="new-password" required autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('new-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                    <small class="form-text text-muted">Password must be at least 8 characters
+                                        long</small>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="confirm-password" class="form-label">Confirm New Password</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control password-field" id="confirm-password"
+                                            name="confirm-password" required autocomplete="new-password">
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            onclick="togglePassword('confirm-password')">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-key"></i> Update Password
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="card mt-4">
+                        <div class="card-header bg-danger">
+                            <h3>Danger Zone</h3>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-danger">Once you delete your account, there is no going back. Please be
+                                certain.</p>
+                            <button class="btn btn-danger" onclick="confirmDeleteAccount()">
+                                <i class="fas fa-trash-alt"></i> Delete Account
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile.js' %}"></script>
+<script src="{% static 'js/profile_search.js' %}"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Immediate tab initialization
+    document.addEventListener('DOMContentLoaded', function () {
+        console.log('Profile page loaded');
+
+        // Tab switching
+        const tabLinks = document.querySelectorAll('.profile-nav li[data-tab]');
+        const tabs = document.querySelectorAll('.profile-tab');
+
+        console.log('Tab links found:', tabLinks.length);
+        console.log('Tabs found:', tabs.length);
+
+        tabLinks.forEach(link => {
+            link.addEventListener('click', function () {
+                const tabId = this.dataset.tab;
+                console.log('Tab clicked:', tabId);
+
+                // Remove active from all
+                tabLinks.forEach(l => l.classList.remove('active'));
+                tabs.forEach(t => t.classList.remove('active'));
+
+                // Add active to clicked
+                this.classList.add('active');
+                const targetTab = document.getElementById(tabId);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                } else {
+                    console.error('Tab not found:', tabId);
+                }
+            });
+        });
+
+        // Address form toggle
+        const addAddressBtn = document.getElementById('add-address-btn');
+        const cancelAddressBtn = document.getElementById('cancel-address-btn');
+        const addressFormContainer = document.querySelector('.address-form-container');
+
+        if (addAddressBtn && cancelAddressBtn && addressFormContainer) {
+            addAddressBtn.addEventListener('click', () => {
+                addressFormContainer.style.display = 'block';
+            });
+
+            cancelAddressBtn.addEventListener('click', () => {
+                addressFormContainer.style.display = 'none';
+            });
+        }
+
+        // Profile image upload
+        const imageUpload = document.getElementById('profile-image-upload');
+        if (imageUpload) {
+            imageUpload.addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('profile_image', file);
+
+                    fetch('/update-profile-image/', {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': getCookie('csrftoken')
+                        },
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                location.reload();
+                            }
+                        });
+                }
+            });
+        }
+    });
+
+    function cancelOrder(orderId) {
+        if (confirm('Are you sure you want to cancel this order? This action cannot be undone.')) {
+            fetch(`/orders/${orderId}/cancel/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const orderCard = document.querySelector(`.order-card[data-order-id="${orderId}"]`);
+                        if (orderCard) {
+                            const statusElement = orderCard.querySelector('.order-status');
+                            statusElement.className = 'order-status cancelled';
+                            statusElement.innerHTML = '<i class="fas fa-circle"></i> CANCELLED';
+
+                            const actionsContainer = orderCard.querySelector('.order-actions');
+                            const cancelButton = actionsContainer.querySelector('.btn-cancel-order');
+                            if (cancelButton) {
+                                const deleteButton = document.createElement('button');
+                                deleteButton.className = 'btn-delete-order';
+                                deleteButton.setAttribute('data-order-id', orderId);
+                                deleteButton.innerHTML = '<i class="fas fa-trash-alt"></i> Delete Order';
+                                deleteButton.addEventListener('click', () => deleteOrder(orderId));
+                                cancelButton.replaceWith(deleteButton);
+                            }
+                        }
+                        showNotification('Order cancelled successfully', 'success');
+                    } else {
+                        showNotification(data.message || 'Failed to cancel order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to cancel order', 'error');
+                });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    function togglePassword(fieldId) {
+        const field = document.getElementById(fieldId);
+        const button = field.nextElementSibling.querySelector('i');
+
+        if (field.type === 'password') {
+            field.type = 'text';
+            button.classList.remove('fa-eye');
+            button.classList.add('fa-eye-slash');
+        } else {
+            field.type = 'password';
+            button.classList.remove('fa-eye-slash');
+            button.classList.add('fa-eye');
+        }
+    }
+
+    function confirmDeleteAccount() {
+        if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+            fetch('/delete-account/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        window.location.href = '/';
+                    } else {
+                        showNotification(data.message || 'Failed to delete account', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('An error occurred while deleting account', 'error');
+                });
+        }
+    }
+
+    function deleteOrder(orderId) {
+        if (confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+            fetch(`/orders/${orderId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+                        if (orderCard) {
+                            orderCard.remove();
+                        }
+                        showNotification('Order deleted successfully', 'success');
+                    } else {
+                        showNotification(data.message || 'Failed to delete order', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Failed to delete order', 'error');
+                });
+        }
+    }
+
+    // Add event listeners for cancel and delete buttons
+    document.addEventListener('DOMContentLoaded', function () {
+        // Cancel order buttons
+        document.querySelectorAll('.btn-cancel-order').forEach(button => {
+            button.addEventListener('click', function () {
+                const orderId = this.dataset.orderId;
+                cancelOrder(orderId);
+            });
+        });
+
+        // Delete order buttons
+        document.querySelectorAll('.btn-delete-order').forEach(button => {
+            button.addEventListener('click', function () {
+                const orderId = this.dataset.orderId;
+                deleteOrder(orderId);
+            });
+        });
+    });
+
+    function toggleEditMode() {
+        const viewMode = document.getElementById('profile-view');
+        const editMode = document.getElementById('profile-edit');
+
+        if (viewMode.style.display !== 'none') {
+            viewMode.style.display = 'none';
+            editMode.style.display = 'block';
+            editMode.scrollIntoView({ behavior: 'smooth' });
+        } else {
+            editMode.style.display = 'none';
+            viewMode.style.display = 'block';
+            document.getElementById('profile-form').reset();
+            document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+        }
+    }
+
+    function showNotification(message, type) {
+        // Simple notification implementation
+        alert(message);
+    }
+
+    function resetAddressForm() {
+        document.getElementById('address-form').reset();
+        document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    }
+
+    function setDefaultAddress(addressId) {
+        // Implement set default address functionality
+        console.log('Set default address:', addressId);
+    }
+
+    function editAddress(addressId) {
+        // Implement edit address functionality
+        console.log('Edit address:', addressId);
+    }
+
+    function deleteAddress(addressId) {
+        if (confirm('Are you sure you want to delete this address?')) {
+            // Implement delete address functionality
+            console.log('Delete address:', addressId);
+        }
+    }
+</script>
+{% endblock %}

@@ -100,12 +100,16 @@
                 </p>
 
                 <!-- Search Bar -->
-                <form action="{% url 'search_products' %}" method="GET" class="hero-search">
+                <form action="{% url 'search_products' %}" method="GET" class="hero-search" role="search">
                     <div class="search-wrapper">
-                        <i class="fas fa-search search-icon"></i>
-                        <input type="text" name="q" class="search-input"
-                            placeholder="Search for medicines, vitamins, health products..." required>
-                        <button type="submit" class="search-submit">Search</button>
+                        <!-- <i class="fas fa-search search-icon" aria-hidden="true"></i> -->
+                        <input type="search" name="q" class="search-input"
+                            placeholder="Search medicines, vitamins, supplements..." aria-label="Search for products"
+                            autocomplete="off" required>
+                        <button type="submit" class="search-submit">
+                            <i class="fas fa-search"></i>
+                            <span>Search</span>
+                        </button>
                     </div>
                 </form>
 
@@ -158,69 +162,7 @@
 
         <div class="products-grid">
             {% for product in random_products %}
-            <div class="product-card" data-product-id="{{ product.id }}">
-                
-                <!-- Product Image - Clickable -->
-                <div class="product-image-wrapper" onclick="openProductDetail({{ product.id }}, event)" style="cursor: pointer;">
-                    {% if product.image %}
-                        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                    {% else %}
-                        <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
-                    {% endif %}
-                    
-                    <!-- Badges -->
-                    <div class="product-badges">
-                        {% if product.discount_percentage > 0 %}
-                            <span class="badge badge-sale pulse-badge"><i class="fas fa-tag"></i> -{{ product.discount_percentage|floatformat:0 }}%</span>
-                        {% endif %}
-                        {% if product.stock < 10 and product.stock > 0 %}
-                            <span class="badge badge-low"><i class="fas fa-exclamation-circle"></i> Only {{ product.stock }} left</span>
-                        {% elif product.stock == 0 %}
-                            <span class="badge badge-out"><i class="fas fa-times-circle"></i> Out of Stock</span>
-                        {% endif %}
-                    </div>
-                </div>
-
-                <!-- Product Info -->
-                <div class="product-info">
-                    <div class="product-category">{{ product.category.name }}</div>
-                    <h3 class="product-name" onclick="openProductDetail({{ product.id }}, event)" style="cursor: pointer;">{{ product.name }}</h3>
-
-                    <!-- Price -->
-                    <div class="product-price-section">
-                        <div class="price-row">
-                            <span class="current-price">₹{{ product.price }}</span>
-                            {% if product.original_price and product.original_price > product.price %}
-                                <span class="original-price">₹{{ product.original_price }}</span>
-                            {% endif %}
-                        </div>
-                    </div>
-
-                    <!-- Stock Status -->
-                    <div class="stock-status {% if product.stock > 0 %}in-stock{% else %}out-stock{% endif %}">
-                        <i class="fas {% if product.stock > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                        <span>{% if product.stock > 0 %}In Stock{% else %}Out of Stock{% endif %}</span>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="product-actions">
-                        {% if product.stock > 0 %}
-                            <button class="btn-add-cart" onclick="addToCartQuick(event, {{ product.id }})">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Add to Cart</span>
-                            </button>
-                            <button class="btn-icon-action btn-wishlist-quick" onclick="toggleWishlistQuick(event, {{ product.id }})" title="Add to Wishlist">
-                                <i class="far fa-heart"></i>
-                            </button>
-                        {% else %}
-                            <button class="btn-notify" onclick="notifyMe(event, {{ product.id }})">
-                                <i class="fas fa-bell"></i>
-                                <span>Notify Me</span>
-                            </button>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
+            {% include 'partials/product_card.html' with product=product %}
             {% empty %}
             <div class="no-products">
                 <i class="fas fa-box-open"></i>
