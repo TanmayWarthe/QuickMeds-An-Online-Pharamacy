@@ -3,7 +3,7 @@
   --primary-dark: #1e40af;
   --primary-light: #3b82f6;
   --primary-contrast: #ffffff;
-  --navbar-height: 76px;
+  --navbar-height: 68px;
   --dark: #1e293b;
   --dark-lighter: #334155;
   --success: #10b981;
@@ -21,16 +21,20 @@
 .bg-primary-gradient {
   background: linear-gradient(135deg, var(--primary), var(--primary-dark));
 }
+
 .text-primary {
   color: var(--primary) !important;
 }
+
 .btn-primary-solid {
   background: var(--primary);
   color: var(--primary-contrast);
 }
+
 .btn-primary-solid:hover {
   background: var(--primary-dark);
 }
+
 .border-light {
   border-color: var(--border) !important;
 }
