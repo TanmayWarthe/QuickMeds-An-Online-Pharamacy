@@ -1,7 +1,7 @@
 {% load static %}
 <!-- Professional Navbar - Top-Tier Navigation System -->
 <nav class="modern-navbar">
-    <div class="container">
+    <div class="container-fluid" style="padding: 0 1.5rem;">
         <div class="navbar-content">
             <!-- Mobile: Hamburger Menu -->
             <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Menu">
@@ -106,8 +106,10 @@
                 </div>
                 {% else %}
                 <div class="auth-group">
-                    <a href="{% url 'login' %}" class="btn-login">Login</a>
-                    <a href="{% url 'login' %}?signup=true" class="btn-signup">Get Started</a>
+                    <button type="button" class="btn-login" data-bs-toggle="modal"
+                        data-bs-target="#authModal">Login</button>
+                    <button type="button" class="btn-signup" data-bs-toggle="modal" data-bs-target="#authModal"
+                        data-mode="signup">Sign Up</button>
                 </div>
                 {% endif %}
             </div>
