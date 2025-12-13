@@ -443,8 +443,8 @@
 <script src="{% static 'js/product-detail.js' %}"></script>
 <script>
     // Pass Django context to JavaScript
-    const PRODUCT_ID = {{ product.id }};
-    const PRODUCT_STOCK = {{ product.stock }};
-    const PRODUCT_CATEGORY_ID = {{ product.category.id }};
+    const PRODUCT_ID = Number("{{ product.id }}");
+    const PRODUCT_STOCK = Number("{{ product.stock }}");
+    const PRODUCT_CATEGORY_ID = Number("{{ product.category.id }}");
 </script>
 {% endblock %}
