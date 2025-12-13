@@ -43,6 +43,7 @@
                     {% endif %}
 
                     <!-- Image Badges -->
+                    {% comment %}
                     <div class="image-badges">
                         {% if product.discount_percentage > 0 %}
                         <span class="badge badge-discount">-{{ product.discount_percentage|floatformat:0 }}%</span>
@@ -56,6 +57,7 @@
                             <span class="badge badge-expiring"><i class="fas fa-clock"></i> Expiring Soon</span>
                             {% endif %}
                     </div>
+                    {% endcomment %}
 
                     <!-- Zoom Button -->
                     <button class="zoom-btn" onclick="toggleImageZoom()" title="Zoom Image">
@@ -332,38 +334,6 @@
                         </div>
                     </div>
                 </div>
-
-                <div class="reviews-list">
-                    <!-- Sample Review -->
-                    <div class="review-card">
-                        <div class="review-header">
-                            <div class="reviewer-info">
-                                <div class="reviewer-avatar">A</div>
-                                <div>
-                                    <div class="reviewer-name">Anonymous Customer</div>
-                                    <div class="review-date">3 days ago</div>
-                                </div>
-                            </div>
-                            <div class="review-rating">
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                                <i class="fas fa-star"></i>
-                            </div>
-                        </div>
-                        <div class="review-content">
-                            <p>Great product! Exactly as described. Fast delivery and well packaged. Highly recommended.
-                            </p>
-                        </div>
-                        <div class="review-helpful">
-                            <button class="helpful-btn"><i class="far fa-thumbs-up"></i> Helpful (12)</button>
-                        </div>
-                    </div>
-
-                    <!-- Add more reviews button -->
-                    <button class="btn-load-more">Load More Reviews</button>
-                </div>
             </div>
 
             <!-- Shipping Tab -->
@@ -423,18 +393,6 @@
             <!-- Related products will be loaded dynamically -->
         </div>
     </div>
-</div>
-
-<!-- Image Zoom Modal -->
-<div id="imageZoomModal" class="zoom-modal" onclick="closeImageZoom()">
-    <span class="zoom-close">&times;</span>
-    <img class="zoom-modal-content" id="zoomedImage">
-</div>
-
-<!-- Notification Toast -->
-<div id="notification" class="notification">
-    <i class="notification-icon"></i>
-    <span id="notification-message"></span>
 </div>
 
 {% endblock %}

@@ -486,8 +486,8 @@ function navigateToProduct(productId, event) {
             return;
         }
     }
-    // Open in new tab
-    window.open(`/product/${productId}/`, '_blank');
+    // Open in same tab
+    window.location.href = `/product/${productId}/`;
 }
 
 // Update Cart Count
@@ -535,20 +535,11 @@ function updateCartBadge(count) {
 }
 
 // Notification System
+// Notification System
 function showNotification(message, type = 'success') {
-    const notification = document.getElementById('notification');
-    const messageSpan = document.getElementById('notification-message');
-    
-    if (notification && messageSpan) {
-        notification.className = 'notification ' + type;
-        messageSpan.textContent = message;
-        
-        notification.classList.add('show');
-        
-        setTimeout(() => {
-            notification.classList.remove('show');
-        }, 3000);
-    }
+    // Toast notification removed as per request.
+    // Logging to console for debugging purposes.
+    console.log(`Notification (${type}): ${message}`);
 }
 
 // Get CSRF Token
