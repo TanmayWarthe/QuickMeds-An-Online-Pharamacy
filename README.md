@@ -7,7 +7,7 @@
 
 A production-ready, fully responsive Django-based online pharmacy application with modern UI/UX, secure payment integration, and comprehensive e-commerce functionality.
 
-🌐 **Live Demo** → [QuickMeds Online Pharmacy](https://dawai-ki-dukan.onrender.com)
+🌐 **Live Demo** → [QuickMeds Online Pharmacy](https://quickmedsonlinepharmacy.onrender.com)
 
 ---
 
