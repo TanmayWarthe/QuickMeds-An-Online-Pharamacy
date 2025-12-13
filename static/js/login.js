@@ -81,7 +81,7 @@
     const API = {
         async makeRequest(action, data) {
             try {
-                const response = await fetch(window.location.pathname, {
+                const response = await fetch('/login/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
