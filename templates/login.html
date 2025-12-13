@@ -1,137 +1,177 @@
-{% extends 'base.html' %}
 {% load static %}
+<!-- Auth Modal - Minimal Design -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content auth-modal-content">
+      <button type="button" class="btn-close-modal" data-bs-dismiss="modal" aria-label="Close">
+        <i class="fas fa-times"></i>
+      </button>
 
-{% block title %}Login - QuickMeds{% endblock %}
+      <div class="auth-modal-body">
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/login.css' %}">
-<link rel="stylesheet" href="{% static 'css/profile-auth-responsive.css' %}">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet">
-<style>
-/* Override base template styles for login page */
-body {
-	padding: 0;
-	margin: 0;
-}
-.main-content {
-	padding: 0;
-	margin: 0;
-	width: 100%;
-}
-</style>
-{% endblock %}
+        <!-- Auth Tabs -->
+        <div class="auth-tabs">
+          <button class="auth-tab active" data-tab="signin" id="tab-signin">Sign In</button>
+          <button class="auth-tab" data-tab="signup" id="tab-signup">Sign Up</button>
+        </div>
 
-{% block header %}
-<!-- No navbar on login page -->
-{% endblock %}
+        <!-- Tab Content Container -->
+        <div class="auth-tab-content">
+          <!-- Sign Up Form -->
+          <div class="tab-pane" id="signup-pane" style="display: none;">
+            <form id="signupForm" onsubmit="return handleSignup(event)" class="auth-form">
+              {% csrf_token %}
+              <h2 class="auth-title">Create Account</h2>
+              <p class="auth-subtitle">Start your health journey today</p>
+              <div id="registration-step-1">
+                <input type="text" name="name" placeholder="Full Name" required autocomplete="name" />
+                <input type="email" name="email" placeholder="Email" required autocomplete="email" />
+                <div class="password-wrapper">
+                  <input type="password" name="password" id="password" placeholder="Password" required minlength="8"
+                    autocomplete="new-password" />
+                  <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                    <i class="fas fa-eye" id="password-eye"></i>
+                  </button>
+                </div>
+                <div class="password-wrapper">
+                  <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password"
+                    required autocomplete="new-password" />
+                  <button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
+                    <i class="fas fa-eye" id="confirm_password-eye"></i>
+                  </button>
+                </div>
+                <div id="password-match-message" class="password-message"></div>
+                <button type="submit" class="sign-button">SIGN UP</button>
+              </div>
+              <div id="registration-step-2" style="display: none;">
+                <p>Please enter the OTP sent to your email</p>
+                <div class="otp-input-container">
+                  <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+                </div>
+                <button type="button" class="sign-button" onclick="verifyOTP()">Verify OTP</button>
+                <button type="button" class="sign-button resend" onclick="resendOTP()">Resend OTP</button>
+              </div>
+            </form>
+          </div>
 
-{% block footer %}
-<!-- No footer on login page -->
-{% endblock %}
+          <!-- Sign In Form -->
+          <div class="tab-pane active" id="signin-pane">
+            <form id="loginForm" onsubmit="return handleLogin(event)" class="auth-form">
+              {% csrf_token %}
+              <h2 class="auth-title">Welcome Back</h2>
+              <p class="auth-subtitle">Sign in to continue</p>
+              <div id="login-step-1">
+                <input type="email" name="email" placeholder="Email" required autocomplete="email" />
+                <div class="password-wrapper">
+                  <input type="password" name="password" id="login_password" placeholder="Password" required
+                    autocomplete="current-password" />
+                  <button type="button" class="password-toggle" onclick="togglePassword('login_password')">
+                    <i class="fas fa-eye" id="login_password-eye"></i>
+                  </button>
+                </div>
+                <a href="#" class="forgot-password">Forgot your password?</a>
+                <button type="submit" class="sign-button">SIGN IN</button>
+              </div>
+              <div id="login-step-2" style="display: none;">
+                <p>Please enter the OTP sent to your email</p>
+                <div class="otp-input-container">
+                  <input type="text" maxlength="1" class="otp-input-login" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input-login" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input-login" inputmode="numeric" pattern="[0-9]*" />
+                  <input type="text" maxlength="1" class="otp-input-login" inputmode="numeric" pattern="[0-9]*" />
+                </div>
+                <button type="button" class="sign-button" onclick="verifyLoginOTP()">Verify OTP</button>
+                <button type="button" class="sign-button resend" onclick="resendLoginOTP()">Resend OTP</button>
+                <button type="button" class="sign-button back-to-login" onclick="backToLogin()">Back to Login</button>
+              </div>
+              <div class="admin-link-wrapper">
+                <button type="button" class="text-button" onclick="showAdminLogin()"
+                  style="color: #64748b; font-weight: 500; font-size: 0.8125rem;">
+                  <i class="fas fa-shield-alt" style="margin-right: 5px;"></i> Access Admin Panel
+                </button>
+              </div>
+            </form>
+          </div>
 
-{% block content_wrapper %}
-<div class="login-wrapper">
-	<div class="container" id="container">
-		<div class="form-container sign-up-container">
-			<form id="signupForm" onsubmit="return handleSignup(event)">
-				{% csrf_token %}
-				<h1>Create Account</h1>
-				<span>Sign up to get started</span>
-				<div id="registration-step-1">
-					<input type="text" name="name" placeholder="Full Name" required autocomplete="name" />
-					<input type="email" name="email" placeholder="Email" required autocomplete="email" />
-					<div class="password-wrapper">
-						<input type="password" name="password" id="password" placeholder="Password" required minlength="8" autocomplete="new-password" />
-						<button type="button" class="password-toggle" onclick="togglePassword('password')">
-							<i class="fas fa-eye" id="password-eye"></i>
-						</button>
-					</div>
-					<div class="password-wrapper">
-						<input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required autocomplete="new-password" />
-						<button type="button" class="password-toggle" onclick="togglePassword('confirm_password')">
-							<i class="fas fa-eye" id="confirm_password-eye"></i>
-						</button>
-					</div>
-					<div id="password-match-message" class="password-message"></div>
-					<button type="submit" class="sign-button">SIGN UP</button>
-				</div>
-				<div id="registration-step-2" style="display: none;">
-					<p>Please enter the OTP sent to your email</p>
-					<div class="otp-input-container">
-						<input type="text" maxlength="1" class="otp-input" />
-						<input type="text" maxlength="1" class="otp-input" />
-						<input type="text" maxlength="1" class="otp-input" />
-						<input type="text" maxlength="1" class="otp-input" />
-					</div>
-					<button type="button" class="sign-button" onclick="verifyOTP()">Verify OTP</button>
-					<button type="button" class="sign-button resend" onclick="resendOTP()">Resend OTP</button>
-				</div>
-			</form>
-		</div>
-		<div class="form-container sign-in-container">
-			<form id="loginForm" onsubmit="return handleLogin(event)">
-				{% csrf_token %}
-				<h1>Welcome Back</h1>
-				<span>Sign in to your account</span>
-				<div id="login-step-1">
-					<input type="email" name="email" placeholder="Email" required autocomplete="email" />
-					<div class="password-wrapper">
-						<input type="password" name="password" id="login_password" placeholder="Password" required autocomplete="current-password" />
-						<button type="button" class="password-toggle" onclick="togglePassword('login_password')">
-							<i class="fas fa-eye" id="login_password-eye"></i>
-						</button>
-					</div>
-					<a href="#" class="forgot-password">Forgot your password?</a>
-					<button type="submit" class="sign-button">SIGN IN</button>
-				</div>
-				<div id="login-step-2" style="display: none;">
-					<p>Please enter the OTP sent to your email</p>
-					<div class="otp-input-container">
-						<input type="text" maxlength="1" class="otp-input-login" />
-						<input type="text" maxlength="1" class="otp-input-login" />
-						<input type="text" maxlength="1" class="otp-input-login" />
-						<input type="text" maxlength="1" class="otp-input-login" />
-					</div>
-					<button type="button" class="sign-button" onclick="verifyLoginOTP()">Verify OTP</button>
-					<button type="button" class="sign-button resend" onclick="resendLoginOTP()">Resend OTP</button>
-					<button type="button" class="sign-button back-to-login" onclick="backToLogin()">Back to Login</button>
-				</div>
-				<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #eee;">
-					<a href="{% url 'admin_login' %}" class="admin-link" style="color: #666; font-size: 12px; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 5px;">
-						<i class="fas fa-user-shield"></i>
-						<span>Admin Panel</span>
-					</a>
-				</div>
-			</form>
-		</div>
-		<div class="overlay-container">
-			<div class="overlay">
-				<div class="overlay-panel overlay-left">
-					<h1>Welcome Back!</h1>
-					<p>Sign in to access your account and continue your healthcare journey</p>
-					<button class="ghost" id="signIn">SIGN IN</button>
-				</div>
-				<div class="overlay-panel overlay-right">
-					<h1>Hello, Friend!</h1>
-					<p>Create an account and discover a better way to manage your health</p>
-					<button class="ghost" id="signUp">SIGN UP</button>
-				</div>
-			</div>
-		</div>
-	</div>
+          <!-- Admin Login Form (Hidden by default) -->
+          <div class="tab-pane" id="admin-pane" style="display: none;">
+            <form id="adminLoginForm" method="POST" action="{% url 'admin_login' %}" class="auth-form">
+              {% csrf_token %}
+              <div style="text-align: center; margin-bottom: 20px;">
+                <div
+                  style="background: #eff6ff; color: #3b82f6; padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;">
+                  <i class="fas fa-shield-alt"></i> Secure Admin Access
+                </div>
+              </div>
+              <h2 class="auth-title">Admin Login</h2>
+              <p class="auth-subtitle">Manage your pharmacy store</p>
 
-	{% if messages %}
-	<div class="messages">
-		{% for message in messages %}
-		<div class="alert alert-{{ message.tags }}">
-			{{ message }}
-		</div>
-		{% endfor %}
-	</div>
-	{% endif %}
+              <input type="email" name="email" placeholder="Admin Email" required autocomplete="email" />
+              <div class="password-wrapper">
+                <input type="password" name="password" id="admin_modal_password" placeholder="Password" required
+                  autocomplete="current-password" />
+                <button type="button" class="password-toggle" onclick="togglePassword('admin_modal_password')">
+                  <i class="fas fa-eye" id="admin_modal_password-eye"></i>
+                </button>
+              </div>
+
+              <button type="submit" class="sign-button" style="background: #1e293b;">ADMIN SIGN IN</button>
+
+              <div style="margin-top: 1.5rem; text-align: center;">
+                <button type="button" class="text-button" onclick="showUserLogin()"
+                  style="color: #64748b; font-size: 0.875rem;">
+                  <i class="fas fa-arrow-left" style="margin-right: 5px;"></i> Back to User Login
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
-{% endblock content_wrapper %}
 
-{% block extra_js %}
+<!-- OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true"
+  data-bs-backdrop="static">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content otp-modal-content">
+      <button type="button" class="btn-close-modal" data-bs-dismiss="modal" aria-label="Close" onclick="backFromOTP()">
+        <i class="fas fa-times"></i>
+      </button>
+
+      <div class="otp-modal-body">
+        <div class="otp-icon">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <h2 class="otp-title">Verify OTP</h2>
+        <p class="otp-subtitle">Enter the 4-digit code sent to <span id="otpEmail"></span></p>
+
+        <div class="otp-input-container">
+          <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+          <input type="text" maxlength="1" class="otp-input" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+
+        <button type="button" class="sign-button" id="verifyOTPBtn">VERIFY</button>
+        <button type="button" class="text-button" id="resendOTPBtn">Resend Code</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if messages %}
+<div class="messages">
+  {% for message in messages %}
+  <div class="alert alert-{{ message.tags }}">
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
 <script src="{% static 'js/login.js' %}"></script>
-{% endblock %}
