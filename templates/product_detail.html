@@ -15,27 +15,6 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/product-detail.css' %}">
-<link rel="stylesheet" href="{% static 'css/product-detail-responsive.css' %}">
-<style>
-    /* Product detail specific styles - navbar styles in layout.css */
-    .nav-center {
-        justify-content: center;
-    }
-    
-    .main-nav .nav-link:hover {
-        background: #f5f5f5;
-        transform: translateX(-2px);
-    }
-    
-    .main-nav .nav-link i {
-        margin-right: 6px;
-    }
-    
-    /* Hide search button on product detail */
-    .nav-search-btn {
-        display: none;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
@@ -56,24 +35,26 @@
             <div class="image-container">
                 <div class="main-image-wrapper">
                     {% if product.image %}
-                        <img id="mainImage" src="{{ product.image.url }}" alt="{{ product.name }}" class="main-product-image">
+                    <img id="mainImage" src="{{ product.image.url }}" alt="{{ product.name }}"
+                        class="main-product-image">
                     {% else %}
-                        <img id="mainImage" src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}" class="main-product-image">
+                    <img id="mainImage" src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}"
+                        class="main-product-image">
                     {% endif %}
-                    
+
                     <!-- Image Badges -->
                     <div class="image-badges">
                         {% if product.discount_percentage > 0 %}
-                            <span class="badge badge-discount">-{{ product.discount_percentage|floatformat:0 }}%</span>
+                        <span class="badge badge-discount">-{{ product.discount_percentage|floatformat:0 }}%</span>
                         {% endif %}
-                        {% if product.stock < 10 and product.stock > 0 %}
+                        {% if product.stock < 10 and product.stock> 0 %}
                             <span class="badge badge-low-stock">Low Stock</span>
-                        {% elif product.stock == 0 %}
+                            {% elif product.stock == 0 %}
                             <span class="badge badge-out-of-stock">Out of Stock</span>
-                        {% endif %}
-                        {% if is_expiring_soon %}
+                            {% endif %}
+                            {% if is_expiring_soon %}
                             <span class="badge badge-expiring"><i class="fas fa-clock"></i> Expiring Soon</span>
-                        {% endif %}
+                            {% endif %}
                     </div>
 
                     <!-- Zoom Button -->
@@ -94,7 +75,7 @@
             <div class="product-header">
                 <h1 class="product-title">{{ product.name }}</h1>
                 {% if product.code %}
-                    <p class="product-code">Product Code: <span>{{ product.code }}</span></p>
+                <p class="product-code">Product Code: <span>{{ product.code }}</span></p>
                 {% endif %}
             </div>
 
@@ -114,34 +95,34 @@
             <div class="price-section">
                 <div class="current-price">₹{{ product.price }}</div>
                 {% if product.original_price and product.original_price > product.price %}
-                    <div class="price-details">
-                        <span class="original-price">₹{{ product.original_price }}</span>
-                    </div>
+                <div class="price-details">
+                    <span class="original-price">₹{{ product.original_price }}</span>
+                </div>
                 {% endif %}
             </div>
 
             <!-- Stock and Expiry Information -->
             <div class="stock-info">
                 {% if product.stock > 0 %}
-                    <div class="stock-status in-stock">
-                        <i class="fas fa-check-circle"></i>
-                        <span>In Stock ({{ product.stock }} available)</span>
-                    </div>
+                <div class="stock-status in-stock">
+                    <i class="fas fa-check-circle"></i>
+                    <span>In Stock ({{ product.stock }} available)</span>
+                </div>
                 {% else %}
-                    <div class="stock-status out-of-stock">
-                        <i class="fas fa-times-circle"></i>
-                        <span>Out of Stock</span>
-                    </div>
+                <div class="stock-status out-of-stock">
+                    <i class="fas fa-times-circle"></i>
+                    <span>Out of Stock</span>
+                </div>
                 {% endif %}
-                
+
                 {% if product.expiry_date %}
-                    <div class="expiry-info {% if is_expiring_soon %}expiring-soon{% endif %}">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Expires: {{ product.expiry_date|date:"M d, Y" }}</span>
-                        {% if product.days_until_expiry %}
-                            <span class="days-remaining">({{ product.days_until_expiry }} days)</span>
-                        {% endif %}
-                    </div>
+                <div class="expiry-info {% if is_expiring_soon %}expiring-soon{% endif %}">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Expires: {{ product.expiry_date|date:"M d, Y" }}</span>
+                    {% if product.days_until_expiry %}
+                    <span class="days-remaining">({{ product.days_until_expiry }} days)</span>
+                    {% endif %}
+                </div>
                 {% endif %}
             </div>
 
@@ -152,7 +133,8 @@
                     <button class="qty-btn" onclick="decrementQuantity()" aria-label="Decrease quantity">
                         <i class="fas fa-minus"></i>
                     </button>
-                    <input type="number" id="quantity" class="quantity-input" value="1" min="1" max="{{ product.stock }}" readonly>
+                    <input type="number" id="quantity" class="quantity-input" value="1" min="1"
+                        max="{{ product.stock }}" readonly>
                     <button class="qty-btn" onclick="incrementQuantity()" aria-label="Increase quantity">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -163,19 +145,19 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 {% if product.stock > 0 %}
-                    <button class="btn btn-add-to-cart" onclick="addToCartFromDetail()">
-                        <i class="fas fa-shopping-cart"></i>
-                        <span>Add to Cart</span>
-                    </button>
-                    <button class="btn btn-buy-now" onclick="buyNow()">
-                        <i class="fas fa-bolt"></i>
-                        <span>Buy Now</span>
-                    </button>
+                <button class="btn btn-add-to-cart" onclick="addToCartFromDetail()">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Add to Cart</span>
+                </button>
+                <button class="btn btn-buy-now" onclick="buyNow()">
+                    <i class="fas fa-bolt"></i>
+                    <span>Buy Now</span>
+                </button>
                 {% else %}
-                    <button class="btn btn-notify" onclick="notifyWhenAvailable()">
-                        <i class="fas fa-bell"></i>
-                        <span>Notify When Available</span>
-                    </button>
+                <button class="btn btn-notify" onclick="notifyWhenAvailable()">
+                    <i class="fas fa-bell"></i>
+                    <span>Notify When Available</span>
+                </button>
                 {% endif %}
                 <button class="btn btn-wishlist" onclick="toggleWishlist()" title="Add to Wishlist">
                     <i class="far fa-heart"></i>
@@ -224,15 +206,19 @@
             <div id="description" class="tab-content active">
                 <h3>Product Description</h3>
                 {% if product.description %}
-                    <p>{{ product.description|linebreaks }}</p>
+                <p>{{ product.description|linebreaks }}</p>
                 {% else %}
-                    <p>{{ product.name }} is a high-quality pharmaceutical product designed to meet your healthcare needs. This product is manufactured under strict quality control standards to ensure safety and efficacy.</p>
-                    <p>Always consult with a healthcare professional before using this product. Follow the dosage instructions carefully and store as directed.</p>
+                <p>{{ product.name }} is a high-quality pharmaceutical product designed to meet your healthcare needs.
+                    This product is manufactured under strict quality control standards to ensure safety and efficacy.
+                </p>
+                <p>Always consult with a healthcare professional before using this product. Follow the dosage
+                    instructions carefully and store as directed.</p>
                 {% endif %}
-                
+
                 <div class="usage-instructions">
                     <h4><i class="fas fa-pills"></i> Usage Instructions</h4>
-                    <p>Take as directed by your physician or as indicated on the product label. Do not exceed the recommended dosage.</p>
+                    <p>Take as directed by your physician or as indicated on the product label. Do not exceed the
+                        recommended dosage.</p>
                 </div>
 
                 <div class="precautions">
@@ -278,9 +264,9 @@
                         <td class="label">Stock Status</td>
                         <td>
                             {% if product.stock > 0 %}
-                                <span class="badge-status available">In Stock</span>
+                            <span class="badge-status available">In Stock</span>
                             {% else %}
-                                <span class="badge-status unavailable">Out of Stock</span>
+                            <span class="badge-status unavailable">Out of Stock</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -311,27 +297,37 @@
                     <div class="rating-breakdown">
                         <div class="rating-bar">
                             <span>5 <i class="fas fa-star"></i></span>
-                            <div class="bar"><div class="fill" style="width: 75%"></div></div>
+                            <div class="bar">
+                                <div class="fill" style="width: 75%"></div>
+                            </div>
                             <span>96</span>
                         </div>
                         <div class="rating-bar">
                             <span>4 <i class="fas fa-star"></i></span>
-                            <div class="bar"><div class="fill" style="width: 15%"></div></div>
+                            <div class="bar">
+                                <div class="fill" style="width: 15%"></div>
+                            </div>
                             <span>19</span>
                         </div>
                         <div class="rating-bar">
                             <span>3 <i class="fas fa-star"></i></span>
-                            <div class="bar"><div class="fill" style="width: 6%"></div></div>
+                            <div class="bar">
+                                <div class="fill" style="width: 6%"></div>
+                            </div>
                             <span>8</span>
                         </div>
                         <div class="rating-bar">
                             <span>2 <i class="fas fa-star"></i></span>
-                            <div class="bar"><div class="fill" style="width: 3%"></div></div>
+                            <div class="bar">
+                                <div class="fill" style="width: 3%"></div>
+                            </div>
                             <span>4</span>
                         </div>
                         <div class="rating-bar">
                             <span>1 <i class="fas fa-star"></i></span>
-                            <div class="bar"><div class="fill" style="width: 1%"></div></div>
+                            <div class="bar">
+                                <div class="fill" style="width: 1%"></div>
+                            </div>
                             <span>1</span>
                         </div>
                     </div>
@@ -357,13 +353,14 @@
                             </div>
                         </div>
                         <div class="review-content">
-                            <p>Great product! Exactly as described. Fast delivery and well packaged. Highly recommended.</p>
+                            <p>Great product! Exactly as described. Fast delivery and well packaged. Highly recommended.
+                            </p>
                         </div>
                         <div class="review-helpful">
                             <button class="helpful-btn"><i class="far fa-thumbs-up"></i> Helpful (12)</button>
                         </div>
                     </div>
-                    
+
                     <!-- Add more reviews button -->
                     <button class="btn-load-more">Load More Reviews</button>
                 </div>
@@ -407,7 +404,8 @@
 
                 <div class="return-policy">
                     <h4><i class="fas fa-undo"></i> Return Policy</h4>
-                    <p>We offer a 7-day return policy for unopened items in their original packaging. Medicines and healthcare products must be returned unused and sealed.</p>
+                    <p>We offer a 7-day return policy for unopened items in their original packaging. Medicines and
+                        healthcare products must be returned unused and sealed.</p>
                     <ul>
                         <li>Return window: 7 days from delivery</li>
                         <li>Condition: Unopened and unused</li>
