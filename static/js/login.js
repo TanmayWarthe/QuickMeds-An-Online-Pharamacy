@@ -24,25 +24,30 @@
             messageDiv.className = `alert alert-${type}`;
             messageDiv.style.cssText = `
                 position: fixed;
-                top: 20px;
-                right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-                padding: 15px 20px;
-                border-radius: 8px;
+                top: 80px;
+                left: 50%;
+                transform: translateX(-50%);
+                z-index: 99999;
+                min-width: 350px;
+                max-width: 90%;
+                padding: 16px 24px;
+                border-radius: 12px;
                 background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
-                border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
+                border: 2px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
                 color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                animation: slideIn 0.3s ease-out;
+                box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+                font-weight: 500;
+                font-size: 15px;
+                text-align: center;
+                animation: slideDownIn 0.4s ease-out;
             `;
             messageDiv.textContent = message;
             document.body.appendChild(messageDiv);
 
             setTimeout(() => {
-                messageDiv.style.animation = 'slideOut 0.3s ease-out';
+                messageDiv.style.animation = 'slideUpOut 0.3s ease-out';
                 setTimeout(() => messageDiv.remove(), 300);
-            }, 4000);
+            }, 4500);
         },
 
         validateEmail(email) {

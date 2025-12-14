@@ -53,3 +53,26 @@
         opacity: 0;
     }
 }
+
+/* New animations for centered top messages */
+@keyframes slideDownIn {
+    from {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpOut {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+    to {
+        transform: translate(-50%, -100%);
+        opacity: 0;
+    }
+}
