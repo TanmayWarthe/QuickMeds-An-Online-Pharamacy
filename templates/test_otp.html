@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OTP Testing - QuickMeds</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 500px;
+            width: 100%;
+        }
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .test-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .test-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            border-left: 4px solid #ffc107;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 OTP Testing Tool</h1>
+        <p class="subtitle">Test your OTP system end-to-end</p>
+
+        <div class="info">
+            ⚠️ <strong>Note:</strong> Check your <strong>server console/logs</strong> for OTP if email is not configured!
+        </div>
+
+        <!-- Test 1: Generate OTP -->
+        <div class="test-section">
+            <h3>1️⃣ Generate OTP</h3>
+            <input type="email" id="email1" placeholder="Enter your email" value="test@example.com">
+            <button onclick="generateOTP()">Generate OTP</button>
+            <div id="result1" class="result"></div>
+        </div>
+
+        <!-- Test 2: Verify OTP -->
+        <div class="test-section">
+            <h3>2️⃣ Verify OTP</h3>
+            <input type="email" id="email2" placeholder="Enter your email" value="test@example.com">
+            <input type="text" id="otp" placeholder="Enter OTP" maxlength="6">
+            <button onclick="verifyOTP()">Verify OTP</button>
+            <div id="result2" class="result"></div>
+        </div>
+
+        <!-- Test 3: Full Registration Flow -->
+        <div class="test-section">
+            <h3>3️⃣ Full Registration Test</h3>
+            <input type="text" id="name" placeholder="Your name" value="Test User">
+            <input type="email" id="email3" placeholder="Email" value="test@example.com">
+            <input type="password" id="password" placeholder="Password" value="Test@1234">
+            <button onclick="testRegistration()">Test Register</button>
+            <div id="result3" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        function showResult(elementId, message, isSuccess) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = 'result ' + (isSuccess ? 'success' : 'error');
+            element.style.display = 'block';
+        }
+
+        async function generateOTP() {
+            const email = document.getElementById('email1').value;
+            
+            if (!email) {
+                showResult('result1', '❌ Please enter an email', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/test-otp/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ email, action: 'generate' })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    let msg = '✅ ' + data.message;
+                    if (data.otp) {
+                        msg += '\n\n🔑 OTP: ' + data.otp + '\n(Save this to verify!)';
+                    }
+                    showResult('result1', msg, true);
+                } else {
+                    showResult('result1', '❌ ' + data.message, false);
+                }
+            } catch (error) {
+                showResult('result1', '❌ Error: ' + error.message, false);
+            }
+        }
+
+        async function verifyOTP() {
+            const email = document.getElementById('email2').value;
+            const otp = document.getElementById('otp').value;
+
+            if (!email || !otp) {
+                showResult('result2', '❌ Please enter both email and OTP', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/test-otp/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ email, otp, action: 'verify' })
+                });
+
+                const data = await response.json();
+                showResult('result2', data.success ? '✅ ' + data.message : '❌ ' + data.message, data.success);
+            } catch (error) {
+                showResult('result2', '❌ Error: ' + error.message, false);
+            }
+        }
+
+        async function testRegistration() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email3').value;
+            const password = document.getElementById('password').value;
+
+            if (!name || !email || !password) {
+                showResult('result3', '❌ All fields are required', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ name, email, password, action: 'register' })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    let msg = '✅ ' + data.message;
+                    if (data.otp) {
+                        msg += '\n\n🔑 OTP: ' + data.otp + '\n(Use this to complete registration!)';
+                    }
+                    showResult('result3', msg, true);
+                } else {
+                    showResult('result3', '❌ ' + data.message, false);
+                }
+            } catch (error) {
+                showResult('result3', '❌ Error: ' + error.message, false);
+            }
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    </script>
+</body>
+</html>

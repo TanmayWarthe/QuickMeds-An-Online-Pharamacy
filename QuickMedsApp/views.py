@@ -224,26 +224,34 @@ def login_view(request):
                 # Generate and send OTP
                 otp = generate_otp()
                 store_result = store_otp(email, otp)
-                email_result = send_otp_email(email, otp)
                 
-                if store_result:
-                    # Check if email is configured
-                    from django.conf import settings
-                    if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-                        return JsonResponse({
-                            'success': True,
-                            'message': f'Email not configured. Your OTP is: {otp} (Check server console)'
-                        })
-                    
-                    return JsonResponse({
-                        'success': True,
-                        'message': 'OTP sent to your email. Please check your inbox.'
-                    })
-                else:
+                if not store_result:
                     return JsonResponse({
                         'success': False,
                         'message': 'Failed to generate OTP. Please try again.'
                     })
+                
+                # Send email
+                email_result = send_otp_email(email, otp, 'registration')
+                
+                # Check if email is configured
+                from django.conf import settings
+                if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                    logger.warning(f"Email not configured. OTP for {email}: {otp}")
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'⚠️ Email not configured. Your OTP is: {otp}',
+                        'otp_shown': True,
+                        'otp': otp  # Only for development
+                    })
+                
+                # Email sent successfully
+                logger.info(f"OTP sent to {email}")
+                return JsonResponse({
+                    'success': True,
+                    'message': '✅ OTP sent to your email! Check your inbox (and spam folder).',
+                    'otp_shown': False
+                })
                     
             except ValidationError:
                 return JsonResponse({
@@ -258,8 +266,16 @@ def login_view(request):
                 
         elif action == 'verify_otp':
             try:
-                otp = data.get('otp')
-                email = data.get('email')
+                otp = data.get('otp', '').strip()
+                email = data.get('email', '').strip()
+                
+                if not otp or not email:
+                    return JsonResponse({
+                        'success': False,
+                        'message': '❌ OTP and email are required'
+                    })
+                
+                logger.info(f"Verifying OTP for {email}")
                 
                 if verify_otp(email, otp):
                     # Get registration data from session
@@ -268,7 +284,7 @@ def login_view(request):
                     if not registration_data:
                         return JsonResponse({
                             'success': False,
-                            'message': 'Registration data not found'
+                            'message': '❌ Session expired. Please register again.'
                         })
                     
                     # Create user
@@ -279,6 +295,8 @@ def login_view(request):
                         first_name=registration_data['name']
                     )
                     
+                    logger.info(f"✅ User created: {user.email}")
+                    
                     # Log user in
                     login(request, user)
                     
@@ -287,7 +305,13 @@ def login_view(request):
                     
                     return JsonResponse({
                         'success': True,
-                        'message': 'Registration successful',
+                        'message': '✅ Registration successful! Welcome to QuickMeds.'
+                    })
+                else:
+                    return JsonResponse({
+                        'success': False,
+                        'message': '❌ Invalid or expired OTP. Please try again or request a new OTP.'
+                    })
                         'redirect_url': '/'  # Redirect to home page
                     })
                 else:
@@ -1977,6 +2001,90 @@ def admin_product_delete(request, product_id):
         messages.success(request, f'Product "{product_name}" deleted successfully!')
     except Exception as e:
         messages.error(request, f'Error deleting product: {str(e)}')
+    
+    return redirect('admin_products')
+
+
+# ==========================
+# OTP TESTING VIEWS (Development only)
+# ==========================
+
+def test_otp_page(request):
+    """OTP testing page"""
+    return render(request, 'test_otp.html')
+
+@csrf_exempt
+def test_otp_api(request):
+    """API for OTP testing"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'message': 'POST method required'})
+    
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        email = data.get('email', '').strip()
+        
+        if action == 'generate':
+            # Generate and store OTP
+            otp = generate_otp()
+            store_result = store_otp(email, otp)
+            
+            if not store_result:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Failed to store OTP. Check cache configuration.'
+                })
+            
+            # Try to send email
+            email_result = send_otp_email(email, otp, 'verification')
+            
+            # Check if email is configured
+            from django.conf import settings
+            if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
+                return JsonResponse({
+                    'success': True,
+                    'message': 'OTP generated (Email not configured - check console)',
+                    'otp': otp,  # Show OTP in response
+                    'email_configured': False
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'message': 'OTP sent to email successfully!',
+                'email_configured': True
+            })
+            
+        elif action == 'verify':
+            otp = data.get('otp', '').strip()
+            
+            if not otp:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'OTP is required'
+                })
+            
+            if verify_otp(email, otp):
+                return JsonResponse({
+                    'success': True,
+                    'message': 'OTP verified successfully!'
+                })
+            else:
+                return JsonResponse({
+                    'success': False,
+                    'message': 'Invalid or expired OTP'
+                })
+        else:
+            return JsonResponse({
+                'success': False,
+                'message': 'Invalid action'
+            })
+            
+    except Exception as e:
+        logger.error(f"Test OTP API error: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'message': f'Error: {str(e)}'
+        })
     
     return redirect('admin_products')
 

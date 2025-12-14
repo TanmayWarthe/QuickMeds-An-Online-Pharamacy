@@ -48,6 +48,10 @@ urlpatterns = [
     path('contact/', views.contact_view, name='contact'),
     path('success/', views.success_view, name='success'),
     
+    # OTP Testing (Development only - remove in production)
+    path('test-otp/', views.test_otp_page, name='test_otp_page'),
+    path('api/test-otp/', views.test_otp_api, name='test_otp_api'),
+    
     # Admin Dashboard URLs
     path('admin-panel/login/', views.admin_login, name='admin_login'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),

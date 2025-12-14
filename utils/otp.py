@@ -110,10 +110,21 @@ def store_otp(email, otp):
     try:
         cache_key = f'otp_{email}'
         cache.set(cache_key, otp, timeout=600)  # 600 seconds = 10 minutes
-        logger.info(f"OTP stored in cache for {email}")
+        logger.info(f"✅ OTP stored in cache for {email}")
+        
+        # Also print for debugging
+        print(f"\n{'='*60}")
+        print(f"🔐 OTP GENERATED")
+        print(f"📧 Email: {email}")
+        print(f"🔑 OTP: {otp}")
+        print(f"⏰ Valid for: 10 minutes")
+        print(f"💾 Stored in cache: YES")
+        print(f"{'='*60}\n")
+        
         return True
     except Exception as e:
-        logger.error(f"Failed to store OTP for {email}: {str(e)}")
+        logger.error(f"❌ Failed to store OTP for {email}: {str(e)}")
+        print(f"❌ CACHE ERROR: {str(e)}")
         return False
 
 def verify_otp(email, otp):
