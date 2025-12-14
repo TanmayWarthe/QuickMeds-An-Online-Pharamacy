@@ -13,24 +13,8 @@
 {% block extra_js %}
 <script src="{% static 'js/Homepage_updated.js' %}"></script>
 <script>
-    // Immediate dropdown initialization
+    // Initialize functionality
     document.addEventListener('DOMContentLoaded', function () {
-        const btn = document.querySelector('.user-menu-btn');
-        const menu = document.querySelector('.dropdown-menu');
-
-        if (btn && menu) {
-            btn.onclick = function (e) {
-                e.stopPropagation();
-                menu.classList.toggle('show');
-            };
-
-            document.onclick = function (e) {
-                if (!btn.contains(e.target) && !menu.contains(e.target)) {
-                    menu.classList.remove('show');
-                }
-            };
-        }
-
         // Initialize Stock Bars
         document.querySelectorAll('.stock-fill').forEach(bar => {
             const percent = bar.getAttribute('data-stock-percent');

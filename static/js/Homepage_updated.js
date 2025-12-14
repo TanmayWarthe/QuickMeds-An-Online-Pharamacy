@@ -411,46 +411,7 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(statsSection);
     }
 
-    // User Menu Dropdown functionality (only if not already initialized in navbar.html)
-    const userBtn = document.querySelector('.user-menu-btn');
-    const dropdown = userBtn ? userBtn.closest('.dropdown') : null;
-    const dropdownMenu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
-    
-    if (userBtn && dropdownMenu && !userBtn.hasAttribute('data-dropdown-initialized')) {
-        // Mark as initialized to prevent double initialization
-        userBtn.setAttribute('data-dropdown-initialized', 'true');
-        
-        // Toggle dropdown on button click
-        userBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            
-            // Close any other open dropdowns first
-            const allDropdowns = document.querySelectorAll('.dropdown-menu');
-            allDropdowns.forEach(dd => {
-                if (dd !== dropdownMenu) {
-                    dd.classList.remove('show');
-                }
-            });
-            
-            // Toggle current dropdown
-            dropdownMenu.classList.toggle('show');
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!dropdown.contains(e.target)) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
-
-        // Close dropdown when pressing Escape key
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && dropdownMenu.classList.contains('show')) {
-                dropdownMenu.classList.remove('show');
-            }
-        });
-    }
+    // User Menu Dropdown functionality handled by navbar.html
 });
 
 // ============================================

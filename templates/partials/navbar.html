@@ -1,379 +1,737 @@
 {% load static %}
-<!-- Professional Navbar - Top-Tier Navigation System -->
-<nav class="modern-navbar">
-    <div class="container-fluid" style="padding: 0 1.5rem;">
-        <div class="navbar-content">
-            <!-- Mobile: Hamburger Menu -->
-            <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Menu">
-                <i class="fas fa-bars toggle-icon"></i>
+<!-- UTILITY: Unique Navbar CSS (Inline for immediate painting, can move to layout.css) -->
+<style>
+    /* =========================================
+       UNIQUE NAVBAR DESIGN SYSTEM
+       ========================================= */
+    :root {
+        --nav-height: 76px;
+        --nav-bg: rgba(255, 255, 255, 0.85);
+        --nav-blur: 12px;
+        --nav-border: 1px solid rgba(255, 255, 255, 0.4);
+        --nav-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+        --primary-gradient: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    }
+
+    /* Navbar Container */
+    .unique-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 9999;
+        height: var(--nav-height);
+        background: var(--nav-bg);
+        backdrop-filter: blur(var(--nav-blur));
+        -webkit-backdrop-filter: blur(var(--nav-blur));
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+    }
+
+    .unique-navbar.scrolled {
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --nav-height: 64px;
+    }
+
+    .nav-container {
+        width: 100%;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    /* 1. Brand Logo */
+    .nav-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        z-index: 10;
+    }
+
+    .brand-logo-img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
+        object-fit: cover;
+    }
+
+    .brand-text {
+        font-size: 1.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        letter-spacing: -0.5px;
+    }
+
+    /* 2. Center Navigation (Desktop) */
+    .nav-center-menu {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: rgba(0, 0, 0, 0.03);
+        padding: 4px;
+        border-radius: 50px;
+        border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .nav-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        transition: all 0.25s ease;
+        position: relative;
+    }
+
+    .nav-pill i {
+        font-size: 1rem;
+        transition: transform 0.2s ease;
+    }
+
+    .nav-pill:hover {
+        color: #2563eb;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-pill:hover i {
+        transform: translateY(-1px);
+    }
+
+    .nav-pill.active {
+        background: white;
+        color: #2563eb;
+        box-shadow: 0 2px 10px rgba(37, 99, 235, 0.1);
+    }
+
+    /* 3. Right Actions */
+    .nav-actions {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    /* Search Bar - Expandable */
+    .search-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .search-trigger-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1px solid transparent;
+        background: white;
+        color: #475569;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.125rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    }
+
+    .search-trigger-btn:hover {
+        background: #f8fafc;
+        color: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    /* Cart Button */
+    .action-btn {
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        background: white;
+        border: 1px solid transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #475569;
+        text-decoration: none;
+        position: relative;
+        font-size: 1.125rem;
+        transition: all 0.2s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+    }
+
+    .action-btn:hover {
+        background: #f8fafc;
+        color: #2563eb;
+        transform: translateY(-1px);
+    }
+
+    .badge-count {
+        position: absolute;
+        top: -2px;
+        right: -2px;
+        background: #ef4444;
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid white;
+    }
+
+    /* User Menu & Dropdown */
+    .user-dropdown-wrapper {
+        position: relative;
+    }
+
+    .user-avatar-btn {
+        padding: 4px;
+        padding-right: 12px;
+        height: 44px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .user-avatar-btn:hover {
+        border-color: #cbd5e1;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .avatar-circle {
+        width: 34px;
+        height: 34px;
+        background: var(--primary-gradient);
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.875rem;
+    }
+
+    .menu-chevron {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        transition: transform 0.2s ease;
+    }
+
+    .user-dropdown-menu {
+        position: absolute;
+        top: calc(100% + 12px);
+        right: 0;
+        width: 240px;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        padding: 0.5rem;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        transform-origin: top right;
+    }
+
+    .user-dropdown-menu.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    .menu-header {
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        margin-bottom: 0.5rem;
+    }
+
+    .menu-user-name {
+        display: block;
+        font-weight: 700;
+        color: #1e293b;
+        font-size: 0.9375rem;
+    }
+
+    .menu-user-email {
+        display: block;
+        font-size: 0.75rem;
+        color: #64748b;
+        margin-top: 2px;
+    }
+
+    .menu-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: #475569;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 500;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+    }
+
+    .menu-item:hover {
+        background: #f1f5f9;
+        color: #2563eb;
+    }
+
+    .menu-divider {
+        height: 1px;
+        background: #e2e8f0;
+        margin: 0.5rem 0;
+    }
+
+    /* Login/Signup Buttons */
+    .auth-buttons {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .btn-login-outline {
+        padding: 0.625rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        color: #0f172a;
+        background: transparent;
+        border: 1px solid #cbd5e1;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+
+    .btn-login-outline:hover {
+        background: #f8fafc;
+        border-color: #94a3b8;
+    }
+
+    .btn-signup-fill {
+        padding: 0.625rem 1.25rem;
+        border-radius: 50px;
+        font-weight: 600;
+        color: white;
+        background: var(--primary-gradient);
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
+
+    .btn-signup-fill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3);
+    }
+
+    /* Mobile Toggle */
+    .mobile-toggle-btn {
+        display: none;
+        /* Hidden on desktop */
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: transparent;
+        font-size: 1.25rem;
+        color: #1e293b;
+        cursor: pointer;
+    }
+
+    /* =========================================
+       RESPONSIVE ADJUSTMENTS
+       ========================================= */
+    @media (max-width: 992px) {
+        .nav-center-menu {
+            display: none;
+            /* Hide standard menu on tablets/mobile */
+        }
+
+        .mobile-toggle-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .search-trigger-btn {
+            display: none;
+            /* Simplify search on mobile for now or rely on sidebar */
+        }
+    }
+
+    /* =========================================
+       OFF-CANVAS MOBILE MENU
+       ========================================= */
+    .mobile-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 300px;
+        height: 100vh;
+        background: white;
+        z-index: 10000;
+        transform: translateX(-100%);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .mobile-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 9998;
+        opacity: 0;
+        visibility: hidden;
+        transition: all 0.3s;
+    }
+
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    /* Sidebar Content */
+    .sidebar-header {
+        padding: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid #f1f5f9;
+        background: #f8fafc;
+    }
+
+    .sidebar-close-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        background: white;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .sidebar-menu {
+        padding: 1.5rem;
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mobile-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        color: #475569;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+
+    .mobile-nav-item:hover,
+    .mobile-nav-item.active {
+        background: #eff6ff;
+        color: #2563eb;
+    }
+
+    .mobile-nav-item i {
+        font-size: 1.25rem;
+        width: 24px;
+        text-align: center;
+    }
+
+    .sidebar-footer {
+        padding: 1.5rem;
+        border-top: 1px solid #f1f5f9;
+    }
+</style>
+
+<!-- MAIN NAVBAR HTML -->
+<nav class="unique-navbar" id="uniqueNavbar">
+    <div class="nav-container">
+
+        <!-- 1. Left: Brand & Mobile Toggle -->
+        <div class="d-flex align-items-center gap-3">
+            <button class="mobile-toggle-btn" id="mobileMenuToggle" aria-label="Open Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="{% url 'home' %}" class="nav-brand">
+                <img src="{% static 'img/logo.png' %}" alt="Logo" class="brand-logo-img">
+                <span class="brand-text">QuickMeds</span>
+            </a>
+        </div>
+
+        <!-- 2. Center: Desktop Menu -->
+        <div class="nav-center-menu">
+            <a href="{% url 'home' %}" class="nav-pill {% if request.path == '/' %}active{% endif %}">
+                <i class="fas fa-home"></i> <span>Home</span>
+            </a>
+            <a href="{% url 'product' %}" class="nav-pill {% if 'product' in request.path %}active{% endif %}">
+                <i class="fas fa-capsules"></i> <span>Medicines</span>
+            </a>
+            <a href="{% url 'contact' %}" class="nav-pill {% if 'contact' in request.path %}active{% endif %}">
+                <i class="fas fa-envelope-open-text"></i> <span>Contact</span>
+            </a>
+        </div>
+
+        <!-- 3. Right: Actions -->
+        <div class="nav-actions">
+            <!-- Search Trigger -->
+            <button class="search-trigger-btn" id="searchTrigger" title="Search">
+                <i class="fas fa-search"></i>
             </button>
 
-            <!-- Left: Brand -->
-            <div class="brand-group">
-                {% block navbar_brand %}
-                <a href="{% url 'home' %}" class="brand-logo">
-                    <div class="logo-icon">
-                        <img src="{% static 'img/logo.png' %}" alt="QuickMeds">
-                    </div>
-                    <span class="brand-name">QuickMeds</span>
-                </a>
-                {% endblock %}
-            </div>
-
-            <!-- Center: Main Navigation (Desktop) -->
-            <div class="nav-center">
-                {% block navbar_center %}
-                <nav class="main-nav" aria-label="Main navigation">
-                    <a href="{% url 'home' %}" class="nav-link {% if request.path == '/' %}active{% endif %}">
-                        <i class="fas fa-home"></i>
-                        <span>Home</span>
-                    </a>
-                    <a href="{% url 'product' %}" class="nav-link {% if 'product' in request.path %}active{% endif %}">
-                        <i class="fas fa-pills"></i>
-                        <span>Medicines</span>
-                    </a>
-                    <a href="{% url 'contact' %}" class="nav-link {% if 'contact' in request.path %}active{% endif %}">
-                        <i class="fas fa-envelope"></i>
-                        <span>Contact</span>
-                    </a>
-                </nav>
-                {% endblock %}
-            </div>
-
-            <!-- Right: Actions -->
-            <div class="nav-right">
-                {% block navbar_extra_left %}{% endblock %}
-
-                <!-- Inline Expanding Search with Suggestions -->
-                <div class="nav-search-wrapper" id="navSearchWrapper">
-                    <button class="nav-search-btn" id="searchToggle" type="button" aria-label="Search">
-                        <i class="fas fa-search"></i>
-                    </button>
-                    <form action="/search/" method="GET" class="nav-search-form" id="navSearchForm">
-                        <input type="search" name="q" class="nav-search-input" id="navSearchInput"
-                            placeholder="Search medicines, vitamins..." autocomplete="off" aria-autocomplete="list"
-                            aria-controls="searchSuggestions">
-                        <button type="button" class="search-clear-btn" id="searchClear" aria-label="Clear search">
-                            <i class="fas fa-times"></i>
-                        </button>
-                    </form>
-
-                    <!-- Search Suggestions Dropdown -->
-                    <div class="search-suggestions" id="searchSuggestions" role="listbox">
-                        <div class="suggestions-header">
-                            <i class="fas fa-clock"></i>
-                            <span>Recent Searches</span>
-                        </div>
-                        <div class="suggestions-list" id="suggestionsList">
-                            <!-- Suggestions will be populated by JavaScript -->
-                        </div>
-                        <div class="suggestions-footer">
-                            <button type="button" class="clear-history-btn" id="clearHistory">
-                                <i class="fas fa-trash-alt"></i>
-                                Clear History
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                {% if user.is_authenticated %}
-                <!-- Cart -->
-                <a href="{% url 'cart' %}" class="nav-cart" aria-label="Shopping cart">
-                    <i class="fas fa-shopping-bag"></i>
-                    {% if cart_count > 0 %}
-                    <span class="cart-badge">{{ cart_count }}</span>
-                    {% endif %}
-                </a>
-
-                <!-- User Menu -->
-                <div class="dropdown">
-                    <button class="user-menu-btn" type="button" aria-label="User menu">
-                        <i class="fas fa-user-circle"></i>
-                    </button>
-                    <ul class="dropdown-menu">
-                        {% block navbar_user_menu_prepend %}{% endblock %}
-                        <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user"></i> My
-                                Profile</a></li>
-                        <li><a class="dropdown-item" href="{% url 'orders' %}"><i class="fas fa-box"></i> My Orders</a>
-                        </li>
-                        {% block navbar_user_menu_append %}{% endblock %}
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-                        <li><a class="dropdown-item" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i>
-                                Logout</a></li>
-                    </ul>
-                </div>
-                {% else %}
-                <div class="auth-group">
-                    <button type="button" class="btn-login" data-bs-toggle="modal"
-                        data-bs-target="#authModal">Login</button>
-                    <button type="button" class="btn-signup" data-bs-toggle="modal" data-bs-target="#authModal"
-                        data-mode="signup">Sign Up</button>
-                </div>
+            {% if user.is_authenticated %}
+            <!-- Cart -->
+            <a href="{% url 'cart' %}" class="action-btn nav-cart" aria-label="Cart">
+                <i class="fas fa-shopping-bag"></i>
+                {% if cart_count > 0 %}
+                <span class="badge-count">{{ cart_count }}</span>
                 {% endif %}
+            </a>
+
+            <!-- User Dropdown -->
+            <div class="user-dropdown-wrapper">
+                <button class="user-avatar-btn" id="userMenuBtn">
+                    <div class="avatar-circle">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <i class="fas fa-chevron-down menu-chevron"></i>
+                </button>
+                <!-- Dropdown Menu -->
+                <div class="user-dropdown-menu" id="userDropdown">
+                    <div class="menu-header">
+                        <span class="menu-user-name">{{ user.get_full_name|default:user.username }}</span>
+                        <span class="menu-user-email">{{ user.email }}</span>
+                    </div>
+                    <a href="{% url 'profile' %}" class="menu-item">
+                        <i class="far fa-id-card"></i> My Profile
+                    </a>
+                    <a href="{% url 'orders' %}" class="menu-item">
+                        <i class="fas fa-box-open"></i> My Orders
+                    </a>
+                    <div class="menu-divider"></div>
+                    <a href="{% url 'logout' %}" class="menu-item text-danger">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
             </div>
+            {% else %}
+            <div class="auth-buttons">
+                <button class="btn-login-outline" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+                <button class="btn-signup-fill" data-bs-toggle="modal" data-bs-target="#authModal"
+                    data-mode="signup">Sign Up</button>
+            </div>
+            {% endif %}
         </div>
     </div>
 </nav>
 
+<!-- SEARCH OVERLAY (Full width slide down) -->
+<div class="search-overlay-container" id="searchOverlay"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:10000; background:rgba(255,255,255,0.98);">
+    <div class="container h-100 d-flex flex-column pt-5">
+        <div class="d-flex justify-content-end mb-4">
+            <button class="btn-close" id="closeSearch" style="font-size: 1.5rem;"></button>
+        </div>
+        <form action="/search/" method="GET" class="w-100 max-w-3xl mx-auto text-center">
+            <input type="text" name="q" placeholder="What are you looking for?"
+                style="width:100%; font-size: 2rem; border:none; border-bottom:2px solid #e2e8f0; padding:1rem; outline:none; background:transparent;">
+            <p class="mt-3 text-muted">Type and hit enter to search for medicines, products, or categories.</p>
+        </form>
+    </div>
+</div>
+
+<!-- MOBILE SIDEBAR IMPLEMENTATION -->
+<div class="sidebar-overlay" id="mobileOverlay"></div>
+<aside class="mobile-sidebar" id="mobileSidebar">
+    <div class="sidebar-header">
+        <div class="d-flex align-items-center gap-2">
+            <img src="{% static 'img/logo.png' %}" alt="Logo" style="width:32px; height:32px;">
+            <span style="font-weight:800; font-size:1.25rem;">QuickMeds</span>
+        </div>
+        <button class="sidebar-close-btn" id="mobileSidebarClose">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
+    <div class="sidebar-menu">
+        <a href="{% url 'home' %}" class="mobile-nav-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="{% url 'product' %}" class="mobile-nav-item {% if 'product' in request.path %}active{% endif %}">
+            <i class="fas fa-capsules"></i> Medicines
+        </a>
+        <a href="{% url 'contact' %}" class="mobile-nav-item {% if 'contact' in request.path %}active{% endif %}">
+            <i class="fas fa-envelope"></i> Contact Us
+        </a>
+
+        <div class="menu-divider my-3"></div>
+
+        {% if user.is_authenticated %}
+        <a href="{% url 'cart' %}" class="mobile-nav-item">
+            <i class="fas fa-shopping-cart"></i> My Cart
+            <span class="badge bg-danger ms-auto">{{ cart_count }}</span>
+        </a>
+        <a href="{% url 'profile' %}" class="mobile-nav-item">
+            <i class="fas fa-user"></i> Profile
+        </a>
+        <a href="{% url 'orders' %}" class="mobile-nav-item">
+            <i class="fas fa-box"></i> Orders
+        </a>
+        <a href="{% url 'logout' %}" class="mobile-nav-item text-danger mt-auto">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        {% else %}
+        <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
+        <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#authModal"
+            data-mode="signup">Create Account</button>
+        {% endif %}
+    </div>
+</aside>
+
+<!-- ROBUST JAVASCRIPT LOGIC -->
 <script>
-    // Navbar functionality
-    document.addEventListener('DOMContentLoaded', function () {
-        // Mobile sidebar toggle
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const sidebar = document.getElementById('sidebar');
-        const sidebarOverlay = document.getElementById('sidebarOverlay');
-        const closeSidebar = document.getElementById('closeSidebar');
+    (function () {
+        // Encapsulate to avoid global conflicts
+        const NavbarLogic = {
+            init: function () {
+                this.initUserDropdown();
+                this.initMobileMenu();
+                this.initScrollEffect();
+                this.initSearch();
+            },
 
-        function toggleSidebar(shouldOpen) {
-            if (sidebar && sidebarOverlay) {
-                const isOpen = typeof shouldOpen === 'boolean' ? shouldOpen : !sidebar.classList.contains('active');
-                sidebar.classList.toggle('active', isOpen);
-                sidebarOverlay.classList.toggle('active', isOpen);
-                document.body.classList.toggle('sidebar-open', isOpen);
-            }
-        }
+            initUserDropdown: function () {
+                const btn = document.getElementById('userMenuBtn');
+                const menu = document.getElementById('userDropdown');
 
-        if (sidebarToggle) {
-            sidebarToggle.addEventListener('click', () => toggleSidebar());
-        }
+                if (!btn || !menu) return;
 
-        if (closeSidebar) {
-            closeSidebar.addEventListener('click', () => toggleSidebar(false));
-        }
-
-        if (sidebarOverlay) {
-            sidebarOverlay.addEventListener('click', () => toggleSidebar(false));
-        }
-
-        // User menu dropdown
-        const dropdown = document.querySelector('.nav-right .dropdown');
-
-        if (dropdown) {
-            const btn = dropdown.querySelector('.user-menu-btn');
-            const menu = dropdown.querySelector('.dropdown-menu');
-
-            if (btn && menu) {
-                // Toggle dropdown on button click
-                btn.addEventListener('click', function (e) {
-                    e.preventDefault();
+                // Toggle click
+                btn.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    menu.classList.toggle('show');
-                });
-
-                // Close dropdown when clicking outside
-                document.addEventListener('click', function (e) {
-                    if (!dropdown.contains(e.target)) {
-                        menu.classList.remove('show');
+                    const isActive = menu.classList.contains('active');
+                    if (isActive) {
+                        menu.classList.remove('active');
+                    } else {
+                        // Close others if needed
+                        menu.classList.add('active');
                     }
                 });
 
-                // Prevent dropdown from closing when clicking inside menu
-                menu.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                });
-            }
-        }
-
-        // Inline expanding search with suggestions
-        const searchWrapper = document.getElementById('navSearchWrapper');
-        const searchToggle = document.getElementById('searchToggle');
-        const searchForm = document.getElementById('navSearchForm');
-        const searchInput = document.getElementById('navSearchInput');
-        const searchClear = document.getElementById('searchClear');
-        const searchSuggestions = document.getElementById('searchSuggestions');
-        const suggestionsList = document.getElementById('suggestionsList');
-        const clearHistoryBtn = document.getElementById('clearHistory');
-
-        // Recent searches management
-        const SEARCH_HISTORY_KEY = 'quickmeds_search_history';
-        const MAX_HISTORY_ITEMS = 5;
-
-        function getSearchHistory() {
-            try {
-                return JSON.parse(localStorage.getItem(SEARCH_HISTORY_KEY) || '[]');
-            } catch {
-                return [];
-            }
-        }
-
-        function saveSearchHistory(query) {
-            if (!query.trim()) return;
-            let history = getSearchHistory();
-            history = history.filter(item => item !== query);
-            history.unshift(query);
-            history = history.slice(0, MAX_HISTORY_ITEMS);
-            localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
-        }
-
-        function clearSearchHistory() {
-            localStorage.removeItem(SEARCH_HISTORY_KEY);
-            renderSuggestions();
-        }
-
-        function renderSuggestions() {
-            const history = getSearchHistory();
-            if (history.length === 0) {
-                suggestionsList.innerHTML = '';
-                return;
-            }
-
-            suggestionsList.innerHTML = history.map(item => `
-                <div class="suggestion-item" data-query="${item}">
-                    <i class="fas fa-history"></i>
-                    <span class="suggestion-text">${item}</span>
-                    <button class="suggestion-remove" data-query="${item}" aria-label="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            `).join('');
-
-            // Add click handlers
-            document.querySelectorAll('.suggestion-item').forEach(item => {
-                item.addEventListener('click', function (e) {
-                    if (!e.target.closest('.suggestion-remove')) {
-                        const query = this.dataset.query;
-                        searchInput.value = query;
-                        searchForm.submit();
+                // Close on outside click
+                document.addEventListener('click', (e) => {
+                    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                        menu.classList.remove('active');
                     }
                 });
-            });
 
-            document.querySelectorAll('.suggestion-remove').forEach(btn => {
-                btn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    const query = this.dataset.query;
-                    let history = getSearchHistory();
-                    history = history.filter(item => item !== query);
-                    localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(history));
-                    renderSuggestions();
+                // Close on menu item click (optional)
+                menu.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Keep open or close? Usually keep open for multiple actions, but here links -> navigate
                 });
-            });
-        }
+            },
 
-        function openSearch() {
-            if (searchWrapper && searchForm && searchInput) {
-                searchWrapper.classList.add('active');
-                searchForm.classList.add('active');
-                renderSuggestions();
-                if (getSearchHistory().length > 0) {
-                    setTimeout(() => searchSuggestions.classList.add('active'), 100);
+            initMobileMenu: function () {
+                const toggle = document.getElementById('mobileMenuToggle');
+                const close = document.getElementById('mobileSidebarClose');
+                const sidebar = document.getElementById('mobileSidebar');
+                const overlay = document.getElementById('mobileOverlay');
+
+                function open() {
+                    sidebar.classList.add('active');
+                    overlay.classList.add('active');
+                    document.body.style.overflow = 'hidden';
                 }
-                setTimeout(() => searchInput.focus(), 300);
-            }
-        }
 
-        function closeSearch() {
-            if (searchWrapper && searchForm) {
-                searchWrapper.classList.remove('active');
-                searchForm.classList.remove('active');
-                searchSuggestions.classList.remove('active');
-                if (searchInput) {
-                    searchInput.value = '';
+                function closeMenu() {
+                    sidebar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
-            }
-        }
 
-        if (searchToggle) {
-            searchToggle.addEventListener('click', function (e) {
-                e.stopPropagation();
-                if (searchWrapper.classList.contains('active')) {
-                    closeSearch();
-                } else {
-                    openSearch();
-                }
-            });
-        }
+                if (toggle) toggle.addEventListener('click', open);
+                if (close) close.addEventListener('click', closeMenu);
+                if (overlay) overlay.addEventListener('click', closeMenu);
+            },
 
-        if (searchClear) {
-            searchClear.addEventListener('click', function (e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (searchInput) {
-                    searchInput.value = '';
-                    searchInput.focus();
-                    searchSuggestions.classList.remove('active');
-                }
-            });
-        }
+            initScrollEffect: function () {
+                const navbar = document.getElementById('uniqueNavbar');
+                window.addEventListener('scroll', () => {
+                    if (window.scrollY > 20) {
+                        navbar.classList.add('scrolled');
+                    } else {
+                        navbar.classList.remove('scrolled');
+                    }
+                });
+            },
 
-        if (clearHistoryBtn) {
-            clearHistoryBtn.addEventListener('click', clearSearchHistory);
-        }
+            initSearch: function () {
+                const trigger = document.getElementById('searchTrigger');
+                const overlay = document.getElementById('searchOverlay');
+                const close = document.getElementById('closeSearch');
 
-        // Show/hide suggestions on input focus
-        if (searchInput) {
-            searchInput.addEventListener('focus', function () {
-                if (getSearchHistory().length > 0) {
-                    renderSuggestions();
-                    searchSuggestions.classList.add('active');
-                }
-            });
+                if (trigger && overlay && close) {
+                    trigger.addEventListener('click', () => {
+                        overlay.style.display = 'block';
+                        overlay.querySelector('input').focus();
+                    });
 
-            searchInput.addEventListener('input', function () {
-                if (this.value.trim()) {
-                    searchSuggestions.classList.remove('active');
-                } else if (getSearchHistory().length > 0) {
-                    searchSuggestions.classList.add('active');
-                }
-            });
-        }
+                    close.addEventListener('click', () => {
+                        overlay.style.display = 'none';
+                    });
 
-        // Save search on form submit
-        if (searchForm) {
-            searchForm.addEventListener('submit', function () {
-                if (searchInput && searchInput.value.trim()) {
-                    saveSearchHistory(searchInput.value.trim());
-                }
-            });
-        }
-
-        // Close search when clicking outside
-        document.addEventListener('click', function (e) {
-            if (searchWrapper && searchWrapper.classList.contains('active')) {
-                if (!searchWrapper.contains(e.target)) {
-                    closeSearch();
+                    // Close on Escape
+                    document.addEventListener('keydown', (e) => {
+                        if (e.key === 'Escape' && overlay.style.display === 'block') {
+                            overlay.style.display = 'none';
+                        }
+                    });
                 }
             }
-        });
+        };
 
-        // Prevent closing when clicking inside search form or suggestions
-        if (searchForm) {
-            searchForm.addEventListener('click', function (e) {
-                e.stopPropagation();
-            });
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => NavbarLogic.init());
+        } else {
+            NavbarLogic.init();
         }
-
-        if (searchSuggestions) {
-            searchSuggestions.addEventListener('click', function (e) {
-                e.stopPropagation();
-            });
-        }
-
-        // Close search on ESC key
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                if (searchWrapper && searchWrapper.classList.contains('active')) {
-                    closeSearch();
-                }
-                if (sidebar && sidebar.classList.contains('active')) {
-                    toggleSidebar(false);
-                }
-            }
-        });
-
-        // Show/hide clear button based on input
-        if (searchInput && searchClear) {
-            searchInput.addEventListener('input', function () {
-                if (this.value.trim()) {
-                    searchClear.style.opacity = '1';
-                    searchClear.style.pointerEvents = 'auto';
-                } else {
-                    searchClear.style.opacity = '0';
-                    searchClear.style.pointerEvents = 'none';
-                }
-            });
-        }
-    });
+    })();
 </script>

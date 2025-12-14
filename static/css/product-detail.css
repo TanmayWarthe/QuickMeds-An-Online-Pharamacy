@@ -20,6 +20,7 @@
         opacity: 0;
         transform: translateY(10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -40,6 +41,7 @@
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -114,6 +116,7 @@
         opacity: 0;
         transform: translateX(-30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -180,9 +183,19 @@
 }
 
 @keyframes bounceIn {
-    0% { transform: scale(0); opacity: 0; }
-    50% { transform: scale(1.1); }
-    100% { transform: scale(1); opacity: 1; }
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
 }
 
 .badge-discount {
@@ -258,6 +271,7 @@
         opacity: 0;
         transform: translateX(30px);
     }
+
     to {
         opacity: 1;
         transform: translateX(0);
@@ -325,7 +339,7 @@
 /* =================================================================
    7. PRICE SECTION
    ================================================================= */
-rem;
+.price-section {
     margin-bottom: 1.5rem;
     padding: 0;
     background: transparent;
@@ -334,10 +348,6 @@ rem;
 }
 
 .current-price {
-    font-size: 2rem;
-    font-weight: 700;
-    color: #0f172a;
-    letter-spacing: -0.5
     font-size: 2.75rem;
     font-weight: 900;
     color: #1e40af;
@@ -701,7 +711,8 @@ rem;
    ================================================================= */
 
 .info-pills {
-    displdirection: column;
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
     margin-top: 1.5rem;
 }
@@ -728,9 +739,13 @@ rem;
 }
 
 .info-pill i {
-    color: #3b82f6;
-    font-size: 0.875rem
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border-radius: 0;
     color: #6366f1;
+    font-size: 0.875rem;
 }
 
 /* =================================================================
@@ -799,6 +814,7 @@ rem;
         width: 0;
         opacity: 0;
     }
+
     to {
         width: 100%;
         opacity: 1;
@@ -815,6 +831,7 @@ rem;
         opacity: 0;
         transform: translateY(15px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -825,7 +842,8 @@ rem;
     display: block;
 }
 
-.tab-content h3 {5rem;
+.tab-content h3 {
+    font-size: 1.5rem;
     color: #0f172a;
     margin-bottom: 1.25rem;
     font-weight: 700;
@@ -845,7 +863,6 @@ rem;
     color: #475569;
     line-height: 1.6;
     margin-bottom: 1rem;
-    font-size: 0.9375m: 1.5rem;
     font-size: 1rem;
 }
 
@@ -1155,6 +1172,7 @@ rem;
     line-height: 1.4;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -1439,8 +1457,15 @@ rem;
    ================================================================= */
 
 @keyframes bounce {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.2); }
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.2);
+    }
 }
 
 .bounce {
@@ -1455,20 +1480,53 @@ rem;
     text-align: center;
 }
 
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
+.mt-1 {
+    margin-top: 0.5rem;
+}
 
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
+.mt-2 {
+    margin-top: 1rem;
+}
 
-.p-1 { padding: 0.5rem; }
-.p-2 { padding: 1rem; }
-.p-3 { padding: 1.5rem; }
-.p-4 { padding: 2rem; }
+.mt-3 {
+    margin-top: 1.5rem;
+}
+
+.mt-4 {
+    margin-top: 2rem;
+}
+
+.mb-1 {
+    margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 1rem;
+}
+
+.mb-3 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+    margin-bottom: 2rem;
+}
+
+.p-1 {
+    padding: 0.5rem;
+}
+
+.p-2 {
+    padding: 1rem;
+}
+
+.p-3 {
+    padding: 1.5rem;
+}
+
+.p-4 {
+    padding: 2rem;
+}
 
 /* =================================================================
    22. ENHANCED STYLES - RELATED PRODUCTS & IMPROVEMENTS
@@ -1583,6 +1641,7 @@ rem;
     margin-bottom: 0.75rem;
     display: -webkit-box;
     -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     line-height: 1.4;
@@ -1712,6 +1771,7 @@ rem;
     0% {
         background-position: 200% 0;
     }
+
     100% {
         background-position: -200% 0;
     }
@@ -1731,6 +1791,7 @@ a:focus-visible {
 
 /* Print Styles */
 @media print {
+
     .breadcrumb-nav,
     .action-buttons,
     .related-products-section,
