@@ -268,6 +268,25 @@
                         {% endif %}
                     </div>
 
+                    <!-- Image Field -->
+                    <div class="form-group">
+                        <label for="{{ form.image.id_for_label }}" class="form-label">
+                            {{ form.image.label }}
+                        </label>
+                        {% if category and category.image %}
+                            <div style="margin-bottom: 1rem;">
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                            </div>
+                        {% endif %}
+                        {{ form.image }}
+                        {% if form.image.help_text %}
+                            <small class="form-text">{{ form.image.help_text }}</small>
+                        {% endif %}
+                        {% if form.image.errors %}
+                            <div class="invalid-feedback">{{ form.image.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+
                     <!-- Form Actions -->
                     <div class="btn-group-actions">
                         <button type="submit" class="btn btn-primary">

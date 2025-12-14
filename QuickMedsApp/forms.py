@@ -122,7 +122,7 @@ class CategoryAdminForm(forms.ModelForm):
     
     class Meta:
         model = Category
-        fields = ['name', 'description', 'icon']
+        fields = ['name', 'description', 'icon', 'image']
         widgets = {
             'name': forms.TextInput(attrs={
                 'class': 'form-control',
@@ -137,15 +137,21 @@ class CategoryAdminForm(forms.ModelForm):
             'icon': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'FontAwesome icon class (e.g., fa-pills)',
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'form-control',
+                'accept': 'image/*'
             })
         }
         labels = {
             'name': 'Category Name',
             'description': 'Description',
-            'icon': 'Icon Class'
+            'icon': 'Icon Class',
+            'image': 'Category Image'
         }
         help_texts = {
-            'icon': 'FontAwesome icon class (e.g., fa-pills, fa-heart, fa-capsules)'
+            'icon': 'FontAwesome icon class (e.g., fa-pills, fa-heart, fa-capsules)',
+            'image': 'Upload an image for this category (optional)'
         }
     
     def clean_name(self):

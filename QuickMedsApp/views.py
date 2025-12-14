@@ -1964,7 +1964,7 @@ def admin_category_add(request):
     from .forms import CategoryAdminForm
     
     if request.method == 'POST':
-        form = CategoryAdminForm(request.POST)
+        form = CategoryAdminForm(request.POST, request.FILES)
         if form.is_valid():
             try:
                 category = form.save()
@@ -1993,7 +1993,7 @@ def admin_category_edit(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     
     if request.method == 'POST':
-        form = CategoryAdminForm(request.POST, instance=category)
+        form = CategoryAdminForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             try:
                 category = form.save()
