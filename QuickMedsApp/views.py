@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from .models import UserProfile, Address, Product, CartItem, Cart, Category, CheckoutSession, Order, OrderItem
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -1949,7 +1949,7 @@ def admin_logout(request):
 def admin_categories(request):
     """Manage categories"""
     categories = Category.objects.annotate(
-        products_count=models.Count('products')
+        products_count=Count('products')
     ).order_by('name')
     
     context = {

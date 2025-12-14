@@ -69,7 +69,7 @@
                 </a>
             </div>
             <div class="admin-nav-item">
-                <a class="admin-nav-link" href="{% url 'logout' %}">
+                <a class="admin-nav-link" href="{% url 'admin_logout' %}">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -150,19 +150,6 @@
                         <a href="{% url 'admin_category_add' %}" class="btn-admin btn-admin-primary">
                             <i class="fas fa-plus"></i> Add Category
                         </a>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-    </main>
-</div>
-{% endblock %}
-                    <div class="content-card-body">
-                        <div class="empty-state">
-                            <i class="fas fa-tags"></i>
-                            <p>No categories found</p>
-                        </div>
                     </div>
                 </div>
             </div>
