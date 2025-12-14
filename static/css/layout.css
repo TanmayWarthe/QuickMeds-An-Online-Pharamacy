@@ -824,6 +824,28 @@ body.sidebar-open {
     width: 44px;
     height: 44px;
   }
+
+  /* Mobile dropdown menu adjustments */
+  .dropdown {
+    position: static;
+  }
+
+  .dropdown-menu {
+    position: fixed;
+    top: auto;
+    right: 10px;
+    left: 10px;
+    bottom: 80px;
+    min-width: auto;
+    width: auto;
+    max-width: 320px;
+    margin: 0 auto;
+    z-index: 9999;
+  }
+
+  .dropdown-menu::before {
+    display: none;
+  }
 }
 
 @media (max-width: 576px) {
