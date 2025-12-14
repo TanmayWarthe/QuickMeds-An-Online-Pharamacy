@@ -26,23 +26,26 @@
                 position: fixed;
                 top: 20px;
                 right: 20px;
-                z-index: 9999;
-                min-width: 300px;
-                padding: 15px 20px;
+                z-index: 99999;
+                max-width: 350px;
+                padding: 14px 20px;
                 border-radius: 8px;
-                background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
-                border: 1px solid ${type === 'success' ? '#c3e6cb' : type === 'error' ? '#f5c6cb' : '#bee5eb'};
-                color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
-                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                animation: slideIn 0.3s ease-out;
+                background: ${type === 'success' ? 'rgba(40, 167, 69, 0.15)' : type === 'error' ? 'rgba(220, 53, 69, 0.15)' : 'rgba(23, 162, 184, 0.15)'};
+                border-left: 4px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                font-weight: 600;
+                font-size: 14px;
+                text-align: right;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: fadeIn 0.3s ease-out;
             `;
             messageDiv.textContent = message;
             document.body.appendChild(messageDiv);
 
             setTimeout(() => {
-                messageDiv.style.animation = 'slideOut 0.3s ease-out';
+                messageDiv.style.animation = 'fadeOut 0.3s ease-out';
                 setTimeout(() => messageDiv.remove(), 300);
-            }, 4000);
+            }, 3500);
         },
 
         validateEmail(email) {
@@ -155,9 +158,16 @@
                 button.textContent = 'SIGN UP';
 
                 if (result.success) {
-                    Utils.showMessage('OTP sent to your email!', 'success');
-                    // Show OTP modal instead of inline form
-                    window.OTPModal.show(email, 'signup');
+                    Utils.showMessage(result.message || 'Registration successful!', 'success');
+                    // Close modal and redirect
+                    const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                    if (authModal) authModal.hide();
+                    
+                    setTimeout(() => {
+                        const redirectUrl = sessionStorage.getItem('authRedirectUrl') || result.redirect_url || '/';
+                        sessionStorage.removeItem('authRedirectUrl');
+                        window.location.href = redirectUrl;
+                    }, 1000);
                 } else {
                     Utils.showMessage(result.message || 'Registration failed', 'error');
                 }
@@ -288,12 +298,15 @@
                 button.disabled = false;
                 button.textContent = 'SIGN IN';
 
-                if (result.success && result.otp_required) {
-                    Utils.showMessage(result.message || 'OTP sent to your email!', 'success');
-                    // Show OTP modal instead of inline form
-                    window.OTPModal.show(email, 'login');
-                } else if (result.success) {
-                    Utils.showMessage('Login successful!', 'success');
+                if (result.success) {
+                    Utils.showMessage(result.message || 'Login successful!', 'success');
+                    // Close modal and redirect
+                    const authModal = document.getElementById('authModal');
+                    if (authModal) {
+                        const modalInstance = bootstrap.Modal.getInstance(authModal);
+                        if (modalInstance) modalInstance.hide();
+                    }
+                    
                     setTimeout(() => {
                         const redirectUrl = sessionStorage.getItem('authRedirectUrl') || result.redirect_url || '/';
                         sessionStorage.removeItem('authRedirectUrl');

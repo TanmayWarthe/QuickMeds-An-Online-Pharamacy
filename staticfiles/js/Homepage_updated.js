@@ -411,22 +411,19 @@ document.addEventListener('DOMContentLoaded', function() {
         observer.observe(statsSection);
     }
 
-    // User Menu Dropdown functionality
+    // User Menu Dropdown functionality (only if not already initialized in navbar.html)
     const userBtn = document.querySelector('.user-menu-btn');
     const dropdown = userBtn ? userBtn.closest('.dropdown') : null;
     const dropdownMenu = dropdown ? dropdown.querySelector('.dropdown-menu') : null;
     
-    console.log('User button found:', !!userBtn);
-    console.log('Dropdown found:', !!dropdown);
-    console.log('Dropdown menu found:', !!dropdownMenu);
-    
-    if (userBtn && dropdownMenu) {
+    if (userBtn && dropdownMenu && !userBtn.hasAttribute('data-dropdown-initialized')) {
+        // Mark as initialized to prevent double initialization
+        userBtn.setAttribute('data-dropdown-initialized', 'true');
+        
         // Toggle dropdown on button click
         userBtn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
-            console.log('User button clicked!');
             
             // Close any other open dropdowns first
             const allDropdowns = document.querySelectorAll('.dropdown-menu');
@@ -437,8 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
             });
             
             // Toggle current dropdown
-            const isShown = dropdownMenu.classList.toggle('show');
-            console.log('Dropdown is now:', isShown ? 'open' : 'closed');
+            dropdownMenu.classList.toggle('show');
         });
 
         // Close dropdown when clicking outside
@@ -454,10 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 dropdownMenu.classList.remove('show');
             }
         });
-        
-        console.log('User menu dropdown initialized successfully');
-    } else {
-        console.warn('User menu button or dropdown menu not found');
     }
 });
 

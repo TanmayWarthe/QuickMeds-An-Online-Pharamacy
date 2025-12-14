@@ -29,16 +29,16 @@
 .navbar-content {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0;
+  justify-content: flex-start;
+  padding: 0;
   height: 100%;
-  gap: 2rem;
+  gap: 3rem;
 }
 
 .brand-group {
   display: flex;
   align-items: center;
-  margin-left: -0.5rem;
+  margin-left: 0;
 }
 
 .sidebar-toggle {
@@ -80,11 +80,9 @@
 
 /* Main Navigation - Horizontal Menu (Desktop) */
 .nav-center {
-  flex: 1;
   display: flex;
   justify-content: flex-start;
-  margin-left: 2rem;
-  max-width: 500px;
+  align-items: center;
 }
 
 .main-nav {
@@ -276,6 +274,7 @@
   align-items: center;
   gap: 1rem;
   margin-right: -0.5rem;
+  margin-left: auto;
 }
 
 .nav-cart {
@@ -442,6 +441,8 @@
   transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
   border: 1px solid var(--border);
   letter-spacing: -0.01em;
+  cursor: pointer;
+  display: inline-block;
 }
 
 .btn-login:hover {
@@ -449,6 +450,7 @@
   border-color: var(--dark-lighter);
   transform: translateY(-1px);
   box-shadow: var(--shadow-sm);
+  color: var(--dark);
 }
 
 .btn-signup {
@@ -463,12 +465,15 @@
   transition: all .25s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
   letter-spacing: -0.01em;
+  cursor: pointer;
+  display: inline-block;
 }
 
 .btn-signup:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-lg);
   filter: brightness(1.05);
+  color: #fff;
 }
 
 /* Sidebar - Professional Mobile Navigation */
@@ -818,6 +823,28 @@ body.sidebar-open {
   .nav-search-btn {
     width: 44px;
     height: 44px;
+  }
+
+  /* Mobile dropdown menu adjustments */
+  .dropdown {
+    position: static;
+  }
+
+  .dropdown-menu {
+    position: fixed;
+    top: auto;
+    right: 10px;
+    left: 10px;
+    bottom: 80px;
+    min-width: auto;
+    width: auto;
+    max-width: 320px;
+    margin: 0 auto;
+    z-index: 9999;
+  }
+
+  .dropdown-menu::before {
+    display: none;
   }
 }
 

@@ -1,10 +1,19 @@
-// Product Detail Page JavaScript
+// =================================================================
+// PRODUCT DETAIL PAGE - COMPLETE JAVASCRIPT
+// Modern, responsive, and fully functional
+// =================================================================
 
-// Global state
+// =================================================================
+// 1. GLOBAL STATE
+// =================================================================
+
 let currentQuantity = 1;
 let isWishlisted = false;
 
-// Initialize page
+// =================================================================
+// 2. INITIALIZATION
+// =================================================================
+
 document.addEventListener('DOMContentLoaded', function() {
     initializePage();
     loadRelatedProducts();
@@ -38,9 +47,19 @@ function addEventListeners() {
             }
         });
     }
+    
+    // Close zoom modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeImageZoom();
+        }
+    });
 }
 
-// Quantity Controls
+// =================================================================
+// 3. QUANTITY CONTROLS
+// =================================================================
+
 function incrementQuantity() {
     const quantityInput = document.getElementById('quantity');
     const maxQuantity = parseInt(quantityInput.max);
@@ -49,7 +68,7 @@ function incrementQuantity() {
         currentQuantity++;
         quantityInput.value = currentQuantity;
     } else {
-        showNotification(`Maximum ${maxQuantity} items available`, 'error');
+        showNotification(`Maximum ${maxQuantity} items available`, 'warning');
     }
 }
 
@@ -62,7 +81,10 @@ function decrementQuantity() {
     }
 }
 
-// Add to Cart
+// =================================================================
+// 4. ADD TO CART
+// =================================================================
+
 function addToCartFromDetail() {
     const button = event.currentTarget;
     
@@ -73,7 +95,7 @@ function addToCartFromDetail() {
     // Disable button temporarily
     button.disabled = true;
     const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding...';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Adding...</span>';
     
     fetch(`/add-to-cart/${PRODUCT_ID}/`, {
         method: 'POST',
@@ -107,8 +129,8 @@ function addToCartFromDetail() {
             showNotification(`${currentQuantity} item(s) added to cart!`, 'success');
             
             // Animate the button
-            button.innerHTML = '<i class="fas fa-check"></i> Added!';
-            button.style.background = '#4CAF50';
+            button.innerHTML = '<i class="fas fa-check"></i> <span>Added!</span>';
+            button.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
             
             // Animate cart icon
             const cartIcon = document.querySelector('.cart-icon');
@@ -137,7 +159,10 @@ function addToCartFromDetail() {
     });
 }
 
-// Buy Now
+// =================================================================
+// 5. BUY NOW
+// =================================================================
+
 function buyNow() {
     const button = event.currentTarget;
     
@@ -147,7 +172,7 @@ function buyNow() {
     
     button.disabled = true;
     const originalHTML = button.innerHTML;
-    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> <span>Processing...</span>';
     
     fetch(`/add-to-cart/${PRODUCT_ID}/`, {
         method: 'POST',
@@ -192,7 +217,10 @@ function buyNow() {
     });
 }
 
-// Wishlist
+// =================================================================
+// 6. WISHLIST
+// =================================================================
+
 function toggleWishlist() {
     const button = event.currentTarget;
     const icon = button.querySelector('i');
@@ -203,6 +231,7 @@ function toggleWishlist() {
         icon.classList.add('far');
         button.classList.remove('active');
         isWishlisted = false;
+        removeFromWishlist(PRODUCT_ID);
         showNotification('Removed from wishlist', 'success');
     } else {
         // Add to wishlist
@@ -210,13 +239,13 @@ function toggleWishlist() {
         icon.classList.add('fas');
         button.classList.add('active');
         isWishlisted = true;
+        addToWishlist(PRODUCT_ID);
         showNotification('Added to wishlist', 'success');
     }
 }
 
 function checkWishlistStatus() {
-    // This would typically check against a server endpoint
-    // For now, we'll check localStorage
+    // Check localStorage for wishlist
     const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
     isWishlisted = wishlist.includes(PRODUCT_ID);
     
@@ -231,12 +260,33 @@ function checkWishlistStatus() {
     }
 }
 
-// Notify When Available
-function notifyWhenAvailable() {
-    showNotification('You will be notified when this product is back in stock', 'success');
+function addToWishlist(productId) {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    if (!wishlist.includes(productId)) {
+        wishlist.push(productId);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
 }
 
-// Tab Switching
+function removeFromWishlist(productId) {
+    let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    wishlist = wishlist.filter(id => id !== productId);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+}
+
+// =================================================================
+// 7. NOTIFY WHEN AVAILABLE
+// =================================================================
+
+function notifyWhenAvailable() {
+    showNotification('You will be notified when this product is back in stock', 'success');
+    // TODO: Implement actual notification system
+}
+
+// =================================================================
+// 8. TAB SWITCHING
+// =================================================================
+
 function switchTab(tabName) {
     // Remove active class from all tabs
     document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -257,7 +307,10 @@ function switchTab(tabName) {
     }
 }
 
-// Image Zoom
+// =================================================================
+// 9. IMAGE ZOOM
+// =================================================================
+
 function toggleImageZoom() {
     const modal = document.getElementById('imageZoomModal');
     const mainImage = document.getElementById('mainImage');
@@ -278,79 +331,45 @@ function closeImageZoom() {
     }
 }
 
-// Share Menu
-function toggleShareMenu() {
-    const shareMenu = document.getElementById('shareMenu');
-    if (shareMenu) {
-        shareMenu.classList.toggle('active');
-    }
-}
+// =================================================================
+// 10. IMAGE GALLERY
+// =================================================================
 
-// Share Product
-function shareVia(platform) {
-    const url = window.location.href;
-    const title = document.querySelector('.product-title')?.textContent || 'Check out this product';
-    const text = `${title} - QuickMeds`;
-    
-    let shareUrl = '';
-    
-    switch(platform) {
-        case 'whatsapp':
-            shareUrl = `https://wa.me/?text=${encodeURIComponent(text + ' ' + url)}`;
-            break;
-        case 'facebook':
-            shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
-            break;
-        case 'twitter':
-            shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`;
-            break;
-        case 'copy':
-            navigator.clipboard.writeText(url).then(() => {
-                showNotification('Link copied to clipboard!', 'success');
-                toggleShareMenu();
-            }).catch(err => {
-                console.error('Failed to copy:', err);
-                showNotification('Failed to copy link', 'error');
-            });
-            return;
-    }
-    
-    if (shareUrl) {
-        window.open(shareUrl, '_blank', 'width=600,height=400');
-        toggleShareMenu();
-    }
-}
-
-// Close share menu when clicking outside
-document.addEventListener('click', function(event) {
-    const shareMenu = document.getElementById('shareMenu');
-    const shareBtn = document.querySelector('.share-btn');
-    
-    if (shareMenu && shareBtn) {
-        if (!shareMenu.contains(event.target) && !shareBtn.contains(event.target)) {
-            shareMenu.classList.remove('active');
-        }
-    }
-});
-
-// Close zoom modal on Escape key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        closeImageZoom();
-    }
-});
-
-// Image Gallery
 function initializeImageGallery() {
-    // This function would initialize a thumbnail gallery if multiple images exist
-    // For now, it's a placeholder for future implementation
-    const thumbnailGallery = document.getElementById('thumbnailGallery');
-    
-    // Example: If there were multiple images, we'd show the gallery
-    // For single image products, keep it hidden
+    // Initialize thumbnail gallery
+    const thumbnails = document.querySelectorAll('.thumbnail-item');
+    if (thumbnails.length > 0) {
+        thumbnails.forEach(thumbnail => {
+            thumbnail.addEventListener('click', function() {
+                changeMainImage(this);
+            });
+        });
+    }
 }
 
-// Load Related Products
+function changeMainImage(thumbnail) {
+    // Remove active class from all thumbnails
+    document.querySelectorAll('.thumbnail-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Add active class to clicked thumbnail
+    thumbnail.classList.add('active');
+    
+    // Get the image URL from data attribute
+    const imageUrl = thumbnail.getAttribute('data-image');
+    
+    // Update main image
+    const mainImage = document.getElementById('mainImage');
+    if (mainImage && imageUrl) {
+        mainImage.src = imageUrl;
+    }
+}
+
+// =================================================================
+// 11. RELATED PRODUCTS
+// =================================================================
+
 function loadRelatedProducts() {
     const container = document.getElementById('relatedProducts');
     
@@ -359,7 +378,7 @@ function loadRelatedProducts() {
     }
     
     // Show loading state
-    container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+    container.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i><p>Loading related products...</p></div>';
     
     // Fetch related products from the same category
     fetch(`/api/related-products/${PRODUCT_ID}/?category_id=${PRODUCT_CATEGORY_ID}`, {
@@ -380,12 +399,12 @@ function loadRelatedProducts() {
             displayRelatedProducts(data.products);
         } else {
             // If no related products, hide the section
-            container.innerHTML = '<p style="text-align: center; color: #757575;">No related products found</p>';
+            container.innerHTML = '<p class="text-center" style="color: #94a3b8; padding: 2rem;">No related products found</p>';
         }
     })
     .catch(error => {
         console.error('Error loading related products:', error);
-        container.innerHTML = '<p style="text-align: center; color: #757575;">Unable to load related products</p>';
+        container.innerHTML = '<p class="text-center" style="color: #94a3b8; padding: 2rem;">Unable to load related products</p>';
     });
 }
 
@@ -396,31 +415,42 @@ function displayRelatedProducts(products) {
         return;
     }
     
-    container.innerHTML = products.slice(0, 4).map(product => `
-        <div class="product-card" onclick="navigateToProduct(${product.id}, event)" data-product-id="${product.id}">
-            <div class="product-image-wrapper">
-                <img src="${product.image_url || '/static/img/medicines-icon.png'}" alt="${product.name}" class="product-image">
-                ${product.discount_percentage > 0 ? `<span class="discount-badge">-${product.discount_percentage}%</span>` : ''}
-            </div>
-            <div class="product-info">
-                <h3 class="product-name">${product.name}</h3>
-                <div class="product-price">
-                    <span class="current-price">₹${product.price}</span>
-                    ${product.original_price && product.original_price > product.price ? 
-                        `<span class="original-price">₹${product.original_price}</span>` : ''}
+    container.innerHTML = products.slice(0, 4).map(product => {
+        const discountBadge = product.discount_percentage > 0 ? 
+            `<span class="discount-badge">-${Math.round(product.discount_percentage)}%</span>` : '';
+        
+        const originalPrice = product.original_price && product.original_price > product.price ? 
+            `<span class="original-price">₹${product.original_price}</span>` : '';
+        
+        const addToCartButton = product.stock > 0 ? 
+            `<button class="btn-add-cart" onclick="addToCartQuick(event, ${product.id})">
+                <i class="fas fa-shopping-cart"></i> Add to Cart
+            </button>` :
+            `<button class="btn-out-of-stock" disabled>Out of Stock</button>`;
+        
+        return `
+            <div class="product-card" onclick="navigateToProduct(${product.id}, event)" data-product-id="${product.id}">
+                <div class="product-image-wrapper">
+                    <img src="${product.image_url || '/static/img/medicines-icon.png'}" alt="${product.name}" class="product-image">
+                    ${discountBadge}
                 </div>
-                ${product.stock > 0 ? 
-                    `<button class="btn-add-cart" onclick="addToCartQuick(event, ${product.id})">
-                        <i class="fas fa-shopping-cart"></i> Add to Cart
-                    </button>` :
-                    `<button class="btn-out-of-stock" disabled>Out of Stock</button>`
-                }
+                <div class="product-info">
+                    <h3 class="product-name">${product.name}</h3>
+                    <div class="product-price">
+                        <span class="current-price">₹${product.price}</span>
+                        ${originalPrice}
+                    </div>
+                    ${addToCartButton}
+                </div>
             </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-// Quick add to cart for related products
+// =================================================================
+// 12. QUICK ADD TO CART (for related products)
+// =================================================================
+
 function addToCartQuick(event, productId) {
     event.stopPropagation();
     event.preventDefault();
@@ -478,7 +508,10 @@ function addToCartQuick(event, productId) {
     });
 }
 
-// Navigate to Product
+// =================================================================
+// 13. NAVIGATE TO PRODUCT
+// =================================================================
+
 function navigateToProduct(productId, event) {
     if (event) {
         // Don't navigate if clicking on the add to cart button
@@ -490,7 +523,10 @@ function navigateToProduct(productId, event) {
     window.location.href = `/product/${productId}/`;
 }
 
-// Update Cart Count
+// =================================================================
+// 14. CART MANAGEMENT
+// =================================================================
+
 function updateCartCount() {
     fetch('/get-cart-count/', {
         method: 'GET',
@@ -516,7 +552,6 @@ function updateCartCount() {
     });
 }
 
-// Update Cart Badge
 function updateCartBadge(count) {
     const cartBadge = document.querySelector('.cart-badge');
     if (cartBadge) {
@@ -534,15 +569,52 @@ function updateCartBadge(count) {
     }
 }
 
-// Notification System
-// Notification System
+// =================================================================
+// 15. NOTIFICATION SYSTEM
+// =================================================================
+
 function showNotification(message, type = 'success') {
-    // Toast notification removed as per request.
-    // Logging to console for debugging purposes.
-    console.log(`Notification (${type}): ${message}`);
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#f59e0b'};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-weight: 600;
+        animation: slideInRight 0.3s ease, fadeOut 0.3s ease 2.7s;
+        max-width: 400px;
+    `;
+    
+    const icon = type === 'success' ? 'fa-check-circle' : 
+                 type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="fas ${icon}"></i>
+        <span>${message}</span>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 
-// Get CSRF Token
+// =================================================================
+// 16. UTILITY FUNCTIONS
+// =================================================================
+
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -558,7 +630,10 @@ function getCookie(name) {
     return cookieValue;
 }
 
-// Scroll to top functionality
+// =================================================================
+// 17. SCROLL TO TOP
+// =================================================================
+
 window.addEventListener('scroll', function() {
     const scrollBtn = document.getElementById('scrollTopBtn');
     if (scrollBtn) {
@@ -570,4 +645,35 @@ window.addEventListener('scroll', function() {
     }
 });
 
-// End of product-detail.js
+// =================================================================
+// 18. ANIMATIONS
+// =================================================================
+
+// Add animation styles if needed
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes slideInRight {
+        from {
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+    
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+`;
+document.head.appendChild(style);
+
+// =================================================================
+// END OF PRODUCT DETAIL JAVASCRIPT
+// =================================================================
