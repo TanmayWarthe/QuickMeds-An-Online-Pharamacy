@@ -155,9 +155,16 @@
                 button.textContent = 'SIGN UP';
 
                 if (result.success) {
-                    Utils.showMessage('OTP sent to your email!', 'success');
-                    // Show OTP modal instead of inline form
-                    window.OTPModal.show(email, 'signup');
+                    Utils.showMessage(result.message || 'Registration successful!', 'success');
+                    // Close modal and redirect
+                    const authModal = bootstrap.Modal.getInstance(document.getElementById('authModal'));
+                    if (authModal) authModal.hide();
+                    
+                    setTimeout(() => {
+                        const redirectUrl = sessionStorage.getItem('authRedirectUrl') || result.redirect_url || '/';
+                        sessionStorage.removeItem('authRedirectUrl');
+                        window.location.href = redirectUrl;
+                    }, 1000);
                 } else {
                     Utils.showMessage(result.message || 'Registration failed', 'error');
                 }
@@ -288,12 +295,15 @@
                 button.disabled = false;
                 button.textContent = 'SIGN IN';
 
-                if (result.success && result.otp_required) {
-                    Utils.showMessage(result.message || 'OTP sent to your email!', 'success');
-                    // Show OTP modal instead of inline form
-                    window.OTPModal.show(email, 'login');
-                } else if (result.success) {
-                    Utils.showMessage('Login successful!', 'success');
+                if (result.success) {
+                    Utils.showMessage(result.message || 'Login successful!', 'success');
+                    // Close modal and redirect
+                    const authModal = document.getElementById('authModal');
+                    if (authModal) {
+                        const modalInstance = bootstrap.Modal.getInstance(authModal);
+                        if (modalInstance) modalInstance.hide();
+                    }
+                    
                     setTimeout(() => {
                         const redirectUrl = sessionStorage.getItem('authRedirectUrl') || result.redirect_url || '/';
                         sessionStorage.removeItem('authRedirectUrl');

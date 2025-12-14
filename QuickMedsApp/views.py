@@ -214,43 +214,23 @@ def login_view(request):
                         'message': 'Password must be at least 8 characters long'
                     })
                 
-                # Store registration data in session for later use after OTP verification
-                request.session['registration_data'] = {
-                    'name': name,
-                    'email': email,
-                    'password': password
-                }
+                # Create user immediately without OTP verification
+                user = User.objects.create_user(
+                    username=email,
+                    email=email,
+                    password=password,
+                    first_name=name
+                )
                 
-                # Generate and send OTP
-                otp = generate_otp()
-                store_result = store_otp(email, otp)
+                logger.info(f"✅ User created: {user.email}")
                 
-                if not store_result:
-                    return JsonResponse({
-                        'success': False,
-                        'message': 'Failed to generate OTP. Please try again.'
-                    })
+                # Log user in
+                login(request, user)
                 
-                # Send email
-                email_result = send_otp_email(email, otp, 'registration')
-                
-                # Check if email is configured
-                from django.conf import settings
-                if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-                    logger.warning(f"Email not configured. OTP for {email}: {otp}")
-                    return JsonResponse({
-                        'success': True,
-                        'message': f'⚠️ Email not configured. Your OTP is: {otp}',
-                        'otp_shown': True,
-                        'otp': otp  # Only for development
-                    })
-                
-                # Email sent successfully
-                logger.info(f"OTP sent to {email}")
                 return JsonResponse({
                     'success': True,
-                    'message': '✅ OTP sent to your email! Check your inbox (and spam folder).',
-                    'otp_shown': False
+                    'message': '✅ Registration successful! Welcome to QuickMeds.',
+                    'redirect_url': '/'  # Redirect to home page
                 })
                     
             except ValidationError:
@@ -326,35 +306,14 @@ def login_view(request):
                 user = authenticate(username=user.username, password=password)
                 
                 if user is not None:
-                    # Generate and send OTP for login verification
-                    otp = generate_otp()
-                    store_result = store_otp(email, otp)
-                    email_result = send_otp_email(email, otp, purpose='login')
+                    # Log user in directly without OTP
+                    login(request, user)
                     
-                    if store_result:
-                        # Store user info in session for OTP verification
-                        request.session['login_user_id'] = user.id
-                        request.session['login_email'] = email
-                        
-                        # Check if email is configured
-                        from django.conf import settings
-                        if not settings.EMAIL_HOST_USER or not settings.EMAIL_HOST_PASSWORD:
-                            return JsonResponse({
-                                'success': True,
-                                'otp_required': True,
-                                'message': f'Email not configured. Your OTP is: {otp} (Check server console)'
-                            })
-                        
-                        return JsonResponse({
-                            'success': True,
-                            'otp_required': True,
-                            'message': 'OTP sent to your email. Please verify to continue.'
-                        })
-                    else:
-                        return JsonResponse({
-                            'success': False,
-                            'message': 'Failed to generate OTP. Please try again.'
-                        })
+                    return JsonResponse({
+                        'success': True,
+                        'message': f'Welcome back {user.first_name}!',
+                        'redirect_url': '/'
+                    })
                 else:
                     return JsonResponse({
                         'success': False,
