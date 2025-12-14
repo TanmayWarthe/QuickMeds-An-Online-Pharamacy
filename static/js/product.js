@@ -68,8 +68,45 @@ document.addEventListener('click', (e) => {
     }
 });
 
+// Initialize product sliders
+function initializeProductSliders() {
+    const sliders = document.querySelectorAll('.product-slider');
+    
+    sliders.forEach(slider => {
+        const sliderId = slider.id;
+        
+        // Initialize slider buttons
+        updateSliderButtons(sliderId);
+        
+        // Add scroll event listener
+        slider.addEventListener('scroll', () => {
+            updateSliderButtons(sliderId);
+        });
+        
+        // Add touch support
+        let touchStartX = 0;
+        let touchEndX = 0;
+        
+        slider.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        
+        slider.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const difference = touchStartX - touchEndX;
+            
+            if (Math.abs(difference) > 50) {
+                moveSlider(sliderId, difference > 0 ? 1 : -1);
+            }
+        }, { passive: true });
+    });
+}
+
 // Initialize sliders and category clicks
 document.addEventListener('DOMContentLoaded', function() {
+    // Initialize cart count
+    updateCartCount();
+    
     // Add smooth scrolling to all category cards
     document.querySelectorAll('.category-card').forEach(card => {
         card.addEventListener('click', function() {
@@ -107,7 +144,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Initialize product sliders
-    updateCartCount();
+    initializeProductSliders();
 
     // Initialize spotlight effect
     const productSections = document.querySelectorAll('.product-section');
@@ -204,81 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
             scrollTopBtn.style.transform = 'scale(1) translateY(0)';
         });
     }
-
-    updateCartCount(); // Call this function to set the initial cart count
-});
-
-// Add touch support for mobile devices
-document.addEventListener('DOMContentLoaded', function() {
-    const sliders = document.querySelectorAll('.product-slider');
-    
-    sliders.forEach(slider => {
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        slider.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        slider.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const difference = touchStartX - touchEndX;
-            
-            if (Math.abs(difference) > 50) { // Minimum swipe distance
-                moveSlider(slider.id, difference > 0 ? 1 : -1);
-            }
-        }, { passive: true });
-    });
-});
-
-// Initialize product sliders
-function initializeProductSliders() {
-    const sliders = document.querySelectorAll('.product-slider');
-    
-    sliders.forEach(slider => {
-        const sliderId = slider.id;
-        
-        // Initialize slider buttons
-        updateSliderButtons(sliderId);
-        
-        // Add scroll event listener
-        slider.addEventListener('scroll', () => {
-            updateSliderButtons(sliderId);
-        });
-        
-        // Add touch support
-        let touchStartX = 0;
-        let touchEndX = 0;
-        
-        slider.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        
-        slider.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            const difference = touchStartX - touchEndX;
-            
-            if (Math.abs(difference) > 50) {
-                moveSlider(sliderId, difference > 0 ? 1 : -1);
-            }
-        }, { passive: true });
-    });
-}
-
-// Initialize everything when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    initializeProductSliders();
-    
-    // Update slider buttons on window resize
-    let resizeTimer;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimer);
-        resizeTimer = setTimeout(() => {
-            document.querySelectorAll('.product-slider').forEach(slider => {
-                updateSliderButtons(slider.id);
-            });
-        }, 250);
-    });
 });
 
 // Cart Management
@@ -505,8 +467,3 @@ function getCookie(name) {
     }
     return cookieValue;
 }
-
-// Initialize cart count on page load
-document.addEventListener('DOMContentLoaded', function() {
-    updateCartCount();
-});
