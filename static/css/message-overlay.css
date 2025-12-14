@@ -54,25 +54,25 @@
     }
 }
 
-/* New animations for centered top messages */
-@keyframes slideDownIn {
+/* Fade animations for simple text messages */
+@keyframes fadeIn {
     from {
-        transform: translate(-50%, -100%);
         opacity: 0;
+        transform: translateX(20px);
     }
     to {
-        transform: translate(-50%, 0);
         opacity: 1;
+        transform: translateX(0);
     }
 }
 
-@keyframes slideUpOut {
+@keyframes fadeOut {
     from {
-        transform: translate(-50%, 0);
         opacity: 1;
+        transform: translateX(0);
     }
     to {
-        transform: translate(-50%, -100%);
         opacity: 0;
+        transform: translateX(20px);
     }
 }

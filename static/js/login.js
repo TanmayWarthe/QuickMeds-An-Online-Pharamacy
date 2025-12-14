@@ -24,30 +24,28 @@
             messageDiv.className = `alert alert-${type}`;
             messageDiv.style.cssText = `
                 position: fixed;
-                top: 80px;
-                left: 50%;
-                transform: translateX(-50%);
+                top: 20px;
+                right: 20px;
                 z-index: 99999;
-                min-width: 350px;
-                max-width: 90%;
-                padding: 16px 24px;
-                border-radius: 12px;
-                background: ${type === 'success' ? '#d4edda' : type === 'error' ? '#f8d7da' : '#d1ecf1'};
-                border: 2px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
-                color: ${type === 'success' ? '#155724' : type === 'error' ? '#721c24' : '#0c5460'};
-                box-shadow: 0 8px 24px rgba(0,0,0,0.25);
-                font-weight: 500;
-                font-size: 15px;
-                text-align: center;
-                animation: slideDownIn 0.4s ease-out;
+                max-width: 350px;
+                padding: 14px 20px;
+                border-radius: 8px;
+                background: ${type === 'success' ? 'rgba(40, 167, 69, 0.15)' : type === 'error' ? 'rgba(220, 53, 69, 0.15)' : 'rgba(23, 162, 184, 0.15)'};
+                border-left: 4px solid ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                color: ${type === 'success' ? '#28a745' : type === 'error' ? '#dc3545' : '#17a2b8'};
+                font-weight: 600;
+                font-size: 14px;
+                text-align: right;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                animation: fadeIn 0.3s ease-out;
             `;
             messageDiv.textContent = message;
             document.body.appendChild(messageDiv);
 
             setTimeout(() => {
-                messageDiv.style.animation = 'slideUpOut 0.3s ease-out';
+                messageDiv.style.animation = 'fadeOut 0.3s ease-out';
                 setTimeout(() => messageDiv.remove(), 300);
-            }, 4500);
+            }, 3500);
         },
 
         validateEmail(email) {
