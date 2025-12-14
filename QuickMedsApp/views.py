@@ -1854,18 +1854,103 @@ def admin_users(request):
     """Manage users"""
     users = User.objects.select_related('userprofile').all().order_by('-date_joined')
     staff_count = User.objects.filter(is_staff=True).count()
+    active_count = User.objects.filter(is_active=True).count()
+    
+    # Filter by status if specified
+    status = request.GET.get('status')
+    if status == 'active':
+        users = users.filter(is_active=True)
+    elif status == 'inactive':
+        users = users.filter(is_active=False)
+    elif status == 'staff':
+        users = users.filter(is_staff=True)
+    
+    # Search functionality
+    search = request.GET.get('search')
+    if search:
+        users = users.filter(
+            Q(username__icontains=search) |
+            Q(email__icontains=search) |
+            Q(first_name__icontains=search) |
+            Q(last_name__icontains=search)
+        )
     
     context = {
         'users': users,
         'staff_count': staff_count,
+        'active_count': active_count,
+        'total_count': User.objects.count(),
     }
     return render(request, 'admin_users.html', context)
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_user_toggle_status(request, user_id):
+    """Toggle user active status"""
+    user = get_object_or_404(User, id=user_id)
+    
+    # Prevent self-deactivation
+    if user == request.user:
+        messages.error(request, 'You cannot deactivate your own account!')
+        return redirect('admin_users')
+    
+    # Prevent deactivating superusers (unless current user is superuser)
+    if user.is_superuser and not request.user.is_superuser:
+        messages.error(request, 'You cannot deactivate a superuser!')
+        return redirect('admin_users')
+    
+    try:
+        user.is_active = not user.is_active
+        user.save()
+        status = 'activated' if user.is_active else 'deactivated'
+        messages.success(request, f'User "{user.username}" {status} successfully!')
+    except Exception as e:
+        messages.error(request, f'Error updating user: {str(e)}')
+    
+    return redirect('admin_users')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_user_delete(request, user_id):
+    """Delete user"""
+    user = get_object_or_404(User, id=user_id)
+    
+    # Prevent self-deletion
+    if user == request.user:
+        messages.error(request, 'You cannot delete your own account!')
+        return redirect('admin_users')
+    
+    # Prevent deleting superusers (unless current user is superuser)
+    if user.is_superuser and not request.user.is_superuser:
+        messages.error(request, 'You cannot delete a superuser!')
+        return redirect('admin_users')
+    
+    try:
+        username = user.username
+        user.delete()
+        messages.success(request, f'User "{username}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting user: {str(e)}')
+    
+    return redirect('admin_users')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_logout(request):
+    """Admin logout"""
+    logout(request)
+    messages.success(request, 'Logged out successfully!')
+    return redirect('admin_login')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_categories(request):
     """Manage categories"""
-    categories = Category.objects.all()
+    categories = Category.objects.annotate(
+        products_count=models.Count('products')
+    ).order_by('name')
     
     context = {
         'categories': categories,
@@ -1874,15 +1959,136 @@ def admin_categories(request):
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_category_add(request):
+    """Add new category"""
+    from .forms import CategoryAdminForm
+    
+    if request.method == 'POST':
+        form = CategoryAdminForm(request.POST)
+        if form.is_valid():
+            try:
+                category = form.save()
+                messages.success(request, f'Category "{category.name}" added successfully!')
+                return redirect('admin_categories')
+            except Exception as e:
+                messages.error(request, f'Error adding category: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CategoryAdminForm()
+    
+    context = {
+        'form': form,
+        'title': 'Add New Category',
+        'button_text': 'Add Category'
+    }
+    return render(request, 'admin_category_form.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+def admin_category_edit(request, category_id):
+    """Edit category"""
+    from .forms import CategoryAdminForm
+    
+    category = get_object_or_404(Category, id=category_id)
+    
+    if request.method == 'POST':
+        form = CategoryAdminForm(request.POST, instance=category)
+        if form.is_valid():
+            try:
+                category = form.save()
+                messages.success(request, f'Category "{category.name}" updated successfully!')
+                return redirect('admin_categories')
+            except Exception as e:
+                messages.error(request, f'Error updating category: {str(e)}')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CategoryAdminForm(instance=category)
+    
+    context = {
+        'form': form,
+        'category': category,
+        'title': 'Edit Category',
+        'button_text': 'Update Category'
+    }
+    return render(request, 'admin_category_form.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_category_delete(request, category_id):
+    """Delete category"""
+    category = get_object_or_404(Category, id=category_id)
+    category_name = category.name
+    
+    # Check if category has products
+    products_count = category.products.count()
+    if products_count > 0:
+        messages.error(request, f'Cannot delete category "{category_name}" because it has {products_count} product(s). Please reassign or delete those products first.')
+        return redirect('admin_categories')
+    
+    try:
+        category.delete()
+        messages.success(request, f'Category "{category_name}" deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting category: {str(e)}')
+    
+    return redirect('admin_categories')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_contacts(request):
     """View contact messages"""
     from .models import Contact
     contacts = Contact.objects.all().order_by('-created_at')
     
+    # Filter by read status if specified
+    read_status = request.GET.get('status')
+    if read_status == 'read':
+        contacts = contacts.filter(is_read=True)
+    elif read_status == 'unread':
+        contacts = contacts.filter(is_read=False)
+    
+    unread_count = Contact.objects.filter(is_read=False).count()
+    
     context = {
         'contacts': contacts,
+        'unread_count': unread_count,
     }
     return render(request, 'admin_contacts.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_contact_delete(request, contact_id):
+    """Delete contact message"""
+    contact = get_object_or_404(Contact, id=contact_id)
+    
+    try:
+        contact.delete()
+        messages.success(request, 'Contact message deleted successfully!')
+    except Exception as e:
+        messages.error(request, f'Error deleting contact: {str(e)}')
+    
+    return redirect('admin_contacts')
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_contact_mark_read(request, contact_id):
+    """Mark contact as read/unread"""
+    contact = get_object_or_404(Contact, id=contact_id)
+    
+    try:
+        contact.is_read = not contact.is_read
+        contact.save()
+        status = 'read' if contact.is_read else 'unread'
+        messages.success(request, f'Contact message marked as {status}!')
+    except Exception as e:
+        messages.error(request, f'Error updating contact: {str(e)}')
+    
+    return redirect('admin_contacts')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
@@ -2047,18 +2253,70 @@ def admin_order_detail(request, order_id):
     """View order details"""
     order = get_object_or_404(Order, id=order_id)
     
-    if request.method == 'POST':
-        # Update order status
-        new_status = request.POST.get('order_status')
-        if new_status:
-            order.order_status = new_status
-            order.save()
-            messages.success(request, 'Order status updated!')
-    
     context = {
         'order': order,
     }
     return render(request, 'admin_order_detail.html', context)
+
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
+def admin_order_update_status(request, order_id):
+    """Update order status"""
+    order = get_object_or_404(Order, id=order_id)
+    
+    new_order_status = request.POST.get('order_status')
+    new_payment_status = request.POST.get('payment_status')
+    
+    try:
+        updated = False
+        
+        if new_order_status and new_order_status != order.order_status:
+            order.order_status = new_order_status
+            updated = True
+        
+        if new_payment_status and new_payment_status != order.payment_status:
+            order.payment_status = new_payment_status
+            updated = True
+        
+        if updated:
+            order.save()
+            messages.success(request, f'Order #{order.id} status updated successfully!')
+            
+            # Send email notification to customer
+            try:
+                subject = f'Order #{order.id} Status Update'
+                message = f"""
+                Dear {order.user.get_full_name() or order.user.username},
+                
+                Your order #{order.id} status has been updated.
+                
+                Order Status: {order.get_order_status_display()}
+                Payment Status: {order.get_payment_status_display()}
+                
+                Order Details:
+                - Total Amount: ₹{order.total_amount}
+                - Order Date: {order.created_at.strftime('%B %d, %Y')}
+                
+                Thank you for shopping with QuickMeds!
+                """
+                
+                send_mail(
+                    subject,
+                    message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [order.user.email],
+                    fail_silently=True
+                )
+            except Exception as e:
+                logger.error(f"Failed to send order update email: {str(e)}")
+        else:
+            messages.info(request, 'No changes were made.')
+            
+    except Exception as e:
+        messages.error(request, f'Error updating order: {str(e)}')
+    
+    return redirect('admin_order_detail', order_id=order.id)
 
 def success_view(request):
     return render(request, 'success.html')  # Create a success.html template

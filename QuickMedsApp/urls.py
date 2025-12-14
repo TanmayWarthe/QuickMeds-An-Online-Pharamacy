@@ -54,6 +54,7 @@ urlpatterns = [
     
     # Admin Dashboard URLs
     path('admin-panel/login/', views.admin_login, name='admin_login'),
+    path('admin-panel/logout/', views.admin_logout, name='admin_logout'),
     path('admin-panel/', views.admin_dashboard, name='admin_dashboard'),
     path('admin-panel/products/', views.admin_products, name='admin_products'),
     path('admin-panel/products/add/', views.admin_product_add, name='admin_product_add'),
@@ -61,7 +62,15 @@ urlpatterns = [
     path('admin-panel/products/<int:product_id>/delete/', views.admin_product_delete, name='admin_product_delete'),
     path('admin-panel/orders/', views.admin_orders, name='admin_orders'),
     path('admin-panel/orders/<int:order_id>/', views.admin_order_detail, name='admin_order_detail'),
+    path('admin-panel/orders/<int:order_id>/update-status/', views.admin_order_update_status, name='admin_order_update_status'),
     path('admin-panel/users/', views.admin_users, name='admin_users'),
+    path('admin-panel/users/<int:user_id>/toggle-status/', views.admin_user_toggle_status, name='admin_user_toggle_status'),
+    path('admin-panel/users/<int:user_id>/delete/', views.admin_user_delete, name='admin_user_delete'),
     path('admin-panel/categories/', views.admin_categories, name='admin_categories'),
+    path('admin-panel/categories/add/', views.admin_category_add, name='admin_category_add'),
+    path('admin-panel/categories/<int:category_id>/edit/', views.admin_category_edit, name='admin_category_edit'),
+    path('admin-panel/categories/<int:category_id>/delete/', views.admin_category_delete, name='admin_category_delete'),
     path('admin-panel/contacts/', views.admin_contacts, name='admin_contacts'),
+    path('admin-panel/contacts/<int:contact_id>/delete/', views.admin_contact_delete, name='admin_contact_delete'),
+    path('admin-panel/contacts/<int:contact_id>/mark-read/', views.admin_contact_mark_read, name='admin_contact_mark_read'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
