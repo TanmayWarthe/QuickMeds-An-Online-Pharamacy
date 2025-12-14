@@ -40,8 +40,15 @@ var/
 db.sqlite3
 *.sqlite3
 db.sqlite3-journal
-# *.log
-# local_settings.py
+*.log
+local_settings.py
+
+# --- Test & Debug Files ---
+check_db.py
+test_*.py
+*_backup.*
+*.bak
+QuickMedsOnlinePharmacy.env
 
 # --- IDE & Editor Files ---
 .idea/
