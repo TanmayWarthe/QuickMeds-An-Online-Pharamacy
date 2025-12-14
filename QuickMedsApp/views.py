@@ -305,19 +305,13 @@ def login_view(request):
                     
                     return JsonResponse({
                         'success': True,
-                        'message': '✅ Registration successful! Welcome to QuickMeds.'
-                    })
-                else:
-                    return JsonResponse({
-                        'success': False,
-                        'message': '❌ Invalid or expired OTP. Please try again or request a new OTP.'
-                    })
+                        'message': '✅ Registration successful! Welcome to QuickMeds.',
                         'redirect_url': '/'  # Redirect to home page
                     })
                 else:
                     return JsonResponse({
                         'success': False,
-                        'message': 'Invalid OTP'
+                        'message': '❌ Invalid or expired OTP. Please try again or request a new OTP.'
                     })
                     
             except Exception as e:
