@@ -89,8 +89,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const productId = this.getAttribute('data-product-id');
             if (productId) {
-                // Open product in new tab
-                window.open(`/product/${productId}/`, '_blank');
+                // Open product in same page
+                window.location.href = `/product/${productId}/`;
             }
         });
     });

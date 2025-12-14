@@ -31,6 +31,8 @@
   <link rel="stylesheet" href="{% static 'css/layout.css' %}">
   <!-- Navbar Search with Suggestions -->
   <link rel="stylesheet" href="{% static 'css/navbar-search.css' %}">
+  <!-- Auth Modal CSS -->
+  <link rel="stylesheet" href="{% static 'css/auth-modal.css' %}">
   <!-- Responsive Base Styles - MUST LOAD FIRST -->
   <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
   {% block extra_css %}
@@ -108,6 +110,9 @@
   {% block body_bottom %}
   <!-- Pages can inject modals or floating elements here -->
   {% endblock %}
+
+  <!-- Auth Modal -->
+  {% include 'login.html' %}
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>

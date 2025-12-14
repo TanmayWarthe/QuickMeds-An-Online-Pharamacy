@@ -9,9 +9,9 @@ from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
-def generate_otp():
-    """Generate a 4-digit OTP"""
-    return ''.join(random.choices(string.digits, k=4))
+def generate_otp(length=4):
+    """Generate a 4-digit OTP (default) or custom length"""
+    return ''.join(random.choices(string.digits, k=length))
 
 def send_otp_email(email, otp, purpose='verification'):
     """Send OTP via email"""
@@ -122,12 +122,13 @@ def verify_otp(email, otp):
         cache_key = f'otp_{email}'
         stored_otp = cache.get(cache_key)
         
-        if stored_otp and stored_otp == otp:
+        # Ensure both are strings for comparison
+        if stored_otp and str(stored_otp).strip() == str(otp).strip():
             cache.delete(cache_key)  # Delete OTP after successful verification
             logger.info(f"OTP verified successfully for {email}")
             return True
             
-        logger.warning(f"Invalid OTP attempt for {email}")
+        logger.warning(f"Invalid OTP attempt for {email}. Expected: {stored_otp}, Got: {otp}")
         return False
         
     except Exception as e:

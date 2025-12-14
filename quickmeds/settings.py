@@ -100,7 +100,7 @@ WSGI_APPLICATION = 'quickmeds.wsgi.application'
 # Database configuration: supports PostgreSQL, MySQL, SQLite, and DATABASE_URL
 USE_MYSQL = config('USE_MYSQL', default=False, cast=bool)
 USE_POSTGRES = config('USE_POSTGRES', default=False, cast=bool)
-database_url = config('DATABASE_URL', default=None)
+database_url = config('DATABASE_URL', default='')
 
 if database_url:
     import dj_database_url

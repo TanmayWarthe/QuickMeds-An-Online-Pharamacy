@@ -164,15 +164,15 @@
         window.location.href = url.toString();
     }
 
-    // Open product detail in new tab
+    // Open product detail in same page
     function openProductDetail(productId, event) {
         // Don't open if clicking on action buttons or within product-actions div
         if (event && (event.target.closest('.product-actions') || event.target.closest('.btn-add-cart') || event.target.closest('.btn-quick-view') || event.target.closest('.btn-wishlist-quick') || event.target.closest('.btn-notify'))) {
             event.stopPropagation();
             return;
         }
-        // Open in new tab
-        window.open(`/product/${productId}/`, '_blank');
+        // Open in same page
+        window.location.href = `/product/${productId}/`;
     }
 
     // Add to cart quick

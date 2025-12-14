@@ -12,11 +12,17 @@ INSTALLED_APPS += [  # type: ignore # noqa: F405
     "whitenoise.runserver_nostatic",
 ]
 
-# Database: use SQLite by default; optional MySQL or PostgreSQL if enabled
+# Database: use SQLite by default; optional MySQL, PostgreSQL or DATABASE_URL if enabled
+database_url = config("DATABASE_URL", default="")
 USE_MYSQL = config("USE_MYSQL", default=False, cast=bool)
 USE_POSTGRES = config("USE_POSTGRES", default=False, cast=bool)
 
-if USE_MYSQL:
+if database_url:
+    import dj_database_url
+    DATABASES = {  # noqa: F405
+        "default": dj_database_url.parse(database_url)
+    }
+elif USE_MYSQL:
     DATABASES = {  # noqa: F405
         "default": {
             "ENGINE": "django.db.backends.mysql",

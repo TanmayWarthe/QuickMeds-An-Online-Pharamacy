@@ -537,7 +537,7 @@ function handleAddToCart(productId, event) {
 
 // Quick View Product
 function quickView(productId) {
-    window.open(`/product/${productId}/`, 'ProductDetail', 'width=900,height=700');
+    window.location.href = `/product/${productId}/`;
 }
 
 // Update Cart Count

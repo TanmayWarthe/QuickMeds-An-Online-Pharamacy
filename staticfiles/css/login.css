@@ -32,14 +32,14 @@ body {
 	font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 	min-height: 100vh;
 	margin: 0;
-	padding: 0;
+	padding: 1rem;
 }
 
 .login-wrapper {
 	width: 100%;
-	max-width: 900px;
-	margin: 0 auto;
-	padding: 2rem;
+	max-width: 600px;
+	margin: 2rem auto;
+	padding: 0;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -47,8 +47,8 @@ body {
 
 h1 {
 	font-weight: 700;
-	font-size: 2rem;
-	margin: 0 0 1.5rem;
+	font-size: 1.75rem;
+	margin: 0 0 1rem;
 	color: var(--text-primary);
 	letter-spacing: -0.5px;
 }
@@ -56,8 +56,9 @@ h1 {
 h2 {
 	text-align: center;
 	color: var(--text-primary);
-	margin-bottom: 1.5rem;
+	margin-bottom: 1rem;
 	font-weight: 600;
+	font-size: 1.5rem;
 }
 
 p {
@@ -65,8 +66,9 @@ p {
 	font-weight: 400;
 	line-height: 1.6;
 	letter-spacing: 0;
-	margin: 1rem 0 1.5rem;
+	margin: 0.5rem 0 1rem;
 	color: var(--text-secondary);
+	text-align: center;
 }
 
 span {
@@ -119,32 +121,101 @@ button:focus {
 
 button.ghost {
 	background-color: transparent;
-	border: 2px solid #fff;
-	color: #fff;
+	border: 2px solid var(--primary);
+	color: var(--primary);
 	font-weight: 600;
-	border-radius: 50px;
-	padding: 15px 60px;
-	font-size: 15px;
+	border-radius: var(--radius-md);
+	padding: 0.75rem 1.5rem;
+	font-size: 0.9375rem;
 	text-transform: uppercase;
-	letter-spacing: 1px;
+	letter-spacing: 0.5px;
 	transition: all 0.3s ease;
 }
 
 button.ghost:hover {
-	background-color: #fff;
-	color: #000;
+	background-color: var(--primary);
+	color: #fff;
 }
 
-form {
+.auth-form {
 	background-color: #FFFFFF;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	flex-direction: column;
-	padding: 3rem 3.5rem;
-	height: 100%;
+	padding: 2.5rem;
+	width: 100%;
 	text-align: center;
-	gap: 0.75rem;
+	gap: 1rem;
+}
+
+.container {
+	background-color: #fff;
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-lg);
+	position: relative;
+	overflow: hidden;
+	width: 100%;
+	max-width: 600px;
+	border: 1px solid rgba(37, 99, 235, 0.1);
+	padding: 2rem;
+}
+
+/* Auth Tabs */
+.auth-tabs {
+	display: flex;
+	gap: 0.5rem;
+	margin-bottom: 2rem;
+	background: var(--bg-light);
+	padding: 0.375rem;
+	border-radius: var(--radius-md);
+}
+
+.auth-tab {
+	flex: 1;
+	padding: 0.875rem 1.5rem;
+	border: none;
+	background: transparent;
+	color: var(--text-secondary);
+	font-weight: 600;
+	font-size: 0.9375rem;
+	border-radius: var(--radius-sm);
+	cursor: pointer;
+	transition: all 0.3s ease;
+	font-family: 'Inter', sans-serif;
+}
+
+.auth-tab.active {
+	background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+	color: #fff;
+	box-shadow: var(--shadow-sm);
+}
+
+.auth-tab:hover:not(.active) {
+	background: rgba(37, 99, 235, 0.05);
+	color: var(--primary);
+}
+
+/* Tab Panes */
+.auth-tab-content {
+	position: relative;
+	width: 100%;
+}
+
+.tab-pane {
+	width: 100%;
+	animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
 }
 
 input {
@@ -197,122 +268,6 @@ input.error {
 	width: 100%;
 	min-height: 600px;
 	border: 1px solid rgba(37, 99, 235, 0.1);
-}
-
-.form-container {
-	position: absolute;
-	top: 0;
-	height: 100%;
-	transition: all 0.6s ease-in-out;
-}
-
-.sign-in-container {
-	left: 0;
-	width: 50%;
-	z-index: 2;
-}
-
-.container.right-panel-active .sign-in-container {
-	transform: translateX(100%);
-}
-
-.sign-up-container {
-	left: 0;
-	width: 50%;
-	opacity: 0;
-	z-index: 1;
-}
-
-.container.right-panel-active .sign-up-container {
-	transform: translateX(100%);
-	opacity: 1;
-	z-index: 5;
-	animation: show 0.6s;
-}
-
-@keyframes show {
-	0%, 49.99% {
-		opacity: 0;
-		z-index: 1;
-	}
-	
-	50%, 100% {
-		opacity: 1;
-		z-index: 5;
-	}
-}
-
-.overlay-container {
-	position: absolute;
-	top: 0;
-	left: 50%;
-	width: 50%;
-	height: 100%;
-	overflow: hidden;
-	transition: transform 0.6s ease-in-out;
-	z-index: 100;
-}
-
-.container.right-panel-active .overlay-container {
-	transform: translateX(-100%);
-}
-
-.overlay {
-	background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-	color: #FFFFFF;
-	position: relative;
-	left: -100%;
-	height: 100%;
-	width: 200%;
-	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
-}
-
-.container.right-panel-active .overlay {
-	transform: translateX(50%);
-}
-
-.overlay-panel {
-	position: absolute;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	flex-direction: column;
-	padding: 0 60px;
-	text-align: center;
-	top: 0;
-	height: 100%;
-	width: 50%;
-	transform: translateX(0);
-	transition: transform 0.6s ease-in-out;
-}
-
-.overlay-panel h1 {
-	color: #fff;
-	margin-bottom: 15px;
-}
-
-.overlay-panel p {
-	color: rgba(255, 255, 255, 0.9);
-	font-size: 16px;
-	margin: 15px 0 25px;
-}
-
-.overlay-left {
-	transform: translateX(-20%);
-}
-
-.container.right-panel-active .overlay-left {
-	transform: translateX(0);
-}
-
-.overlay-right {
-	right: 0;
-	transform: translateX(0);
-}
-
-.container.right-panel-active .overlay-right {
-	transform: translateX(20%);
 }
 
 .social-container {
@@ -386,29 +341,50 @@ input.error {
 
 @media (max-width: 768px) {
 	.login-wrapper {
-		padding: 0 1.5rem;
+		padding: 0.5rem;
+		min-height: 100vh;
+		display: flex;
+		align-items: center;
 	}
 
 	.container {
-		min-height: 500px;
+		min-height: auto;
+		max-height: none;
+		width: 100%;
+		box-shadow: none;
+		border: none;
 	}
 
 	form {
-		padding: 2rem 1.5rem;
+		padding: 2rem 1.25rem;
+		min-height: auto;
 	}
 
 	h1 {
-		font-size: 1.75rem;
+		font-size: 1.625rem;
+		margin-bottom: 1rem;
+	}
+	
+	span {
+		font-size: 0.8125rem;
+		margin: 0.5rem 0;
+	}
+	
+	p {
+		font-size: 0.875rem;
+		margin: 0.75rem 0 1rem;
 	}
 
 	.form-container {
 		width: 100%;
 		height: 100%;
+		position: relative;
 	}
 
 	.sign-in-container, .sign-up-container {
 		width: 100%;
 		height: 100%;
+		position: relative;
 	}
 
 	.overlay-container {
@@ -418,26 +394,54 @@ input.error {
 	.sign-up-container {
 		opacity: 0;
 		z-index: -1;
+		position: absolute;
+		left: 0;
+		top: 0;
 	}
 
 	.container.right-panel-active .sign-up-container {
 		opacity: 1;
 		z-index: 5;
 		transform: translateX(0);
+		position: relative;
 	}
 
 	.container.right-panel-active .sign-in-container {
 		transform: translateX(-100%);
+		opacity: 0;
+		position: absolute;
 	}
 
 	.sign-button {
-		padding: 0.75rem 2rem;
+		padding: 0.75rem 1.75rem;
+		font-size: 0.8125rem;
+		width: 100%;
+		max-width: 300px;
+	}
+	
+	button.ghost {
+		padding: 12px 40px;
 		font-size: 0.875rem;
 	}
 
 	.social-container a {
 		width: 40px;
 		height: 40px;
+		margin: 0 0.375rem;
+	}
+	
+	input {
+		font-size: 0.875rem;
+		padding: 0.75rem 0.875rem;
+	}
+	
+	.password-wrapper input {
+		padding-right: 45px;
+	}
+	
+	.forgot-password {
+		font-size: 0.8125rem;
+		margin: 10px 0;
 	}
 }
 
@@ -447,8 +451,10 @@ input.error {
     justify-content: center;
     align-items: center;
     gap: 12px;
-    margin: 30px 0;
+    margin: 30px auto;
     padding: 0 10px;
+    max-width: 100%;
+    flex-wrap: nowrap;
 }
 
 .otp-input,
@@ -468,6 +474,9 @@ input.error {
     caret-color: var(--primary);
     -webkit-appearance: none;
     -moz-appearance: textfield;
+    margin: 0;
+    padding: 0;
+    flex-shrink: 0;
 }
 
 .otp-input::-webkit-outer-spin-button,
@@ -635,20 +644,10 @@ input.error {
     animation: fadeIn 0.3s ease;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
 /* Responsive Design for OTP */
 @media (max-width: 768px) {
-	.otp-input {
+	.otp-input,
+	.otp-input-login {
 		width: 48px;
 		height: 48px;
 		font-size: 20px;
@@ -656,11 +655,51 @@ input.error {
 	
 	.otp-input-container {
 		gap: 8px;
+		margin: 20px auto;
+	}
+	
+	#registration-step-2 p,
+	#login-step-2 p {
+		font-size: 0.875rem;
+		padding: 0 0.5rem;
 	}
 }
 
 @media (max-width: 480px) {
-	.otp-input {
+	.login-wrapper {
+		padding: 1rem;
+	}
+	
+	.container {
+		min-height: auto;
+		margin: 0;
+	}
+	
+	form {
+		padding: 2rem 1.5rem;
+	}
+	
+	h1 {
+		font-size: 1.5rem;
+		margin-bottom: 1rem;
+	}
+	
+	span {
+		font-size: 0.8125rem;
+	}
+	
+	input {
+		padding: 0.75rem 0.875rem;
+		font-size: 0.875rem;
+	}
+	
+	.sign-button {
+		padding: 0.75rem 1.5rem;
+		font-size: 0.8125rem;
+	}
+	
+	.otp-input,
+	.otp-input-login {
 		width: 44px;
 		height: 44px;
 		font-size: 18px;
@@ -668,5 +707,45 @@ input.error {
 	
 	.otp-input-container {
 		gap: 6px;
+		margin: 20px 0;
+	}
+	
+	.password-wrapper input {
+		padding-right: 45px;
+	}
+	
+	.forgot-password {
+		font-size: 0.8125rem;
+		margin: 10px 0;
+	}
+	
+	.admin-link {
+		font-size: 0.75rem;
+	}
+}
+
+/* Extra small devices */
+@media (max-width: 360px) {
+	.login-wrapper {
+		padding: 0.5rem;
+	}
+	
+	form {
+		padding: 1.5rem 1rem;
+	}
+	
+	h1 {
+		font-size: 1.375rem;
+	}
+	
+	.otp-input,
+	.otp-input-login {
+		width: 40px;
+		height: 40px;
+		font-size: 16px;
+	}
+	
+	.otp-input-container {
+		gap: 4px;
 	}
 }
