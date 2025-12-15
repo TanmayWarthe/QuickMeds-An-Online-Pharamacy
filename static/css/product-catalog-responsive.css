@@ -707,46 +707,81 @@
 }
 
 /* ============================================
-   7. CATEGORY FILTER PILLS (MOBILE)
+7. CATEGORY CAROUSEL (RESPONSIVE)
    ============================================ */
 
-.category-pills {
-    display: flex;
-    gap: 0.5rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-    margin-bottom: 1rem;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+/* Mobile: Show controls on demand */
+@media (max-width: 768px) {
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+    
+    .carousel-controls {
+        align-self: flex-end;
+    }
+    
+    .carousel-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 0.75rem;
+    }
+    
+    .category-card {
+        min-width: 150px;
+        max-width: 150px;
+    }
+    
+    .category-card-inner {
+        padding: 1.25rem 0.875rem;
+        height: 160px;
+    }
+    
+    .category-icon {
+        width: 56px;
+        height: 56px;
+    }
+    
+    .category-icon i {
+        font-size: 1.5rem;
+    }
+    
+    .category-card-title {
+        font-size: 0.875rem;
+    }
+    
+    .category-card-desc {
+        font-size: 0.6875rem;
+    }
 }
 
-.category-pills::-webkit-scrollbar {
-    display: none;
-}
-
-.category-pill {
-    flex-shrink: 0;
-    padding: 0.625rem 1.25rem;
-    background: #fff;
-    border: 1px solid var(--border, #e5e7eb);
-    border-radius: 20px;
-    color: var(--dark, #1f2937);
-    font-size: 0.875rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    white-space: nowrap;
-}
-
-.category-pill:hover,
-.category-pill.active {
-    background: var(--primary, #2563eb);
-    color: #fff;
-    border-color: var(--primary, #2563eb);
-}
-
-@media (min-width: 768px) {
-    .category-pills {
-        display: none;
+/* Small Mobile */
+@media (max-width: 480px) {
+    .category-title {
+        font-size: 1.25rem;
+    }
+    
+    .category-carousel {
+        gap: 1rem;
+    }
+    
+    .category-card {
+        min-width: 140px;
+        max-width: 140px;
+    }
+    
+    .category-card-inner {
+        padding: 1rem 0.75rem;
+        height: 150px;
+    }
+    
+    .category-icon {
+        width: 48px;
+        height: 48px;
+    }
+    
+    .category-icon i {
+        font-size: 1.25rem;
     }
 }
