@@ -623,29 +623,41 @@ def add_address(request):
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
-def update_address(request, address_id):
+def update_address(request, address_id=None):
+    if request.method not in ['PUT', 'POST']:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    
     try:
+        data = json.loads(request.body)
+        
+        # Handle both with and without address_id in URL
+        if not address_id:
+            address_id = data.get('address_id')
+        
+        if not address_id:
+            return JsonResponse({'status': 'error', 'message': 'Address ID is required'}, status=400)
+        
         address = Address.objects.get(id=address_id, user=request.user)
-        if request.method == 'PUT':
-            data = json.loads(request.body)
-            address.full_name = data.get('full_name', address.full_name)
-            address.phone_number = data.get('phone_number', address.phone_number)
-            address.type = data.get('type', address.type)
-            address.street_address = data.get('street_address', address.street_address)
-            address.city = data.get('city', address.city)
-            address.state = data.get('state', address.state)
-            address.postal_code = data.get('postal_code', address.postal_code)
-            address.is_default = data.get('is_default', address.is_default)
-            
-            if data.get('is_default'):
-                # Set all other addresses as non-default
-                Address.objects.filter(user=request.user).exclude(id=address.id).update(is_default=False)
-            
-            address.save()
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Address updated successfully'
-            })
+        
+        address.full_name = data.get('full_name', address.full_name)
+        address.phone_number = data.get('phone_number', address.phone_number)
+        address.type = data.get('type', address.type)
+        address.street_address = data.get('street_address', address.street_address)
+        address.city = data.get('city', address.city)
+        address.state = data.get('state', address.state)
+        address.postal_code = data.get('postal_code', address.postal_code)
+        address.is_default = data.get('is_default', False)
+        
+        if data.get('is_default'):
+            # Set all other addresses as non-default
+            Address.objects.filter(user=request.user).exclude(id=address.id).update(is_default=False)
+        
+        address.save()
+        return JsonResponse({
+            'success': True,
+            'status': 'success',
+            'message': 'Address updated successfully'
+        })
     except Address.DoesNotExist:
         return JsonResponse({
             'status': 'error',
@@ -656,24 +668,38 @@ def update_address(request, address_id):
             'status': 'error',
             'message': str(e)
         }, status=400)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
 
 @login_required
-def delete_address(request, address_id):
-    if request.method == 'DELETE':
-        try:
-            address = Address.objects.get(id=address_id, user=request.user)
-            address.delete()
-            return JsonResponse({
-                'status': 'success',
-                'message': 'Address deleted successfully'
-            })
-        except Address.DoesNotExist:
-            return JsonResponse({
-                'status': 'error',
-                'message': 'Address not found'
-            }, status=404)
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+def delete_address(request, address_id=None):
+    if request.method not in ['DELETE', 'POST']:
+        return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+    
+    try:
+        # Handle both with and without address_id in URL
+        if not address_id:
+            data = json.loads(request.body)
+            address_id = data.get('address_id')
+        
+        if not address_id:
+            return JsonResponse({'status': 'error', 'message': 'Address ID is required'}, status=400)
+        
+        address = Address.objects.get(id=address_id, user=request.user)
+        address.delete()
+        return JsonResponse({
+            'success': True,
+            'status': 'success',
+            'message': 'Address deleted successfully'
+        })
+    except Address.DoesNotExist:
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Address not found'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=400)
 
 @login_required
 def set_default_address(request, address_id):

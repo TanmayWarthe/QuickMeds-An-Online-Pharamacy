@@ -5,132 +5,7 @@
 {% block title %}My Profile - QuickMeds{% endblock %}
 
 {% block extra_css %}
-<style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body { background: #f5f6fa; font-family: 'Segoe UI', system-ui, sans-serif; }
-    
-    .profile-container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-    
-    .profile-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 40px 30px;
-        border-radius: 16px;
-        color: white;
-        margin-bottom: 30px;
-        box-shadow: 0 8px 24px rgba(102,126,234,0.15);
-        display: flex;
-        align-items: center;
-        gap: 25px;
-    }
-    
-    .avatar { width: 90px; height: 90px; border-radius: 50%; background: white; 
-        display: flex; align-items: center; justify-content: center; font-size: 36px; 
-        color: #667eea; border: 4px solid rgba(255,255,255,0.3); flex-shrink: 0; }
-    
-    .avatar img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
-    
-    .profile-header h1 { font-size: 28px; margin-bottom: 8px; font-weight: 700; }
-    
-    .profile-header p { opacity: 0.95; margin: 4px 0; }
-    
-    .tabs { display: flex; gap: 8px; margin-bottom: 25px; border-bottom: 2px solid #e0e0e0; flex-wrap: wrap; }
-    
-    .tabs button { padding: 14px 24px; background: none; border: none; 
-        border-bottom: 3px solid transparent; cursor: pointer; font-size: 15px; 
-        font-weight: 500; color: #666; transition: all 0.2s; }
-    
-    .tabs button:hover { color: #667eea; }
-    
-    .tabs button.active { color: #667eea; border-bottom-color: #667eea; }
-    
-    .tabs .logout-btn { margin-left: auto; color: #dc3545; }
-    
-    .tab-panel { display: none; }
-    
-    .tab-panel.active { display: block; }
-    
-    .card { background: white; padding: 25px; border-radius: 12px; 
-        box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: 20px; }
-    
-    .card h3 { font-size: 20px; margin-bottom: 20px; display: flex; 
-        align-items: center; gap: 10px; color: #333; }
-    
-    .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
-    
-    .info-item { padding: 16px; background: #f8f9fa; border-radius: 10px; }
-    
-    .info-label { display: block; font-size: 13px; color: #888; margin-bottom: 6px; font-weight: 500; }
-    
-    .info-value { display: block; font-size: 16px; color: #333; font-weight: 600; }
-    
-    .btn { padding: 12px 24px; border-radius: 8px; border: none; cursor: pointer; 
-        font-size: 15px; font-weight: 500; display: inline-flex; align-items: center; 
-        gap: 8px; transition: all 0.2s; text-decoration: none; }
-    
-    .btn-primary { background: #667eea; color: white; }
-    
-    .btn-primary:hover { background: #5568d3; transform: translateY(-1px); 
-        box-shadow: 0 4px 12px rgba(102,126,234,0.25); }
-    
-    .btn-secondary { background: #6c757d; color: white; padding: 10px 18px; font-size: 14px; }
-    
-    .btn-danger { background: #dc3545; color: white; }
-    
-    .order-item { background: white; padding: 18px; border-radius: 10px; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 12px; }
-    
-    .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    
-    .order-header strong { font-size: 16px; }
-    
-    .badge { padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; }
-    
-    .badge-success { background: #28a745; color: white; }
-    
-    .badge-danger { background: #dc3545; color: white; }
-    
-    .badge-warning { background: #ffc107; color: #333; }
-    
-    .order-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; }
-    
-    .order-footer .price { font-size: 20px; font-weight: 700; color: #667eea; }
-    
-    .address-item { background: white; padding: 20px; border-radius: 10px; 
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 15px; position: relative; }
-    
-    .address-item .default-badge { position: absolute; top: 15px; right: 15px; 
-        background: #28a745; color: white; padding: 4px 10px; border-radius: 12px; 
-        font-size: 11px; font-weight: 600; }
-    
-    .address-item h4 { font-size: 17px; margin: 8px 0; }
-    
-    .address-item p { color: #666; margin: 4px 0; }
-    
-    .address-actions { margin-top: 12px; display: flex; gap: 8px; }
-    
-    .empty-state { text-align: center; padding: 60px 20px; }
-    
-    .empty-state i { font-size: 64px; color: #ddd; margin-bottom: 16px; }
-    
-    .empty-state p { color: #999; font-size: 16px; margin-bottom: 18px; }
-    
-    .form-group { margin-bottom: 16px; }
-    
-    .form-group label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 14px; color: #555; }
-    
-    .form-control { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; 
-        font-size: 15px; transition: all 0.2s; }
-    
-    .form-control:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
-    
-    @media (max-width: 768px) {
-        .profile-header { flex-direction: column; text-align: center; padding: 30px 20px; }
-        .tabs { overflow-x: auto; white-space: nowrap; }
-        .info-grid { grid-template-columns: 1fr; }
-        .order-header, .order-footer { flex-direction: column; align-items: flex-start; gap: 10px; }
-    }
-</style>
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
 {% endblock %}
 
 {% block content %}
@@ -157,7 +32,10 @@
         <button onclick="showTab('orders')"><i class="fas fa-shopping-bag"></i> Orders {% if orders_count %}({{ orders_count }}){% endif %}</button>
         <button onclick="showTab('addresses')"><i class="fas fa-map-marker-alt"></i> Addresses</button>
         <button onclick="showTab('settings')"><i class="fas fa-cog"></i> Settings</button>
-        <button class="logout-btn" onclick="location.href='{% url 'logout' %}'"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        <form id="logoutForm" method="POST" action="{% url 'logout' %}" style="display: inline; margin-left: auto;">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </form>
     </div>
     
     <!-- Info Tab -->
@@ -196,7 +74,7 @@
                 </div>
             </div>
             <div style="margin-top: 20px;">
-                <button class="btn btn-primary" onclick="alert('Edit feature coming soon!')">
+                <button class="btn btn-primary" onclick="openEditProfileModal()">
                     <i class="fas fa-edit"></i> Edit Profile
                 </button>
             </div>
@@ -240,9 +118,9 @@
     
     <!-- Addresses Tab -->
     <div id="addresses" class="tab-panel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
             <h2><i class="fas fa-map-marker-alt"></i> My Addresses</h2>
-            <button class="btn btn-primary" onclick="alert('Add address feature coming soon!')">
+            <button class="btn btn-primary" onclick="openAddAddressModal()">
                 <i class="fas fa-plus"></i> Add Address
             </button>
         </div>
@@ -262,10 +140,10 @@
                 <p>{{ address.street_address }}</p>
                 <p>{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
                 <div class="address-actions">
-                    <button class="btn btn-secondary" onclick="alert('Edit feature coming soon!')">
+                    <button class="btn btn-secondary" onclick="openEditAddressModal({{ address.id }}, '{{ address.full_name }}', '{{ address.phone_number }}', '{{ address.type }}', '{{ address.street_address }}', '{{ address.city }}', '{{ address.state }}', '{{ address.postal_code }}', {{ address.is_default|yesno:'true,false' }})">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button class="btn btn-danger" onclick="alert('Delete feature coming soon!')">
+                    <button class="btn btn-danger" onclick="deleteAddress({{ address.id }})">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </div>
@@ -275,7 +153,7 @@
             <div class="empty-state">
                 <i class="fas fa-map-marker-alt"></i>
                 <p>No addresses yet</p>
-                <button class="btn btn-primary" onclick="alert('Add address feature coming soon!')">
+                <button class="btn btn-primary" onclick="openAddAddressModal()">
                     <i class="fas fa-plus"></i> Add Your First Address
                 </button>
             </div>
@@ -286,21 +164,24 @@
     <div id="settings" class="tab-panel">
         <div class="card">
             <h3><i class="fas fa-lock"></i> Change Password</h3>
-            <form style="max-width: 500px;">
+            <form id="changePasswordForm" style="max-width: 500px;">
                 {% csrf_token %}
                 <div class="form-group">
                     <label>Current Password</label>
                     <input type="password" class="form-control" placeholder="Enter current password" autocomplete="current-password" name="current_password" required>
+                    <span class="form-error"></span>
                 </div>
                 <div class="form-group">
                     <label>New Password</label>
-                    <input type="password" class="form-control" placeholder="Enter new password" autocomplete="new-password" name="new_password" required minlength="8">
+                    <input type="password" class="form-control" placeholder="Enter new password (min 8 characters)" autocomplete="new-password" name="new_password" required minlength="8">
+                    <span class="form-error"></span>
                 </div>
                 <div class="form-group">
                     <label>Confirm New Password</label>
                     <input type="password" class="form-control" placeholder="Confirm new password" autocomplete="new-password" name="confirm_password" required minlength="8">
+                    <span class="form-error"></span>
                 </div>
-                <button type="button" class="btn btn-primary" onclick="alert('Password change feature coming soon!')">
+                <button type="submit" class="btn btn-primary" id="changePasswordBtn">
                     <i class="fas fa-key"></i> Update Password
                 </button>
             </form>
@@ -308,27 +189,390 @@
         
         <div class="card" style="border: 2px solid #dc3545;">
             <h3><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
-            <p style="color: #666; margin-bottom: 15px;">Once you delete your account, there is no going back.</p>
-            <button class="btn btn-danger" onclick="if(confirm('Are you sure?')) alert('Delete account feature coming soon!')">
+            <p style="color: #666; margin-bottom: 15px;">Once you delete your account, there is no going back. Please be certain.</p>
+            <button class="btn btn-danger" onclick="if(confirm('Are you absolutely sure you want to delete your account? This action cannot be undone!')) { alert('Account deletion feature will be implemented by admin.'); }">
                 <i class="fas fa-trash-alt"></i> Delete Account
             </button>
         </div>
     </div>
 </div>
 
+<!-- Edit Profile Modal -->
+<div id="editProfileModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
+            <button class="modal-close" onclick="closeModal('editProfileModal')">&times;</button>
+        </div>
+        <form id="editProfileForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label>First Name *</label>
+                <input type="text" class="form-control" name="first_name" value="{{ user.first_name }}" required>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Last Name *</label>
+                <input type="text" class="form-control" name="last_name" value="{{ user.last_name }}" required>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" class="form-control" name="phone" value="{{ user.userprofile.phone|default:'' }}" pattern="[0-9]{10}" placeholder="10-digit mobile number">
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Gender</label>
+                <select class="form-control" name="gender">
+                    <option value="">Select Gender</option>
+                    <option value="M" {% if user.userprofile.gender == 'M' %}selected{% endif %}>Male</option>
+                    <option value="F" {% if user.userprofile.gender == 'F' %}selected{% endif %}>Female</option>
+                    <option value="O" {% if user.userprofile.gender == 'O' %}selected{% endif %}>Other</option>
+                </select>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <input type="date" class="form-control" name="dob" value="{{ user.userprofile.dob|date:'Y-m-d' }}">
+                <span class="form-error"></span>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editProfileModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveProfileBtn">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add/Edit Address Modal -->
+<div id="addressModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="addressModalTitle"><i class="fas fa-map-marker-alt"></i> Add Address</h3>
+            <button class="modal-close" onclick="closeModal('addressModal')">&times;</button>
+        </div>
+        <form id="addressForm">
+            {% csrf_token %}
+            <input type="hidden" name="address_id" id="addressId">
+            <div class="form-group">
+                <label>Full Name *</label>
+                <input type="text" class="form-control" name="full_name" required>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Phone Number *</label>
+                <input type="tel" class="form-control" name="phone_number" pattern="[0-9]{10}" required placeholder="10-digit mobile number">
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Address Type *</label>
+                <select class="form-control" name="type" required>
+                    <option value="Home">Home</option>
+                    <option value="Office">Office</option>
+                    <option value="Other">Other</option>
+                </select>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Street Address *</label>
+                <textarea class="form-control" name="street_address" rows="2" required placeholder="House No., Building Name, Street"></textarea>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>City *</label>
+                <input type="text" class="form-control" name="city" required>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>State *</label>
+                <input type="text" class="form-control" name="state" required>
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label>Postal Code *</label>
+                <input type="text" class="form-control" name="postal_code" pattern="[0-9]{6}" required placeholder="6-digit PIN code">
+                <span class="form-error"></span>
+            </div>
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" name="is_default" value="true">
+                    Set as default address
+                </label>
+            </div>
+            <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addressModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary" id="saveAddressBtn">
+                    <i class="fas fa-save"></i> Save Address
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
+// Tab Switching
 function showTab(tabName) {
-    // Hide all panels
     document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.remove('active'));
+    document.querySelectorAll('.tabs button:not(.logout-btn)').forEach(btn => btn.classList.remove('active'));
     
-    // Remove active from all buttons
-    document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-    
-    // Show selected panel
     document.getElementById(tabName).classList.add('active');
-    
-    // Mark button as active
     event.target.classList.add('active');
 }
+
+// Modal Functions
+function openModal(modalId) {
+    document.getElementById(modalId).classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Clear form
+    const form = document.querySelector(`#${modalId} form`);
+    if (form) {
+        form.reset();
+        // Clear error messages
+        form.querySelectorAll('.form-group').forEach(group => {
+            group.classList.remove('has-error');
+            const errorSpan = group.querySelector('.form-error');
+            if (errorSpan) errorSpan.textContent = '';
+        });
+    }
+}
+
+// Close modal when clicking outside
+document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeModal(this.id);
+        }
+    });
+});
+
+// Edit Profile Functions
+function openEditProfileModal() {
+    openModal('editProfileModal');
+}
+
+document.getElementById('editProfileForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('saveProfileBtn');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving...';
+    
+    const formData = new FormData(this);
+    
+    try {
+        const response = await fetch('{% url "update_profile" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            alert('Profile updated successfully!');
+            closeModal('editProfileModal');
+            location.reload();
+        } else {
+            // Handle errors
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const input = this.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        const formGroup = input.closest('.form-group');
+                        formGroup.classList.add('has-error');
+                        const errorSpan = formGroup.querySelector('.form-error');
+                        errorSpan.textContent = data.errors[field][0];
+                    }
+                });
+            } else {
+                alert(data.message || 'Error updating profile');
+            }
+        }
+    } catch (error) {
+        alert('Error updating profile: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
+});
+
+// Address Functions
+function openAddAddressModal() {
+    document.getElementById('addressModalTitle').innerHTML = '<i class="fas fa-map-marker-alt"></i> Add Address';
+    document.getElementById('addressForm').reset();
+    document.getElementById('addressId').value = '';
+    openModal('addressModal');
+}
+
+function openEditAddressModal(id, fullName, phone, type, street, city, state, postal, isDefault) {
+    document.getElementById('addressModalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Address';
+    document.getElementById('addressId').value = id;
+    
+    const form = document.getElementById('addressForm');
+    form.querySelector('[name="full_name"]').value = fullName;
+    form.querySelector('[name="phone_number"]').value = phone;
+    form.querySelector('[name="type"]').value = type;
+    form.querySelector('[name="street_address"]').value = street;
+    form.querySelector('[name="city"]').value = city;
+    form.querySelector('[name="state"]').value = state;
+    form.querySelector('[name="postal_code"]').value = postal;
+    form.querySelector('[name="is_default"]').checked = isDefault;
+    
+    openModal('addressModal');
+}
+
+document.getElementById('addressForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const btn = document.getElementById('saveAddressBtn');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Saving...';
+    
+    const formData = new FormData(this);
+    const addressId = formData.get('address_id');
+    
+    const url = addressId ? '{% url "update_address" %}' : '{% url "add_address" %}';
+    const method = 'POST';
+    
+    const data = {};
+    formData.forEach((value, key) => {
+        if (key !== 'csrfmiddlewaretoken' && key !== 'address_id') {
+            data[key] = key === 'is_default' ? value === 'true' : value;
+        }
+    });
+    
+    if (addressId) {
+        data.address_id = addressId;
+    }
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            body: JSON.stringify(data),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        });
+        
+        const result = await response.json();
+        
+        if (result.success || result.status === 'success') {
+            alert(addressId ? 'Address updated successfully!' : 'Address added successfully!');
+            closeModal('addressModal');
+            location.reload();
+        } else {
+            alert(result.message || 'Error saving address');
+        }
+    } catch (error) {
+        alert('Error saving address: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
+});
+
+async function deleteAddress(addressId) {
+    if (!confirm('Are you sure you want to delete this address?')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch('{% url "delete_address" %}', {
+            method: 'POST',
+            body: JSON.stringify({ address_id: addressId }),
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success || data.status === 'success') {
+            alert('Address deleted successfully!');
+            location.reload();
+        } else {
+            alert(data.message || 'Error deleting address');
+        }
+    } catch (error) {
+        alert('Error deleting address: ' + error.message);
+    }
+}
+
+// Change Password
+document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const newPassword = formData.get('new_password');
+    const confirmPassword = formData.get('confirm_password');
+    
+    // Clear previous errors
+    this.querySelectorAll('.form-group').forEach(group => {
+        group.classList.remove('has-error');
+        group.querySelector('.form-error').textContent = '';
+    });
+    
+    // Validate passwords match
+    if (newPassword !== confirmPassword) {
+        const confirmGroup = this.querySelector('[name="confirm_password"]').closest('.form-group');
+        confirmGroup.classList.add('has-error');
+        confirmGroup.querySelector('.form-error').textContent = 'Passwords do not match';
+        return;
+    }
+    
+    const btn = document.getElementById('changePasswordBtn');
+    const originalHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Updating...';
+    
+    try {
+        const response = await fetch('{% url "change_password" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success || data.status === 'success') {
+            alert('Password changed successfully!');
+            this.reset();
+        } else {
+            if (data.errors) {
+                Object.keys(data.errors).forEach(field => {
+                    const input = this.querySelector(`[name="${field}"]`);
+                    if (input) {
+                        const formGroup = input.closest('.form-group');
+                        formGroup.classList.add('has-error');
+                        formGroup.querySelector('.form-error').textContent = data.errors[field][0];
+                    }
+                });
+            } else {
+                alert(data.message || 'Error changing password');
+            }
+        }
+    } catch (error) {
+        alert('Error changing password: ' + error.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+    }
+});
 </script>
 {% endblock %}
