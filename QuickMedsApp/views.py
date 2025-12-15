@@ -2032,7 +2032,11 @@ def admin_category_add(request):
                 logger.error(f'Error adding category: {str(e)}')
                 messages.error(request, f'Error adding category: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Show specific field errors
+            for field, errors in form.errors.items():
+                field_label = form.fields[field].label if field in form.fields else field
+                for error in errors:
+                    messages.error(request, f'{field_label}: {error}')
     else:
         form = CategoryAdminForm()
     
@@ -2062,7 +2066,11 @@ def admin_category_edit(request, category_id):
                 logger.error(f'Error updating category: {str(e)}')
                 messages.error(request, f'Error updating category: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Show specific field errors
+            for field, errors in form.errors.items():
+                field_label = form.fields[field].label if field in form.fields else field
+                for error in errors:
+                    messages.error(request, f'{field_label}: {error}')
     else:
         form = CategoryAdminForm(instance=category)
     
@@ -2187,7 +2195,11 @@ def admin_product_add(request):
                 logger.error(f'Error adding product: {str(e)}')
                 messages.error(request, f'Error adding product: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Show specific field errors
+            for field, errors in form.errors.items():
+                field_label = form.fields[field].label if field in form.fields else field
+                for error in errors:
+                    messages.error(request, f'{field_label}: {error}')
     else:
         form = ProductAdminForm()
     
@@ -2217,7 +2229,11 @@ def admin_product_edit(request, product_id):
                 logger.error(f'Error updating product: {str(e)}')
                 messages.error(request, f'Error updating product: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            # Show specific field errors
+            for field, errors in form.errors.items():
+                field_label = form.fields[field].label if field in form.fields else field
+                for error in errors:
+                    messages.error(request, f'{field_label}: {error}')
     else:
         form = ProductAdminForm(instance=product)
     
