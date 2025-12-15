@@ -1,0 +1,65 @@
+<!-- Admin Sidebar Component -->
+<aside class="admin-sidebar">
+    <div class="admin-sidebar-header">
+        <h4>
+            <i class="fas fa-shield-alt"></i>
+            Admin <span class="admin-badge">PANEL</span>
+        </h4>
+    </div>
+    <nav class="admin-nav">
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'products' %}active{% endif %}" href="{% url 'admin_products' %}">
+                <i class="fas fa-pills"></i>
+                <span>Products</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'orders' %}active{% endif %}" href="{% url 'admin_orders' %}">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Orders</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'users' %}active{% endif %}" href="{% url 'admin_users' %}">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'categories' %}active{% endif %}" href="{% url 'admin_categories' %}">
+                <i class="fas fa-tags"></i>
+                <span>Categories</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link {% if active_page == 'contacts' %}active{% endif %}" href="{% url 'admin_contacts' %}">
+                <i class="fas fa-envelope"></i>
+                <span>Messages</span>
+            </a>
+        </div>
+        <div class="admin-nav-divider"></div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link" href="{% url 'home' %}">
+                <i class="fas fa-globe"></i>
+                <span>View Site</span>
+            </a>
+        </div>
+        <div class="admin-nav-item">
+            <a class="admin-nav-link" href="#" onclick="event.preventDefault(); document.getElementById('adminLogoutForm').submit();">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </div>
+    </nav>
+</aside>
+
+<!-- Logout Form -->
+<form id="adminLogoutForm" method="POST" action="{% url 'admin_logout' %}" style="display: none;">
+    {% csrf_token %}
+</form>
