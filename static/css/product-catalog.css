@@ -440,38 +440,52 @@
     box-shadow: 0 10px 25px rgba(245, 158, 11, 0.25);
 }
 
-/* Category Icon */
-.category-icon {
-    width: 64px;
-    height: 64px;
+/* Category Image/Icon Wrapper */
+.category-image-wrapper {
+    width: 80px;
+    height: 80px;
     display: flex;
     align-items: center;
     justify-content: center;
+    border-radius: 12px;
+    margin: 0 auto 0.75rem;
+    overflow: hidden;
     background: rgba(59, 130, 246, 0.1);
-    border-radius: 50%;
-    margin: 0 auto;
     transition: all 0.3s ease;
 }
 
-.category-icon i {
-    font-size: 1.75rem;
+.category-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.category-icon-fallback {
+    font-size: 2rem;
+    color: var(--primary);
+    opacity: 0.9;
+    transition: all 0.3s ease;
+}
+
+.category-icon-fallback i {
+    font-size: 2rem;
     color: var(--primary);
     transition: all 0.3s ease;
 }
 
-.category-card.active .category-icon {
+.category-card.active .category-image-wrapper {
     background: rgba(255, 255, 255, 0.2);
 }
 
-.category-card.active .category-icon i {
+.category-card.active .category-icon-fallback i {
     color: white;
 }
 
-.category-card-inner.all-category .category-icon {
+.category-card-inner.all-category .category-image-wrapper {
     background: rgba(255, 255, 255, 0.2);
 }
 
-.category-card-inner.all-category .category-icon i {
+.category-card-inner.all-category .category-icon-fallback i {
     color: white;
 }
 

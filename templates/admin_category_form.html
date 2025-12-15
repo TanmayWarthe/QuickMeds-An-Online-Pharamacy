@@ -261,17 +261,31 @@
                     <!-- Image Field -->
                     <div class="form-group">
                         <label for="{{ form.image.id_for_label }}" class="form-label">
-                            {{ form.image.label }}
+                            {{ form.image.label }} <span class="text-muted">(Recommended: Square image, 500x500px)</span>
                         </label>
                         {% if category and category.image %}
                             <div style="margin-bottom: 1rem;">
-                                <img src="{{ category.image.url }}" alt="{{ category.name }}" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 2px solid #e2e8f0;">
+                                <div style="display: inline-block; position: relative;">
+                                    <img src="{{ category.image.url }}" alt="{{ category.name }}" 
+                                         style="width: 150px; height: 150px; object-fit: cover; border-radius: 12px; border: 3px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                                    <div style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; padding: 4px 8px; border-radius: 6px; font-size: 11px;">
+                                        <i class="fas fa-check-circle"></i> Current
+                                    </div>
+                                </div>
                             </div>
                         {% endif %}
-                        {{ form.image }}
-                        {% if form.image.help_text %}
-                            <small class="form-text">{{ form.image.help_text }}</small>
-                        {% endif %}
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            {{ form.image }}
+                            {% if category and category.image %}
+                                <label style="display: flex; align-items: center; gap: 0.5rem; color: #64748b; font-size: 14px; cursor: pointer;">
+                                    <input type="checkbox" name="clear_image" value="1" style="width: auto;">
+                                    Remove current image
+                                </label>
+                            {% endif %}
+                        </div>
+                        <small class="form-text">
+                            <i class="fas fa-info-circle"></i> Upload a square image (e.g., 500x500px) for best results. Accepts JPG, PNG, WebP formats.
+                        </small>
                         {% if form.image.errors %}
                             <div class="invalid-feedback">{{ form.image.errors.0 }}</div>
                         {% endif %}

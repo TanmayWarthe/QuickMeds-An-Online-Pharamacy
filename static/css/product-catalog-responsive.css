@@ -738,12 +738,12 @@
         height: 160px;
     }
     
-    .category-icon {
-        width: 56px;
-        height: 56px;
+    .category-image-wrapper {
+        width: 64px;
+        height: 64px;
     }
     
-    .category-icon i {
+    .category-icon-fallback i {
         font-size: 1.5rem;
     }
     
@@ -776,12 +776,12 @@
         height: 150px;
     }
     
-    .category-icon {
-        width: 48px;
-        height: 48px;
+    .category-image-wrapper {
+        width: 56px;
+        height: 56px;
     }
     
-    .category-icon i {
+    .category-icon-fallback i {
         font-size: 1.25rem;
     }
 }

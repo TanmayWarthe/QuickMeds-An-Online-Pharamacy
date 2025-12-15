@@ -57,8 +57,10 @@
                 <div class="category-card {% if not request.GET.category %}active{% endif %}"
                     onclick="filterByCategory('')">
                     <div class="category-card-inner all-category">
-                        <div class="category-icon">
-                            <i class="fas fa-th-large"></i>
+                        <div class="category-image-wrapper">
+                            <div class="category-icon-fallback">
+                                <i class="fas fa-th-large"></i>
+                            </div>
                         </div>
                         <h3 class="category-card-title">All Products</h3>
                         <p class="category-card-desc">Browse Everything</p>
@@ -70,33 +72,39 @@
                 <div class="category-card {% if request.GET.category == category.name %}active{% endif %}"
                     onclick="filterByCategory('{{ category.name }}')">
                     <div class="category-card-inner">
-                        <div class="category-icon">
-                            {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
-                            <i class="fas fa-pills"></i>
-                            {% elif 'Pain' in category.name or 'Relief' in category.name %}
-                            <i class="fas fa-head-side-cough"></i>
-                            {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
-                            <i class="fas fa-leaf"></i>
-                            {% elif 'First Aid' in category.name or 'Band' in category.name %}
-                            <i class="fas fa-first-aid"></i>
-                            {% elif 'Baby' in category.name or 'Child' in category.name %}
-                            <i class="fas fa-baby"></i>
-                            {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
-                            <i class="fas fa-spray-can"></i>
-                            {% elif 'Skin' in category.name or 'Beauty' in category.name %}
-                            <i class="fas fa-heart"></i>
-                            {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
-                            <i class="fas fa-syringe"></i>
-                            {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
-                            <i class="fas fa-heartbeat"></i>
-                            {% elif 'Eye' in category.name or 'Vision' in category.name %}
-                            <i class="fas fa-eye"></i>
-                            {% elif 'Dental' in category.name or 'Oral' in category.name %}
-                            <i class="fas fa-tooth"></i>
-                            {% elif 'Wellness' in category.name or 'Health' in category.name %}
-                            <i class="fas fa-dumbbell"></i>
+                        <div class="category-image-wrapper">
+                            {% if category.image %}
+                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="category-image">
                             {% else %}
-                            <i class="fas fa-capsules"></i>
+                                <div class="category-icon-fallback">
+                                    {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
+                                    <i class="fas fa-pills"></i>
+                                    {% elif 'Pain' in category.name or 'Relief' in category.name %}
+                                    <i class="fas fa-head-side-cough"></i>
+                                    {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
+                                    <i class="fas fa-leaf"></i>
+                                    {% elif 'First Aid' in category.name or 'Band' in category.name %}
+                                    <i class="fas fa-first-aid"></i>
+                                    {% elif 'Baby' in category.name or 'Child' in category.name %}
+                                    <i class="fas fa-baby"></i>
+                                    {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
+                                    <i class="fas fa-spray-can"></i>
+                                    {% elif 'Skin' in category.name or 'Beauty' in category.name %}
+                                    <i class="fas fa-heart"></i>
+                                    {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
+                                    <i class="fas fa-syringe"></i>
+                                    {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
+                                    <i class="fas fa-heartbeat"></i>
+                                    {% elif 'Eye' in category.name or 'Vision' in category.name %}
+                                    <i class="fas fa-eye"></i>
+                                    {% elif 'Dental' in category.name or 'Oral' in category.name %}
+                                    <i class="fas fa-tooth"></i>
+                                    {% elif 'Wellness' in category.name or 'Health' in category.name %}
+                                    <i class="fas fa-dumbbell"></i>
+                                    {% else %}
+                                    <i class="fas fa-capsules"></i>
+                                    {% endif %}
+                                </div>
                             {% endif %}
                         </div>
                         <h3 class="category-card-title">{{ category.name }}</h3>
