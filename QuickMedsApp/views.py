@@ -2085,7 +2085,13 @@ def admin_category_edit(request, category_id):
         form = CategoryAdminForm(request.POST, request.FILES, instance=category)
         if form.is_valid():
             try:
-                category = form.save()
+                category = form.save(commit=False)
+                
+                # Handle clear_image checkbox
+                if request.POST.get('clear_image'):
+                    category.image = None
+                
+                category.save()
                 messages.success(request, f'Category "{category.name}" updated successfully!')
                 return redirect('admin_categories')
             except Exception as e:

@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 import uuid
 from datetime import timedelta
+from cloudinary.models import CloudinaryField
 
 class UserProfile(models.Model):
     GENDER_CHOICES = [
@@ -16,7 +17,7 @@ class UserProfile(models.Model):
     
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, blank=True, null=True)
-    profile_image = models.ImageField(upload_to='profile_images/', blank=True, null=True)
+    profile_image = CloudinaryField('profile_image', blank=True, null=True, folder='profile_images')
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     address = models.TextField(blank=True, null=True)
@@ -85,7 +86,7 @@ class Category(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True, null=True)
     icon = models.CharField(max_length=50, blank=True, null=True)
-    image = models.ImageField(upload_to='categories/', blank=True, null=True)
+    image = CloudinaryField('category_image', blank=True, null=True, folder='categories')
 
     def __str__(self):
         return self.name
@@ -109,7 +110,7 @@ class Product(models.Model):
     expiry_date = models.DateField(null=True, blank=True)
     
     # Images
-    image = models.ImageField(upload_to='products/', blank=True, null=True)
+    image = CloudinaryField('product_image', blank=True, null=True, folder='products')
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
