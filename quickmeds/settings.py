@@ -13,9 +13,20 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config, Csv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Configure Cloudinary early (before models are loaded)
+cloudinary.config(
+    cloud_name=config('CLOUDINARY_CLOUD_NAME', default='dpj28oz55'),
+    api_key=config('CLOUDINARY_API_KEY', default='923978223836335'),
+    api_secret=config('CLOUDINARY_API_SECRET', default='mXbNpvUyPfW4vUiprr2yatj_RMo'),
+    secure=True
+)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -187,25 +198,15 @@ STATICFILES_DIRS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Cloudinary configuration
-# Now works in both development and production when USE_CLOUDINARY=True
+# Cloudinary Storage Configuration
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default='dpj28oz55'),
+    'API_KEY': config('CLOUDINARY_API_KEY', default='923978223836335'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default='mXbNpvUyPfW4vUiprr2yatj_RMo')
+}
+
+# Use Cloudinary for file storage when enabled
 if config('USE_CLOUDINARY', default=False, cast=bool):
-    import cloudinary
-    
-    CLOUDINARY_STORAGE = {
-        'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default=''),
-        'API_KEY': config('CLOUDINARY_API_KEY', default=''),
-        'API_SECRET': config('CLOUDINARY_API_SECRET', default='')
-    }
-    
-    # Configure cloudinary
-    cloudinary.config(
-        cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-        api_key=CLOUDINARY_STORAGE['API_KEY'],
-        api_secret=CLOUDINARY_STORAGE['API_SECRET'],
-        secure=True
-    )
-    
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Enable WhiteNoise compression and caching support
