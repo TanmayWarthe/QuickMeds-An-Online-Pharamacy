@@ -241,23 +241,6 @@
                         {% endif %}
                     </div>
 
-                    <!-- Icon Field -->
-                    <div class="form-group">
-                        <label for="{{ form.icon.id_for_label }}" class="form-label">
-                            {{ form.icon.label }}
-                        </label>
-                        {{ form.icon }}
-                        {% if form.icon.help_text %}
-                            <small class="form-text">
-                                {{ form.icon.help_text }}<br>
-                                <a href="https://fontawesome.com/icons" target="_blank" style="color: #2563eb;">Browse FontAwesome Icons</a>
-                            </small>
-                        {% endif %}
-                        {% if form.icon.errors %}
-                            <div class="invalid-feedback">{{ form.icon.errors.0 }}</div>
-                        {% endif %}
-                    </div>
-
                     <!-- Image Field -->
                     <div class="form-group">
                         <label for="{{ form.image.id_for_label }}" class="form-label">
@@ -283,9 +266,11 @@
                                 </label>
                             {% endif %}
                         </div>
-                        <small class="form-text">
-                            <i class="fas fa-info-circle"></i> Upload a square image (e.g., 500x500px) for best results. Accepts JPG, PNG, WebP formats.
-                        </small>
+                        {% if form.image.help_text %}
+                            <small class="form-text">
+                                <i class="fas fa-info-circle"></i> {{ form.image.help_text }}
+                            </small>
+                        {% endif %}
                         {% if form.image.errors %}
                             <div class="invalid-feedback">{{ form.image.errors.0 }}</div>
                         {% endif %}
