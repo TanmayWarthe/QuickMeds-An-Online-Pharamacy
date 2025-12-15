@@ -2032,9 +2032,7 @@ def admin_category_add(request):
                 logger.error(f'Error adding category: {str(e)}')
                 messages.error(request, f'Error adding category: {str(e)}')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = CategoryAdminForm()
     
@@ -2064,9 +2062,7 @@ def admin_category_edit(request, category_id):
                 logger.error(f'Error updating category: {str(e)}')
                 messages.error(request, f'Error updating category: {str(e)}')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = CategoryAdminForm(instance=category)
     
@@ -2191,9 +2187,7 @@ def admin_product_add(request):
                 logger.error(f'Error adding product: {str(e)}')
                 messages.error(request, f'Error adding product: {str(e)}')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = ProductAdminForm()
     
@@ -2223,9 +2217,7 @@ def admin_product_edit(request, product_id):
                 logger.error(f'Error updating product: {str(e)}')
                 messages.error(request, f'Error updating product: {str(e)}')
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f'{field}: {error}')
+            messages.error(request, 'Please correct the errors below.')
     else:
         form = ProductAdminForm(instance=product)
     
