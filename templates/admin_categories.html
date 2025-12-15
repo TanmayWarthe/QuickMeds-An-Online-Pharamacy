@@ -1,6 +1,5 @@
 {% extends 'base.html' %}
 {% load static %}
-{% load cloudinary %}
 
 {% block title %}Manage Categories - Admin{% endblock %}
 
@@ -49,7 +48,7 @@
                     <div class="content-card-body">
                         {% if category.image %}
                         <div style="text-align: center; margin-bottom: 1rem;">
-                            {% cloudinary category.image format="jpg" width=300 height=150 crop="fill" %}
+                            <img src="{{ category.image.url }}" alt="{{ category.name }}" style="width: 100%; max-width: 300px; height: 150px; object-fit: cover; border-radius: 8px;">
                         </div>
                         {% endif %}
                         <div style="display: flex; justify-content: space-between; align-items: start;">
