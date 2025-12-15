@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load cloudinary %}
 
 {% block title %}My Orders - QuickMeds{% endblock %}
 
@@ -228,9 +229,7 @@
                         <div class="col-md-6">
                             <div class="d-flex align-items-center">
                                 {% if item.product.image %}
-                                    <img src="{{ item.product.image.url }}" 
-                                         alt="{{ item.product.name }}" 
-                                         class="product-image me-3">
+                                    {% cloudinary item.product.image.public_id width=60 height=60 crop="fit" class="product-image me-3" alt=item.product.name %}
                                 {% else %}
                                     <img src="{% static 'img/medicines-icon.png' %}" 
                                          alt="{{ item.product.name }}" 

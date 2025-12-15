@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load cloudinary %}
 
 {% comment %}
 =================================================================
@@ -56,8 +57,7 @@ Features:
             <div class="image-container">
                 <div class="main-image-wrapper">
                     {% if product.image %}
-                    <img id="mainImage" src="{{ product.image.url }}" alt="{{ product.name }}"
-                        class="main-product-image">
+                    {% cloudinary product.image.public_id width=500 height=500 crop="fit" id="mainImage" class="main-product-image" %}
                     {% else %}
                     <img id="mainImage" src="{% static 'img/medicines-icon.png' %}" alt="{{ product.name }}"
                         class="main-product-image">

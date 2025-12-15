@@ -8,7 +8,7 @@
     <!-- Product Image - Clickable -->
     <div class="product-image-wrapper" onclick="openProductDetail('{{ product.id }}', event)" style="cursor: pointer;">
         {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image" loading="lazy">
+        {% cloudinary product.image.public_id width=250 height=250 crop="fit" class="product-image" loading="lazy" %}
         {% else %}
         <img src="{% static 'img/image.png' %}" alt="{{ product.name }}" class="product-image" loading="lazy">
         {% endif %}

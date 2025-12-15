@@ -72,15 +72,6 @@ else:
 # Static files: optimized storage
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Media: Use Cloudinary if enabled
-if config("USE_CLOUDINARY", default=False, cast=bool):
-    CLOUDINARY_STORAGE = {
-        "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
-        "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-        "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
-    }
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
 # Logging: more conservative by default in prod
 LOGGING["root"]["level"] = "WARNING"  # noqa: F405
 LOGGING["loggers"]["django"]["level"] = "WARNING"  # noqa: F405

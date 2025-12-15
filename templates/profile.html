@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load humanize %}
+{% load cloudinary %}
 
 {% block title %}My Profile - QuickMeds{% endblock %}
 
@@ -14,7 +15,7 @@
     <div class="profile-header">
         <div class="avatar">
             {% if user.userprofile.profile_image %}
-            <img src="{{ user.userprofile.profile_image.url }}" alt="Profile">
+            {% cloudinary user.userprofile.profile_image.public_id width=80 height=80 crop="fill" radius="max" %}
             {% else %}
             <i class="fas fa-user"></i>
             {% endif %}

@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load cloudinary %}
 
 {% block title %}Products - QuickMeds{% endblock %}
 
@@ -74,7 +75,7 @@
                     <div class="category-card-inner">
                         <div class="category-image-wrapper">
                             {% if category.image %}
-                                <img src="{{ category.image.url }}" alt="{{ category.name }}" class="category-image">
+                                {% cloudinary category.image.public_id width=80 height=80 crop="fit" class="category-image" %}
                             {% else %}
                                 <div class="category-icon-fallback">
                                     {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
