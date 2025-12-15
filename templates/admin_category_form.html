@@ -207,18 +207,6 @@
             </a>
         </div>
 
-        <!-- Messages -->
-        {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="margin-bottom: 1.5rem; padding: 1rem; border-radius: 8px; border: none; position: relative; z-index: 1;">
-                    {{ message }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <!-- Form Container -->
         <div class="form-container">
             <div class="form-card">
