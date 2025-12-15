@@ -306,6 +306,70 @@
         margin: 0.5rem 0;
     }
 
+    /* Admin Dashboard Button */
+    .admin-dashboard-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.625rem 1.25rem;
+        background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50px;
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.9375rem;
+        letter-spacing: 0.5px;
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .admin-dashboard-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .admin-dashboard-btn:hover::before {
+        left: 100%;
+    }
+
+    .admin-dashboard-btn:hover {
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        box-shadow: 0 6px 25px rgba(124, 58, 237, 0.4);
+        transform: translateY(-2px);
+        border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .admin-dashboard-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 10px rgba(124, 58, 237, 0.3);
+    }
+
+    .admin-icon {
+        font-size: 1.125rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-badge {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-size: 0.6875rem;
+        font-weight: 800;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(10px);
+    }
+
     /* Login/Signup Buttons */
     .auth-buttons {
         display: flex;
@@ -525,7 +589,15 @@
                 {% endif %}
             </a>
 
-            <!-- User Dropdown -->
+            {% if user.is_staff or user.is_superuser %}
+            <!-- Admin Dashboard Button (For Admin Users) -->
+            <a href="{% url 'admin_dashboard' %}" class="admin-dashboard-btn" title="Admin Dashboard">
+                <i class="fas fa-shield-alt"></i>
+                <span>Admin</span>
+                <span class="admin-badge">PANEL</span>
+            </a>
+            {% else %}
+            <!-- User Dropdown (For Regular Users) -->
             <div class="user-dropdown-wrapper">
                 <button class="user-avatar-btn" id="userMenuBtn">
                     <div class="avatar-circle">
@@ -551,6 +623,7 @@
                     </a>
                 </div>
             </div>
+            {% endif %}
             {% else %}
             <div class="auth-buttons">
                 <button class="btn-login-outline" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
@@ -604,6 +677,20 @@
         <div class="menu-divider my-3"></div>
 
         {% if user.is_authenticated %}
+        {% if user.is_staff or user.is_superuser %}
+        <!-- Admin Menu Items -->
+        <a href="{% url 'admin_dashboard' %}" class="mobile-nav-item admin-nav-item">
+            <i class="fas fa-shield-alt"></i> Admin Dashboard
+            <span class="badge bg-danger ms-auto">ADMIN</span>
+        </a>
+        <a href="{% url 'home' %}" class="mobile-nav-item">
+            <i class="fas fa-globe"></i> View Main Site
+        </a>
+        <a href="{% url 'admin_logout' %}" class="mobile-nav-item text-danger mt-auto" onclick="event.preventDefault(); if(confirm('Logout from admin?')) { var form = document.createElement('form'); form.method = 'POST'; form.action = '{% url 'admin_logout' %}'; var csrf = document.createElement('input'); csrf.type = 'hidden'; csrf.name = 'csrfmiddlewaretoken'; csrf.value = '{{ csrf_token }}'; form.appendChild(csrf); document.body.appendChild(form); form.submit(); }">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        {% else %}
+        <!-- Regular User Menu Items -->
         <a href="{% url 'cart' %}" class="mobile-nav-item">
             <i class="fas fa-shopping-cart"></i> My Cart
             <span class="badge bg-danger ms-auto">{{ cart_count }}</span>
@@ -617,6 +704,7 @@
         <a href="{% url 'logout' %}" class="mobile-nav-item text-danger mt-auto">
             <i class="fas fa-sign-out-alt"></i> Logout
         </a>
+        {% endif %}
         {% else %}
         <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#authModal">Login</button>
         <button class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#authModal"
