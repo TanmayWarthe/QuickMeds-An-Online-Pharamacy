@@ -173,9 +173,12 @@
                                     <a href="{% url 'admin_product_edit' product.id %}" class="btn-admin btn-admin-sm btn-admin-primary" style="margin-right: 5px;">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <a href="{% url 'admin_product_delete' product.id %}" class="btn-admin btn-admin-sm" style="background: #ef4444; color: #fff;" onclick="return confirm('Are you sure you want to delete this product?')">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
+                                    <form method="POST" action="{% url 'admin_product_delete' product.id %}" style="display: inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn-admin btn-admin-sm" style="background: #ef4444; color: #fff; border: none; cursor: pointer;" onclick="return confirm('Are you sure you want to delete this product?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                             {% empty %}
