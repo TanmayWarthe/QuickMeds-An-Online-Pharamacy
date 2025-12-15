@@ -86,7 +86,7 @@
                 </a>
             </div>
             <div class="admin-nav-item">
-                <a class="admin-nav-link" href="{% url 'admin_logout' %}">
+                <a class="admin-nav-link" href="#" onclick="event.preventDefault(); document.getElementById('adminLogoutForm').submit();">
                     <i class="fas fa-sign-out-alt"></i>
                     <span>Logout</span>
                 </a>
@@ -260,4 +260,8 @@
         </div>
     </main>
 </div>
+
+<form id="adminLogoutForm" method="POST" action="{% url 'admin_logout' %}" style="display: none;">
+    {% csrf_token %}
+</form>
 {% endblock content_wrapper %}

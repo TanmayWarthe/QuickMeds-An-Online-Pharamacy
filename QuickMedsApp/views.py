@@ -5,13 +5,13 @@ from django.contrib import messages
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Sum, Count
-from .models import UserProfile, Address, Product, CartItem, Cart, Category, CheckoutSession, Order, OrderItem
-from django.contrib.auth.decorators import login_required
+from .models import UserProfile, Address, Product, CartItem, Cart, Category, CheckoutSession, Order, OrderItem, Contact
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.http import JsonResponse
 import json
 from random import sample
 from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.http import require_POST, require_http_methods, require_GET
 from django.contrib.auth.hashers import check_password
 from django.core.files.storage import default_storage
 from utils.otp import generate_otp, send_otp_email, store_otp, verify_otp
@@ -1737,11 +1737,10 @@ def delete_order(request, order_id):
 
 # ==================== ADMIN DASHBOARD VIEWS ====================
 
-from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth.decorators import user_passes_test
-
+# Admin helper function
 def is_staff_or_superuser(user):
-    return user.is_staff or user.is_superuser
+    """Check if user is staff or superuser for admin access"""
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
 
 def admin_login(request):
     """Admin login view - separate from user login"""
@@ -1783,70 +1782,114 @@ def admin_login(request):
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_dashboard(request):
     """Admin dashboard overview"""
-    total_products = Product.objects.count()
-    total_orders = Order.objects.count()
-    pending_orders = Order.objects.filter(order_status='PENDING').count()
-    total_users = User.objects.count()
-    
-    recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
-    low_stock_products = Product.objects.filter(stock__lte=10).order_by('stock')[:10]
-    
-    context = {
-        'total_products': total_products,
-        'total_orders': total_orders,
-        'pending_orders': pending_orders,
-        'total_users': total_users,
-        'recent_orders': recent_orders,
-        'low_stock_products': low_stock_products,
-    }
-    return render(request, 'admin_dashboard.html', context)
+    try:
+        total_products = Product.objects.count()
+        total_orders = Order.objects.count()
+        pending_orders = Order.objects.filter(order_status='PENDING').count()
+        total_users = User.objects.count()
+        
+        recent_orders = Order.objects.select_related('user').order_by('-created_at')[:10]
+        low_stock_products = Product.objects.filter(stock__lte=10).order_by('stock')[:10]
+        
+        # Calculate total revenue
+        total_revenue = Order.objects.filter(
+            payment_status='COMPLETED'
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+        
+        context = {
+            'total_products': total_products,
+            'total_orders': total_orders,
+            'pending_orders': pending_orders,
+            'total_users': total_users,
+            'recent_orders': recent_orders,
+            'low_stock_products': low_stock_products,
+            'total_revenue': total_revenue,
+        }
+        return render(request, 'admin_dashboard.html', context)
+    except Exception as e:
+        logger.error(f'Admin dashboard error: {str(e)}')
+        messages.error(request, 'Error loading dashboard. Please try again.')
+        return render(request, 'admin_dashboard.html', {})
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_products(request):
     """Manage products"""
-    products = Product.objects.select_related('category').all()
-    categories = Category.objects.all()
-    
-    # Filtering
-    search = request.GET.get('search')
-    category = request.GET.get('category')
-    stock_status = request.GET.get('stock_status')
-    
-    if search:
-        products = products.filter(Q(name__icontains=search) | Q(description__icontains=search))
-    
-    if category:
-        products = products.filter(category_id=category)
-    
-    if stock_status == 'in_stock':
-        products = products.filter(in_stock=True, stock__gt=0)
-    elif stock_status == 'out_of_stock':
-        products = products.filter(Q(in_stock=False) | Q(stock=0))
-    elif stock_status == 'low_stock':
-        products = products.filter(stock__lte=10, stock__gt=0)
-    
-    context = {
-        'products': products,
-        'categories': categories,
-    }
-    return render(request, 'admin_products.html', context)
+    try:
+        products = Product.objects.select_related('category').all()
+        categories = Category.objects.all()
+        
+        # Filtering
+        search = request.GET.get('search', '').strip()
+        category = request.GET.get('category', '').strip()
+        stock_status = request.GET.get('stock_status', '').strip()
+        
+        if search:
+            products = products.filter(Q(name__icontains=search) | Q(description__icontains=search))
+        
+        if category:
+            products = products.filter(category_id=category)
+        
+        if stock_status == 'in_stock':
+            products = products.filter(in_stock=True, stock__gt=0)
+        elif stock_status == 'out_of_stock':
+            products = products.filter(Q(in_stock=False) | Q(stock=0))
+        elif stock_status == 'low_stock':
+            products = products.filter(stock__lte=10, stock__gt=0)
+        
+        context = {
+            'products': products,
+            'categories': categories,
+            'search': search,
+            'selected_category': category,
+            'selected_stock_status': stock_status,
+        }
+        return render(request, 'admin_products.html', context)
+    except Exception as e:
+        logger.error(f'Admin products error: {str(e)}')
+        messages.error(request, 'Error loading products. Please try again.')
+        return redirect('admin_dashboard')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_orders(request):
     """Manage orders"""
-    orders = Order.objects.select_related('user').prefetch_related('items').order_by('-created_at')
-    
-    # Filtering
-    status = request.GET.get('status')
-    if status:
-        orders = orders.filter(order_status=status)
-    
-    context = {
-        'orders': orders,
-    }
-    return render(request, 'admin_orders.html', context)
+    try:
+        orders = Order.objects.select_related('user').prefetch_related('items__product').order_by('-created_at')
+        
+        # Filtering
+        status = request.GET.get('status', '').strip()
+        payment_status = request.GET.get('payment_status', '').strip()
+        search = request.GET.get('search', '').strip()
+        
+        if status:
+            orders = orders.filter(order_status=status)
+        
+        if payment_status:
+            orders = orders.filter(payment_status=payment_status)
+        
+        if search:
+            orders = orders.filter(
+                Q(id__icontains=search) |
+                Q(user__email__icontains=search) |
+                Q(user__username__icontains=search) |
+                Q(first_name__icontains=search) |
+                Q(last_name__icontains=search)
+            )
+        
+        context = {
+            'orders': orders,
+            'selected_status': status,
+            'selected_payment_status': payment_status,
+            'search': search,
+            'order_status_choices': Order.ORDER_STATUS_CHOICES,
+            'payment_status_choices': Order.PAYMENT_STATUS_CHOICES,
+        }
+        return render(request, 'admin_orders.html', context)
+    except Exception as e:
+        logger.error(f'Admin orders error: {str(e)}')
+        messages.error(request, 'Error loading orders. Please try again.')
+        return redirect('admin_dashboard')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
@@ -1938,24 +1981,39 @@ def admin_user_delete(request, user_id):
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
+@require_POST
 def admin_logout(request):
     """Admin logout"""
-    logout(request)
-    messages.success(request, 'Logged out successfully!')
+    try:
+        logout(request)
+        messages.success(request, 'Logged out successfully!')
+    except Exception as e:
+        logger.error(f'Admin logout error: {str(e)}')
     return redirect('admin_login')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_categories(request):
     """Manage categories"""
-    categories = Category.objects.annotate(
-        products_count=Count('products')
-    ).order_by('name')
-    
-    context = {
-        'categories': categories,
-    }
-    return render(request, 'admin_categories.html', context)
+    try:
+        categories = Category.objects.annotate(
+            products_count=Count('products')
+        ).order_by('name')
+        
+        # Search functionality
+        search = request.GET.get('search', '').strip()
+        if search:
+            categories = categories.filter(Q(name__icontains=search) | Q(description__icontains=search))
+        
+        context = {
+            'categories': categories,
+            'search': search,
+        }
+        return render(request, 'admin_categories.html', context)
+    except Exception as e:
+        logger.error(f'Admin categories error: {str(e)}')
+        messages.error(request, 'Error loading categories. Please try again.')
+        return redirect('admin_dashboard')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
@@ -1971,9 +2029,12 @@ def admin_category_add(request):
                 messages.success(request, f'Category "{category.name}" added successfully!')
                 return redirect('admin_categories')
             except Exception as e:
+                logger.error(f'Error adding category: {str(e)}')
                 messages.error(request, f'Error adding category: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = CategoryAdminForm()
     
@@ -2000,9 +2061,12 @@ def admin_category_edit(request, category_id):
                 messages.success(request, f'Category "{category.name}" updated successfully!')
                 return redirect('admin_categories')
             except Exception as e:
+                logger.error(f'Error updating category: {str(e)}')
                 messages.error(request, f'Error updating category: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = CategoryAdminForm(instance=category)
     
@@ -2022,16 +2086,17 @@ def admin_category_delete(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     category_name = category.name
     
-    # Check if category has products
-    products_count = category.products.count()
-    if products_count > 0:
-        messages.error(request, f'Cannot delete category "{category_name}" because it has {products_count} product(s). Please reassign or delete those products first.')
-        return redirect('admin_categories')
-    
     try:
+        # Check if category has products
+        products_count = category.products.count()
+        if products_count > 0:
+            messages.error(request, f'Cannot delete category "{category_name}" because it has {products_count} product(s). Please reassign or delete those products first.')
+            return redirect('admin_categories')
+        
         category.delete()
         messages.success(request, f'Category "{category_name}" deleted successfully!')
     except Exception as e:
+        logger.error(f'Error deleting category: {str(e)}')
         messages.error(request, f'Error deleting category: {str(e)}')
     
     return redirect('admin_categories')
@@ -2040,23 +2105,39 @@ def admin_category_delete(request, category_id):
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_contacts(request):
     """View contact messages"""
-    from .models import Contact
-    contacts = Contact.objects.all().order_by('-created_at')
-    
-    # Filter by read status if specified
-    read_status = request.GET.get('status')
-    if read_status == 'read':
-        contacts = contacts.filter(is_read=True)
-    elif read_status == 'unread':
-        contacts = contacts.filter(is_read=False)
-    
-    unread_count = Contact.objects.filter(is_read=False).count()
-    
-    context = {
-        'contacts': contacts,
-        'unread_count': unread_count,
-    }
-    return render(request, 'admin_contacts.html', context)
+    try:
+        contacts = Contact.objects.all().order_by('-created_at')
+        
+        # Filter by read status if specified
+        read_status = request.GET.get('status', '').strip()
+        search = request.GET.get('search', '').strip()
+        
+        if read_status == 'read':
+            contacts = contacts.filter(is_read=True)
+        elif read_status == 'unread':
+            contacts = contacts.filter(is_read=False)
+        
+        if search:
+            contacts = contacts.filter(
+                Q(name__icontains=search) |
+                Q(email__icontains=search) |
+                Q(subject__icontains=search) |
+                Q(message__icontains=search)
+            )
+        
+        unread_count = Contact.objects.filter(is_read=False).count()
+        
+        context = {
+            'contacts': contacts,
+            'unread_count': unread_count,
+            'selected_status': read_status,
+            'search': search,
+        }
+        return render(request, 'admin_contacts.html', context)
+    except Exception as e:
+        logger.error(f'Admin contacts error: {str(e)}')
+        messages.error(request, 'Error loading contacts. Please try again.')
+        return redirect('admin_dashboard')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
@@ -2066,9 +2147,11 @@ def admin_contact_delete(request, contact_id):
     contact = get_object_or_404(Contact, id=contact_id)
     
     try:
+        contact_name = contact.name
         contact.delete()
-        messages.success(request, 'Contact message deleted successfully!')
+        messages.success(request, f'Contact message from "{contact_name}" deleted successfully!')
     except Exception as e:
+        logger.error(f'Error deleting contact: {str(e)}')
         messages.error(request, f'Error deleting contact: {str(e)}')
     
     return redirect('admin_contacts')
@@ -2086,6 +2169,7 @@ def admin_contact_mark_read(request, contact_id):
         status = 'read' if contact.is_read else 'unread'
         messages.success(request, f'Contact message marked as {status}!')
     except Exception as e:
+        logger.error(f'Error updating contact: {str(e)}')
         messages.error(request, f'Error updating contact: {str(e)}')
     
     return redirect('admin_contacts')
@@ -2104,9 +2188,12 @@ def admin_product_add(request):
                 messages.success(request, f'Product "{product.name}" added successfully!')
                 return redirect('admin_products')
             except Exception as e:
+                logger.error(f'Error adding product: {str(e)}')
                 messages.error(request, f'Error adding product: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = ProductAdminForm()
     
@@ -2133,9 +2220,12 @@ def admin_product_edit(request, product_id):
                 messages.success(request, f'Product "{product.name}" updated successfully!')
                 return redirect('admin_products')
             except Exception as e:
+                logger.error(f'Error updating product: {str(e)}')
                 messages.error(request, f'Error updating product: {str(e)}')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f'{field}: {error}')
     else:
         form = ProductAdminForm(instance=product)
     
@@ -2156,9 +2246,20 @@ def admin_product_delete(request, product_id):
     product_name = product.name
     
     try:
+        # Check if product is in any pending orders
+        pending_orders = OrderItem.objects.filter(
+            product=product,
+            order__order_status__in=['PENDING', 'PROCESSING']
+        ).exists()
+        
+        if pending_orders:
+            messages.error(request, f'Cannot delete "{product_name}" - it has pending orders. Mark it as out of stock instead.')
+            return redirect('admin_products')
+        
         product.delete()
         messages.success(request, f'Product "{product_name}" deleted successfully!')
     except Exception as e:
+        logger.error(f'Error deleting product: {str(e)}')
         messages.error(request, f'Error deleting product: {str(e)}')
     
     return redirect('admin_products')
@@ -2168,13 +2269,27 @@ def admin_product_delete(request, product_id):
 # OTP TESTING VIEWS (Development only)
 # ==========================
 
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def test_otp_page(request):
-    """OTP testing page"""
+    """OTP testing page - Admin only"""
+    if not settings.DEBUG:
+        messages.error(request, 'This feature is only available in development mode.')
+        return redirect('admin_dashboard')
     return render(request, 'test_otp.html')
 
+@login_required
+@user_passes_test(is_staff_or_superuser, login_url='admin_login')
 @csrf_exempt
 def test_otp_api(request):
-    """API for OTP testing"""
+    """API for OTP testing - Admin only"""
+    # Disable in production
+    if not settings.DEBUG:
+        return JsonResponse({
+            'success': False,
+            'message': 'This feature is only available in development mode.'
+        })
+    
     if request.method != 'POST':
         return JsonResponse({'success': False, 'message': 'POST method required'})
     
@@ -2244,19 +2359,24 @@ def test_otp_api(request):
             'success': False,
             'message': f'Error: {str(e)}'
         })
-    
-    return redirect('admin_products')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
 def admin_order_detail(request, order_id):
     """View order details"""
-    order = get_object_or_404(Order, id=order_id)
-    
-    context = {
-        'order': order,
-    }
-    return render(request, 'admin_order_detail.html', context)
+    try:
+        order = get_object_or_404(Order.objects.select_related('user').prefetch_related('items__product'), id=order_id)
+        
+        context = {
+            'order': order,
+            'order_status_choices': Order.ORDER_STATUS_CHOICES,
+            'payment_status_choices': Order.PAYMENT_STATUS_CHOICES,
+        }
+        return render(request, 'admin_order_detail.html', context)
+    except Exception as e:
+        logger.error(f'Error loading order detail: {str(e)}')
+        messages.error(request, 'Error loading order details. Please try again.')
+        return redirect('admin_orders')
 
 @login_required
 @user_passes_test(is_staff_or_superuser, login_url='admin_login')
