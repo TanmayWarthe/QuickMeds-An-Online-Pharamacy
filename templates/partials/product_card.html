@@ -1,4 +1,5 @@
 {% load static %}
+{% load cloudinary %}
 
 {# Reusable Product Card Component #}
 {# Usage: {% include 'partials/product_card.html' with product=product %} #}
@@ -43,7 +44,7 @@
         <!-- Actions -->
         <div class="product-actions">
             {% if product.stock > 0 %}
-            <button class="btn-add-cart" onclick="addToCartQuick(event, '{{ product.id }}')">
+            <button class="btn btn-add-cart" onclick="addToCartQuick(event, '{{ product.id }}')">
                 <i class="fas fa-shopping-cart"></i>
                 <span>Add to Cart</span>
             </button>

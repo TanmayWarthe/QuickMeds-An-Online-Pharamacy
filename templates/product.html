@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load cloudinary %}
 {% load static %}
 {% load cloudinary %}
 
@@ -206,9 +207,10 @@
         event.preventDefault();
 
         const button = event.currentTarget;
+        if (button.disabled) return;
+        button.disabled = true;
         const originalHTML = button.innerHTML;
         button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        button.disabled = true;
 
         fetch(`/add-to-cart/${productId}/`, {
             method: 'POST',
@@ -223,35 +225,33 @@
             }),
             credentials: 'same-origin'
         })
-            .then(response => {
-                if (!response.ok) {
-                    if (response.status === 403) {
-                        setTimeout(() => window.location.href = '/login/', 2000);
-                        throw new Error('Not authenticated');
-                    }
-                    throw new Error('Failed to add to cart');
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    setTimeout(() => window.location.href = '/login/', 2000);
+                    throw new Error('Not authenticated');
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    updateCartCount();
-                    button.innerHTML = '<i class="fas fa-check"></i> Added';
-
-                    setTimeout(() => {
-                        button.innerHTML = originalHTML;
-                        button.disabled = false;
-                    }, 2000);
-                } else {
-                    throw new Error(data.message || 'Failed to add to cart');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                console.error('Failed to add to cart:', error);
-                button.innerHTML = originalHTML;
-                button.disabled = false;
-            });
+                throw new Error('Failed to add to cart');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateCartCount();
+                button.innerHTML = '<i class="fas fa-check"></i> Added';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Failed to add to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        });
     }
 
     // Notify me

@@ -232,10 +232,57 @@ function toggleWishlist() {
         button.classList.remove('active');
         isWishlisted = false;
         removeFromWishlist(PRODUCT_ID);
-        showNotification('Removed from wishlist', 'success');
-    } else {
-        // Add to wishlist
-        icon.classList.remove('far');
+        const button = event.currentTarget;
+        if (button.disabled) return;
+        button.disabled = true;
+        const originalHTML = button.innerHTML;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        fetch(`/add-to-cart/${PRODUCT_ID}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                'product_id': PRODUCT_ID,
+                'quantity': currentQuantity
+            }),
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 403) {
+                    showNotification('Please login to add items to cart', 'error');
+                    setTimeout(() => {
+                        window.location.href = '/login/';
+                    }, 2000);
+                    throw new Error('Not authenticated');
+                }
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                updateCartCount();
+                showNotification(`${currentQuantity} item(s) added to cart!`, 'success');
+                button.innerHTML = '<i class="fas fa-check"></i> Added';
+                setTimeout(() => {
+                    button.innerHTML = originalHTML;
+                    button.disabled = false;
+                }, 1500);
+            } else {
+                throw new Error(data.message || 'Failed to add item to cart');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification(error.message || 'Failed to add to cart', 'error');
+            button.innerHTML = originalHTML;
+            button.disabled = false;
+        });
         icon.classList.add('fas');
         button.classList.add('active');
         isWishlisted = true;

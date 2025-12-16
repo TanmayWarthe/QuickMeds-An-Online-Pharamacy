@@ -2,6 +2,7 @@ from django import forms
 from .models import Contact, Product, Category, Order
 from django.core.validators import MinValueValidator
 from decimal import Decimal
+from django.core.files.uploadedfile import UploadedFile
 
 class ContactForm(forms.ModelForm):
     class Meta:
@@ -102,18 +103,18 @@ class ProductAdminForm(forms.ModelForm):
     
     def clean_image(self):
         image = self.cleaned_data.get('image')
-        
-        if image:
+
+        if isinstance(image, UploadedFile):
             # Check file size (max 5MB)
             if image.size > 5 * 1024 * 1024:
                 raise forms.ValidationError('Image file size must be less than 5MB')
-            
+
             # Check file extension
             allowed_extensions = ['jpg', 'jpeg', 'png', 'webp']
             ext = image.name.split('.')[-1].lower()
             if ext not in allowed_extensions:
                 raise forms.ValidationError(f'Only {", ".join(allowed_extensions)} files are allowed')
-        
+
         return image
 
 
