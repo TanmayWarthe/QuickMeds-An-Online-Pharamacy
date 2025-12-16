@@ -13,20 +13,66 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from pathlib import Path
 from decouple import config, Csv
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Configure Cloudinary early (before models are loaded)
-cloudinary.config(
-    cloud_name=config('CLOUDINARY_CLOUD_NAME', default='dpj28oz55'),
-    api_key=config('CLOUDINARY_API_KEY', default='923978223836335'),
-    api_secret=config('CLOUDINARY_API_SECRET', default='mXbNpvUyPfW4vUiprr2yatj_RMo'),
-    secure=True
-)
+# Direct configuration with python-decouple
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Load configuration from .env file using decouple
+try:
+    cloud_name = config('CLOUDINARY_CLOUD_NAME')
+    api_key = config('CLOUDINARY_API_KEY')
+    api_secret = config('CLOUDINARY_API_SECRET')
+    
+    # Force configure cloudinary SDK
+    cloudinary.config(
+        cloud_name=cloud_name,
+        api_key=api_key,
+        api_secret=api_secret,
+        secure=True
+    )
+    
+    # Verify configuration was set
+    verify_config = cloudinary.config()
+    if not verify_config.cloud_name:
+        raise ValueError("Cloudinary configuration not applied!")
+    
+    # Also prepare CLOUDINARY_STORAGE_CONFIG for django-cloudinary-storage
+    CLOUDINARY_STORAGE_CONFIG = {
+        'CLOUD_NAME': cloud_name,
+        'API_KEY': api_key,
+        'API_SECRET': api_secret
+    }
+    
+    import sys
+    sys.stderr.write(f"✅ Cloudinary configured successfully!\n")
+    sys.stderr.write(f"   Cloud Name: {cloud_name}\n")
+    sys.stderr.write(f"   API Key: {api_key[:10]}...\n")
+    sys.stderr.flush()
+    
+except Exception as e:
+    import sys
+    sys.stderr.write(f"❌ ERROR: Failed to configure Cloudinary: {str(e)}\n")
+    sys.stderr.write(f"   Make sure your .env file has CLOUDINARY_* variables\n")
+    sys.stderr.flush()
+    # Set empty config to prevent crashes
+    CLOUDINARY_STORAGE_CONFIG = {}
+
+# Import the centralized configuration module for additional features
+try:
+    from utils.cloudinary_config import get_cloudinary_config
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.info("✓ Cloudinary configuration loaded successfully")
+except Exception as e:
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"⚠️  Cloudinary utils module: {str(e)}")
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -199,11 +245,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Cloudinary Storage Configuration
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default='dpj28oz55'),
-    'API_KEY': config('CLOUDINARY_API_KEY', default='923978223836335'),
-    'API_SECRET': config('CLOUDINARY_API_SECRET', default='mXbNpvUyPfW4vUiprr2yatj_RMo')
-}
+# This MUST be set for django-cloudinary-storage to work
+CLOUDINARY_STORAGE = CLOUDINARY_STORAGE_CONFIG
 
 # Use Cloudinary for file storage when enabled
 if config('USE_CLOUDINARY', default=False, cast=bool):

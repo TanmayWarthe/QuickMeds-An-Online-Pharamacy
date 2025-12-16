@@ -125,9 +125,9 @@ RAZORPAY_KEY_SECRET = config("RAZORPAY_KEY_SECRET", default="")
 # Cloudinary (for media files)
 # https://cloudinary.com/documentation/django_integration
 CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": config("CLOUDINARY_CLOUD_NAME", default=""),
-    "API_KEY": config("CLOUDINARY_API_KEY", default=""),
-    "API_SECRET": config("CLOUDINARY_API_SECRET", default=""),
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME', default='dpj28oz55'),
+    'API_KEY': config('CLOUDINARY_API_KEY', default='923978223836335'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET', default='mXbNpvUyPfW4vUiprr2yatj_RMo')
 }
 # Use Cloudinary for media file storage
 DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
