@@ -444,7 +444,7 @@ document.getElementById('addressForm').addEventListener('submit', async function
     const formData = new FormData(this);
     const addressId = formData.get('address_id');
     
-    const url = addressId ? '{% url "update_address" %}' : '{% url "add_address" %}';
+    const url = addressId ? `{% url 'update_address' 0 %}`.replace('0', addressId) : '{% url "add_address" %}';
     const method = 'POST';
     
     const data = {};
@@ -491,7 +491,7 @@ async function deleteAddress(addressId) {
     }
     
     try {
-        const response = await fetch('{% url "delete_address" %}', {
+        const response = await fetch(`{% url 'delete_address' 0 %}`.replace('0', addressId), {
             method: 'POST',
             body: JSON.stringify({ address_id: addressId }),
             headers: {

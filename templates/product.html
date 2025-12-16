@@ -53,69 +53,75 @@
             </div>
         </div>
         
-        <div class="category-carousel-wrapper">
-            <div class="category-carousel" id="categoryCarousel">
-                <!-- All Products Card -->
-                <div class="category-card {% if not request.GET.category %}active{% endif %}"
-                    onclick="filterByCategory('')">
-                    <div class="category-card-inner all-category">
-                        <div class="category-image-wrapper">
-                            <div class="category-icon-fallback">
-                                <i class="fas fa-th-large"></i>
-                            </div>
-                        </div>
-                        <h3 class="category-card-title">All Products</h3>
-                        <p class="category-card-desc">Browse Everything</p>
-                        <div class="category-badge">{{ products.count }}</div>
-                    </div>
-                </div>
-                
-                {% for category in categories %}
-                <div class="category-card {% if request.GET.category == category.name %}active{% endif %}"
-                    onclick="filterByCategory('{{ category.name }}')">
-                    <div class="category-card-inner">
-                        <div class="category-image-wrapper">
-                            {% if category.image %}
-                                {% cloudinary category.image.public_id width=80 height=80 crop="fit" class="category-image" %}
+       <div class="category-carousel-wrapper">
+    <div class="category-carousel" id="categoryCarousel">
+        {% for category in categories %}
+        <div class="category-card {% if request.GET.category == category.name %}active{% endif %}"
+            onclick="filterByCategory('{{ category.name }}')">
+            
+            <div class="category-card-inner" 
+                 style="display: flex; flex-direction: column; align-items: center; justify-content: center; 
+                 border-radius: 24px; box-shadow: 0 4px 24px 0 rgba(255, 255, 255, 0.18); 
+                 padding: 18px 12px 12px 12px; min-width: 180px; min-height: 220px; max-width: 220px; margin: 0 10px;
+                 {% if 'Pharmacy' in category.name %}background: linear-gradient(135deg, rgba(229,57,53,0.75) 0%, rgba(227,93,91,0.75) 100%);
+                 {% elif 'Diagnostics' in category.name %}background: linear-gradient(135deg, rgba(0,147,233,0.75) 0%, rgba(128,208,199,0.75) 100%);
+                 {% elif 'Doctor' in category.name %}background: linear-gradient(135deg, rgba(41,128,185,0.75) 0%, rgba(109,213,250,0.75) 100%);
+                 {% elif 'Baby' in category.name %}background: linear-gradient(135deg, rgba(247,151,30,0.75) 0%, rgba(255,210,0,0.75) 100%);
+                 {% elif 'Wellness' in category.name or 'Health' in category.name %}background: linear-gradient(135deg, rgba(67,206,162,0.75) 0%, rgba(24,90,157,0.75) 100%);
+                 {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}background: linear-gradient(135deg, rgba(247,151,30,0.75) 0%, rgba(255,210,0,0.75) 100%);
+                 {% elif 'Pain' in category.name or 'Relief' in category.name %}background: linear-gradient(135deg, rgba(248,87,166,0.75) 0%, rgba(255,88,88,0.75) 100%);
+                 {% elif 'Skin' in category.name or 'Beauty' in category.name %}background: linear-gradient(135deg, rgba(249,83,198,0.75) 0%, rgba(185,29,115,0.75) 100%);
+                 {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}background: linear-gradient(135deg, rgba(86,171,47,0.75) 0%, rgba(168,224,99,0.75) 100%);
+                 {% elif 'Heart' in category.name or 'Cardiac' in category.name %}background: linear-gradient(135deg, rgba(255,153,102,0.75) 0%, rgba(255,94,98,0.75) 100%);
+                 {% elif 'Eye' in category.name or 'Vision' in category.name %}background: linear-gradient(135deg, rgba(67,206,162,0.75) 0%, rgba(24,90,157,0.75) 100%);
+                 {% elif 'Dental' in category.name or 'Oral' in category.name %}background: linear-gradient(135deg, rgba(247,151,30,0.75) 0%, rgba(255,210,0,0.75) 100%);
+                 {% else %}background: linear-gradient(135deg, rgba(224,234,252,0.75) 0%, rgba(207,222,243,0.75) 100%); color: #333; /* Default Light Blue White */
+                 {% endif %}">
+
+                <div class="category-image-wrapper"
+                    style="width: 150px; height: 150px; aspect-ratio: 1/1; border-radius: 18px; overflow: hidden; display: flex; align-items: center; justify-content: center; margin-bottom: 2px;
+                    background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(5px);">
+                    
+                    {% if category.image %}
+                        {% cloudinary category.image.public_id width=150 height=150 crop="fill" class="category-image" style="object-fit:cover;width:150px;height:150px;" %}
+                    {% else %}
+                        <div class="category-icon-fallback" style="font-size: 90px; width: 150px; height: 150px; display: flex; align-items: center; justify-content: center; color: #fff;">
+                            {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
+                            <i class="fas fa-pills"></i>
+                            {% elif 'Pain' in category.name or 'Relief' in category.name %}
+                            <i class="fas fa-head-side-cough"></i>
+                            {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
+                            <i class="fas fa-leaf"></i>
+                            {% elif 'First Aid' in category.name or 'Band' in category.name %}
+                            <i class="fas fa-first-aid"></i>
+                            {% elif 'Baby' in category.name or 'Child' in category.name %}
+                            <i class="fas fa-baby"></i>
+                            {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
+                            <i class="fas fa-spray-can"></i>
+                            {% elif 'Skin' in category.name or 'Beauty' in category.name %}
+                            <i class="fas fa-heart"></i>
+                            {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
+                            <i class="fas fa-syringe"></i>
+                            {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
+                            <i class="fas fa-heartbeat"></i>
+                            {% elif 'Eye' in category.name or 'Vision' in category.name %}
+                            <i class="fas fa-eye"></i>
+                            {% elif 'Dental' in category.name or 'Oral' in category.name %}
+                            <i class="fas fa-tooth"></i>
+                            {% elif 'Wellness' in category.name or 'Health' in category.name %}
+                            <i class="fas fa-dumbbell"></i>
                             {% else %}
-                                <div class="category-icon-fallback">
-                                    {% if 'Medicine' in category.name or 'Drug' in category.name or 'Tablet' in category.name %}
-                                    <i class="fas fa-pills"></i>
-                                    {% elif 'Pain' in category.name or 'Relief' in category.name %}
-                                    <i class="fas fa-head-side-cough"></i>
-                                    {% elif 'Vitamin' in category.name or 'Supplement' in category.name %}
-                                    <i class="fas fa-leaf"></i>
-                                    {% elif 'First Aid' in category.name or 'Band' in category.name %}
-                                    <i class="fas fa-first-aid"></i>
-                                    {% elif 'Baby' in category.name or 'Child' in category.name %}
-                                    <i class="fas fa-baby"></i>
-                                    {% elif 'Personal Care' in category.name or 'Hygiene' in category.name %}
-                                    <i class="fas fa-spray-can"></i>
-                                    {% elif 'Skin' in category.name or 'Beauty' in category.name %}
-                                    <i class="fas fa-heart"></i>
-                                    {% elif 'Diabetic' in category.name or 'Diabetes' in category.name %}
-                                    <i class="fas fa-syringe"></i>
-                                    {% elif 'Heart' in category.name or 'Cardiac' in category.name %}
-                                    <i class="fas fa-heartbeat"></i>
-                                    {% elif 'Eye' in category.name or 'Vision' in category.name %}
-                                    <i class="fas fa-eye"></i>
-                                    {% elif 'Dental' in category.name or 'Oral' in category.name %}
-                                    <i class="fas fa-tooth"></i>
-                                    {% elif 'Wellness' in category.name or 'Health' in category.name %}
-                                    <i class="fas fa-dumbbell"></i>
-                                    {% else %}
-                                    <i class="fas fa-capsules"></i>
-                                    {% endif %}
-                                </div>
+                            <i class="fas fa-capsules"></i>
                             {% endif %}
                         </div>
-                        <h3 class="category-card-title">{{ category.name }}</h3>
-                        <p class="category-card-desc">{{ category.products.count }} Products</p>
-                    </div>
+                    {% endif %}
                 </div>
-                {% endfor %}
+                <h3 class="category-card-title" style="margin: 2px 0 0 0; text-align: center; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.1); font-size: 1.13rem; font-weight: 500; letter-spacing: 0.01em;">{{ category.name }}</h3>
             </div>
         </div>
+        {% endfor %}
+    </div>
+</div>
     </div>
 
     <!-- Products Grid -->
