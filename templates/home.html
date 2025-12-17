@@ -83,19 +83,11 @@
                     Get genuine medicines at your doorstep. Fast delivery, great prices, and 24/7 support.
                 </p>
 
-                <!-- Search Bar -->
-                <form action="{% url 'search_products' %}" method="GET" class="hero-search" role="search">
-                    <div class="search-wrapper">
-                        <!-- <i class="fas fa-search search-icon" aria-hidden="true"></i> -->
-                        <input type="search" name="q" class="search-input"
-                            placeholder="Search medicines, vitamins, supplements..." aria-label="Search for products"
-                            autocomplete="off" required>
-                        <button type="submit" class="search-submit">
-                            <i class="fas fa-search"></i>
-                            <span>Search</span>
-                        </button>
-                    </div>
-                </form>
+
+                <!-- Call to Action Button -->
+                <a href="{% url 'product' %}" class="btn btn-primary" style="margin: 1.5rem 0; padding: 0.75rem 2.5rem; font-size: 1.15rem; font-weight: 600; border-radius: 6px; background: #2563eb; color: #fff; display: inline-block; box-shadow: none; border: none;">
+                    <i class="fas fa-capsules" style="margin-right: 0.5rem;"></i> Shop Medicines
+                </a>
 
                 <div class="hero-features">
                     <div class="feature-item">
@@ -115,16 +107,7 @@
 
             <div class="hero-visual">
                 <div class="hero-card">
-                    <div class="card-glow"></div>
                     <img src="{% static 'img/homepage.png' %}" alt="Healthcare" class="hero-image">
-                    <div class="floating-badge badge-1">
-                        <i class="fas fa-heart-pulse"></i>
-                        <span>5000+ Products</span>
-                    </div>
-                    <div class="floating-badge badge-2">
-                        <i class="fas fa-users"></i>
-                        <span>50K+ Customers</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -158,89 +141,18 @@
     </div>
 </section>
 
-<!-- Statistics Section -->
-<section class="stats-section">
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-capsules"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number" data-target="{{ products_count }}">0</h3>
-                    <p class="stat-label">Medicines Available</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-shield-check"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number" data-target="100">0</h3>
-                    <p class="stat-label">% Genuine Products</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-truck-fast"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number" data-target="24">0</h3>
-                    <p class="stat-label">Hour Delivery Available</p>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">
-                    <i class="fas fa-headset"></i>
-                </div>
-                <div class="stat-content">
-                    <h3 class="stat-number" data-target="7">0</h3>
-                    <p class="stat-label">Days Customer Support</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Why Choose Us -->
-<section class="why-choose-section">
-    <div class="container">
-        <div class="section-header text-center">
-            <h2 class="section-title">Why Choose QuickMeds?</h2>
-            <div class="section-underline mx-auto"></div>
-            <p class="section-subtitle mt-3">Your trusted partner for health and wellness</p>
-        </div>
-        <div class="row g-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fas fa-truck-fast"></i></div>
-                    <h5>Fast Delivery</h5>
-                    <p>Get your medicines delivered within hours. Free shipping on orders above ₹500</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fas fa-certificate"></i></div>
-                    <h5>100% Genuine</h5>
-                    <p>All products sourced from authorized distributors and manufacturers</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
-                    <h5>Secure Payment💸</h5>
-                    <p>Multiple payment options with 100% secure and encrypted checkout</p>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="feature-box">
-                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
-                    <h5>24/7 Support</h5>
-                    <p>Our expert pharmacists are available round the clock for assistance</p>
-                </div>
-            </div>
-        </div>
+<!-- Minimal Full-Width Image Carousel (No Animation) -->
+<section class="project-carousel-section" style="width:100vw; background:transparent; padding: 0; margin: 0;">
+    <div style="width:100%; overflow-x:auto;">
+        <div style="display:flex; gap:16px; min-height:90px; align-items:center; justify-content:center; padding: 12px 32px; box-sizing: border-box;">
+    <img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=600&q=80" alt="Medicine 1" style="height:180px; width:320px; border-radius:12px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Pharmacy 2" style="height:180px; width:320px; border-radius:12px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=600&q=80" alt="Doctor 3" style="height:180px; width:320px; border-radius:12px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <img src="https://images.unsplash.com/photo-1519125323398-675f0ddb6308?auto=format&fit=crop&w=600&q=80" alt="Hospital 4" style="height:180px; width:320px; border-radius:12px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
+    <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Lab 5" style="height:180px; width:320px; border-radius:12px; object-fit:cover; box-shadow:0 2px 8px rgba(0,0,0,0.06);">
     </div>
+  </div>
 </section>
 
 

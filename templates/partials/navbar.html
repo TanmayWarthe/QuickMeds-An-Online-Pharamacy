@@ -575,10 +575,17 @@
 
         <!-- 3. Right: Actions -->
         <div class="nav-actions">
-            <!-- Search Trigger -->
-            <button class="search-trigger-btn" id="searchTrigger" title="Search">
-                <i class="fas fa-search"></i>
-            </button>
+            <!-- Inline Search (Dropdown) -->
+            <div class="nav-search-wrapper">
+                <button class="nav-search-btn" id="navSearchBtn" type="button" aria-label="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+                <form class="nav-search-form" id="navSearchForm" autocomplete="off" action="/search/" method="get">
+                    <input class="nav-search-input" id="navSearchInput" name="q" type="search" placeholder="Search products, categories..." aria-label="Search">
+                    <button type="button" class="search-clear-btn" id="navSearchClear" aria-label="Clear search">&times;</button>
+                </form>
+                <div class="search-suggestions" id="navSearchSuggestions"></div>
+            </div>
 
             {% if user.is_authenticated %}
             <!-- Cart -->
@@ -635,20 +642,7 @@
     </div>
 </nav>
 
-<!-- SEARCH OVERLAY (Full width slide down) -->
-<div class="search-overlay-container" id="searchOverlay"
-    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; z-index:10000; background:rgba(255,255,255,0.98);">
-    <div class="container h-100 d-flex flex-column pt-5">
-        <div class="d-flex justify-content-end mb-4">
-            <button class="btn-close" id="closeSearch" style="font-size: 1.5rem;"></button>
-        </div>
-        <form action="/search/" method="GET" class="w-100 max-w-3xl mx-auto text-center">
-            <input type="text" name="q" placeholder="What are you looking for?"
-                style="width:100%; font-size: 2rem; border:none; border-bottom:2px solid #e2e8f0; padding:1rem; outline:none; background:transparent;">
-            <p class="mt-3 text-muted">Type and hit enter to search for medicines, products, or categories.</p>
-        </form>
-    </div>
-</div>
+
 
 <!-- MOBILE SIDEBAR IMPLEMENTATION -->
 <div class="sidebar-overlay" id="mobileOverlay"></div>
@@ -823,3 +817,4 @@
         }
     })();
 </script>
+<script src="{% static 'js/navbar_search_dropdown.js' %}"></script>
