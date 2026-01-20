@@ -84,7 +84,14 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # Update ALLOWED_HOSTS configuration
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ["*"]
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://dawai-ki-dukan-j67h.onrender.com"
+]
 
 # Security settings for production
 if not DEBUG:
